@@ -1,0 +1,84 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Report_Mgmt/';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "ReportCName", label: "報表中文名稱", search: true,
+		},
+		{
+			name: "ReportEName", label: "報表英文名稱", search: true,
+
+		},
+		{
+			name: "HubNo", label: "路線No", search: false, hidden: true,
+		},
+		{
+			name: "HubName", label: "路線", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=100000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+				},
+			},
+		},
+		{
+			name: "HubCode", label: "路線代號", search: false,
+		},
+		{
+			name: "ReportCode", label: "報表代號", search: false,
+		},
+		{
+			name: "IsBackfill", label: "是否回填", search: false,
+			formatter: "select", edittype: "select",
+
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true, },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "報表資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "ID",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

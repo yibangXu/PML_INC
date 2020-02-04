@@ -1,0 +1,956 @@
+﻿<div id="typeTab2" title="取件資料" style="padding:2px;display:none;overflow:hidden">
+	<form id="fmTab2" class="fm2" method="post" novalidate onSubmit="return false;">
+		<table class="dataTable" style="padding:2px">
+			<tr>
+				<td>
+					<label>取件名稱:</label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<input name="CarryName" id="CarryName" class="easyui-textbox" style="width:auto" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab2','CustNo,CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CtcSale,Tel,Country,CarID,CcNo,PickUpAreaNo','CustNo,CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CtcSale,Tel,Country,CarID,CcNo,PickUpAreaNo','@Url.Action("getSelectionjqGrid", "ShdetF")',$('#SendCustNo').val(),'GetGridJSON_HistoryShdetDetail');"></a>
+					</div>
+				</td>
+				<td>
+					<label>地址 </label>
+				</td>
+				<td colspan="3">
+					<div class="dTab2">
+						<input name="Code7" id="Code7" class="easyui-textbox" style="width:70px" data-options="readonly:true" required>
+						<input name="CustAddr" id="CustAddr" class="easyui-textbox" style="width:240px" data-options="readonly:true">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpGrid20('Code5','Code5','textbox','CustAddr','AdrressSimpleVer','textbox','PickUpAreaNo','PickUpAreaNo','textbox','Code7','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")',$('#Code5').val());"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>段巷弄號樓 </label>
+				</td>
+				<td colspan="5">
+					<div class="dTab2">
+						<input name="Add_1" id="add1" class="easyui-textbox" style="width:30px">段
+						<input name="Add_2" id="add2" class="easyui-textbox" style="width:30px">巷
+						<input name="Add_3" id="add3" class="easyui-textbox" style="width:30px">弄
+						<input name="Add_4" id="add4" class="easyui-textbox" style="width:30px" required>號
+						<input name="Add_5" id="add5" class="easyui-textbox" style="width:30px">樓
+						,其他<input name="Add_6" id="add6" class="easyui-textbox" style="width:120px">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>聯絡人 </label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<input name="CtcSale" id="CtcSale" class="easyui-textbox" style="width:auto">
+					</div>
+				</td>
+				<td>
+					<label>聯絡電話 </label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<input name="Tel" id="Tel" class="easyui-textbox" style="width:auto">
+					</div>
+				</td>
+				<td>
+					<label>貨物類型</label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+							<option value="0">0.文件</option>
+							<option value="1">1.包裹5KG以下</option>
+							<option value="2">2.箱貨5KG以上</option>
+							<option value="3">3.木箱</option>
+							<option value="4">4.棧板</option>
+						</select>
+						<script type="text/javascript">
+							var WeigLevel = [
+								{ val: '0', text: '0.文件' },
+								{ val: '1', text: '1.包裹5KG以下' },
+								{ val: '2', text: '2.箱貨5KG以上' },
+								{ val: '3', text: '3.木箱' },
+								{ val: '4', text: '4.棧板' }
+							];
+						</script>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>外務人員 </label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<input name="SectorName" id="SectorName" class="easyui-textbox" style="width:auto" data-options="readonly:true" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab2','SectorName,SectorNo,SectorPhone,CallStatNo','SectorName,SectorNo,Phone,StatNo','@Url.Action("getSelectionjqGrid_Add", "Sector")');"></a>
+					</div>
+				</td>
+				<td>
+					<label>外務電話 </label>
+				</td>
+				<td>
+					<div class="dTab2">
+						<input name="SectorPhone" id="SectorPhone" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+					</div>
+				</td>
+				<td><label>報關類型</label></td>
+				<td>
+					<div class="dTab2">
+						<select class="easyui-combobox" id="tab2_CocustomTyp" name="CocustomTyp" style="width:auto;display:none" data-options="panelHeight:'auto'">
+							<option value=null>　</option>
+							<option value="0">0.不報關</option>
+							<option value="1">1.正式報關</option>
+							<option value="2">2.簡易報關</option>
+							<option value="3">3.正式報關+後段核銷</option>
+							<option value="4">4.簡易報關+後段核銷</option>
+							<option value="5">5.不報關+後段核銷</option>
+							<option value="6">6.其他</option>
+						</select>
+						<script type="text/javascript">
+							var CocustomTyp = [
+								{ val: null, text: '　' },
+								{ val: '0', text: '0.不報關' },
+								{ val: '1', text: '1.正式報關' },
+								{ val: '2', text: '2.簡易報關' },
+								{ val: '3', text: '3.正式報關+後段核銷' },
+								{ val: '4', text: '4.簡易報關+後段核銷' },
+								{ val: '5', text: '5.不報關+後段核銷' },
+								{ val: '6', text: '6.其他' }
+							];
+						</script>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>叫件日期</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="ADate" id="ADate" class="easyui-datebox" style="width:auto;display:none">
+					</div>
+				</td>
+
+				<td><label>叫件時間</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="ATime" id="ATime" class="easyui-timespinner" style="width:auto;display:none">
+					</div>
+				</td>
+
+				<td><label>叫件站點:</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="StatNo" id="StatNo" class="easyui-textbox" style="width:auto;display:none">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab2','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+					</div>
+			</tr>
+			<tr>
+				<td><label>取件日期</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="RedyDate" id="RedyDate" class="easyui-datebox" style="width:auto;display:none">
+					</div>
+				</td>
+
+				<td><label>取件時間</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="RedyTime" id="RedyTime" class="easyui-timespinner" style="width:auto;display:none">
+					</div>
+				</td>
+
+				<td><label>取件站點:</label></td>
+				<td>
+					<div class="dTab2">
+						<input name="CallStatNo" id="CallStatNo" class="easyui-textbox" style="width:auto;display:none">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab2','CallStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+					</div>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<input type="button" value="保存" class=" actionTab2 btn-sm btn-default" style="background-color:	#e1e1e1" onclick="Save('Tab2')" />
+					<input type="button" value="確認收貨" class="btn-sm btn-default" style="background-color:	#e1e1e1" onclick="if ($('#grid').jqGrid('getGridParam', 'selrow') === null)
+		$.messager.alert('警告', '尚未選擇【提單資料】！', 'warning'); else SetDesp();" />
+					<label id="tab2MsgLabel" style="width:200px;color:red; font-size :16px"></label>
+				</td>
+				<td colspan="3">
+					<div class="dTab2">
+						<input id="IsRedy" type="checkbox" name="IsRedy" onclick="check('IsRedy');">
+						<label>準時收件</label>
+						<input id="IsFinish" type="checkbox" name="IsFinish" onclick="return false">
+						<label>完成收件</label>
+						<input id="IsCancel" type="checkbox" name="IsCancel" onclick="check('IsCancel');">
+						<label>取消收件</label>
+						<input id="IsDesp" type="checkbox" name="IsDesp" onclick="return false">
+						<label>收貨確認</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="6" style="display:none;">
+					<input name="ShdetNo" id="ShdetNo">
+					<input name="sNo" id="sNo" />
+					<input name="CustNo" id="CustNo">
+					<input name="HubNo" id="tab2_HubNo">
+					<input name="Dest" id="Dest">
+					<input name="CcNo" id="tab2_CcNo">
+					<input name="Code5" id="Code5" class="easyui-textbox">
+					<input name="SectorNo" id="SectorNo" class="easyui-textbox" data-options="readonly:true">
+					<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" data-options="readonly:true,onChange:function(newValue,oldValue){ PickUpAreaNoChanged(newValue,oldValue);}">
+					<input name="EndDate" id="EndDate" class="easyui-timespinner" data-options="showSeconds:false">
+					<input name="CarID" id="CarID" class="easyui-textbox" data-options="readonly:true">
+				</td>
+			</tr>
+		</table>
+		<div class="pull-left">
+			<table id="subgrid"></table>
+		</div>
+		<div class="pull-left">
+			<table id="subgrid2"></table>
+		</div>
+		<div class="pull-left">
+			<table id="subgrid8"></table>
+		</div>
+	</form>
+</div>
+
+<script>
+	var subgrid = $('#subgrid');
+	var subgrid2 = $('#subgrid2');
+	var subgrid8 = $('#subgrid8');
+	var subModel = [
+		{ name: 'CarryName', label: '取件名稱', },
+		{ name: 'CustAddrFull', label: '完整地址', },
+		{ name: 'ShdetNo', label: '調派編號', hidden: true, },
+		{ name: 'sNo', label: '序號', key: true, hidden: true, },
+		{ name: 'CustNo', label: '客戶代號', hidden: true, },
+		{ name: 'LadingNo', label: 'LadingNo', hidden: true, },
+		{ name: 'CarID', label: 'CarID', hidden: true, },
+		{ name: 'SectorNo', label: '外務員', hidden: true }
+	];
+	subgrid.jqGrid("autoWidthColumns").jqGrid({
+		url: "/New_Bill_Lading/GetSDJSON?ShdetNo=★",
+		datatype: "json",
+		datatype: "local",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+		shrinkToFit: false,
+		autowidth: true,
+
+		toppager: false,
+		// pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 100,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		toolbar: [true, "top"],
+		hidegrid: false,
+		onSelectRow: function (id) {
+			if (id) {
+				IsLoadData = true;
+				$('#fmTab2').form('clear');
+				lockForm();
+				var subselrow = subgrid.jqGrid('getRowData', id);
+				if (subselrow.ShdetNo != "") {
+					$.getJSON(apiURL + 'GetSDJSON/?ShdetNo=' + subselrow.ShdetNo + '&sNo=' + subselrow.sNo, function (subdata) {
+						if (subdata.records > 0) {
+							var subrow = subdata.rows[0];
+							$('#fmTab2').form('load', subrow);
+							setCheck(subrow.IsRedy, 'IsRedy')
+							setCheck(subrow.IsFinish, 'IsFinish')
+							setCheck(subrow.IsCancel, 'IsCancel')
+							setCheck(subrow.IsDesp, 'IsDesp')
+							subgrid2.jqGrid("setGridParam", {
+								url: apiURL + "GetSPJson?ShdetNo=" + subrow.ShdetNo + "&CustNo=" + subrow.CustNo + "&sDtlNo=" + subrow.sNo,
+								datatype: 'json'
+							});
+							subgrid2.trigger('reloadGrid');
+						}
+					})
+					$('#subgrid8').jqGrid("setGridParam", {
+						url: "/New_Bill_Lading/GetSectorMission?sectorNo=" + subselrow.SectorNo + "&start_date=" + getToday() + "&end_date=" + getToday(),
+						datatype: 'json',
+					}).trigger('reloadGrid');
+
+				}
+			}
+		},
+	}).jqGrid('navGrid', '#subpager',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: false
+		});
+	$("#gridbtn_caption").addClass("ui-state-disabled");
+	$("#t_subgrid").css("height", "30px").append($('#toolbar_subgrid'));
+	$("#subpager").find(".ui-pg-button").hide();
+
+	var subModel2 = [
+		{
+			name: 'ShdetNo', label: '調派編號', hidden: true,
+			editoptions: {
+				defaultValue: function () {
+					var id = subgrid.jqGrid('getGridParam', 'selrow');
+					return subgrid.jqGrid('getCell', id, 'ShdetNo');
+				},
+			},
+			editrules: { required: true },
+		},
+		{
+			name: 'CustNo', label: '客戶代號', hidden: true,
+			editoptions: {
+				defaultValue: function () {
+					var id = subgrid.jqGrid('getGridParam', 'selrow');
+					return subgrid.jqGrid('getCell', id, 'CustNo');
+				},
+			},
+			editrules: { required: true },
+		},
+		{
+			name: 'sDtlNo', label: '明細序號', hidden: true,
+			editoptions: {
+				defaultValue: function () {
+					return subgrid.jqGrid('getGridParam', 'selrow');
+				},
+			},
+			editrules: { required: true },
+		},
+		{
+			name: 'sNo', label: '序號', key: true,
+		},
+		{
+			name: 'Pcs', label: '件數', align: 'right',
+			editrules: {
+				integer: true,
+			},
+		},
+		{
+			name: 'fLen', label: '長(CM)', align: 'right',
+			editrules: {
+				number: true,
+			},
+			editoptions: { onchange: "calculate()" },
+		},
+		{
+			name: 'fWidth', label: '寬(CM)', align: 'right',
+			editrules: {
+				number: true,
+			},
+			editoptions: { onchange: "calculate()" },
+		},
+		{
+			name: 'fHeight', label: '高(CM)', align: 'right',
+			editrules: {
+				number: true,
+			},
+			editoptions: { onchange: "calculate()" },
+		},
+		{
+			name: 'iTotNum', label: '總材數(材)', align: 'right',
+			editrules: {
+				number: true,
+			},
+			editoptions: { readonly: true },
+		},
+		{
+			name: 'Weig', label: '重量(KGS)', align: 'right',
+			formatter: 'number', formatoptions: { decimalPlaces: 1 },
+			editrules: {
+				number: true,
+			},
+		},
+		{
+			name: 'IsDesp', label: '調派狀態', hidden: true,
+			formatter: "select",
+			edittype: "select", editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: 'ShdetBy', label: '調派人', hidden: true,
+		},
+		{
+			name: 'ShdetDate', label: '調派時間', hidden: true,
+		},
+		{
+			name: 'IsCancel', label: '取消狀態', hidden: true, formatter: "select",
+			edittype: "select", editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: 'CancelBy', label: '取消人', hidden: true,
+		},
+		{
+			name: 'CancelDate', label: '取消時間', hidden: true,
+		},
+		{
+			name: 'IsReply', label: '回覆狀態', hidden: true, formatter: "select",
+			edittype: "select", editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: 'ReplyBy', label: '回覆人', hidden: true,
+		},
+		{
+			name: 'ReplyDate', label: '回覆時間', hidden: true,
+		},
+		{
+			name: 'IsFinish', label: '完成狀態', hidden: true, formatter: "select",
+			edittype: "select", editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			}
+		},
+		{
+			name: 'FinishBy', label: '完成人', hidden: true,
+		},
+		{
+			name: 'FinishDate', label: '完成時間', hidden: true,
+		},
+		{
+			name: 'ReplyComment', label: '回覆說明', hidden: true,
+			edittype: "textarea",
+		},
+		{
+			name: 'Remark1', label: '內部說明', edittype: "textarea",
+			editoptions: {
+				maxLength: 100,
+			},
+			formoptions: { rowpos: 6, colpos: 2 },
+		},
+		{
+			name: 'Remark3', label: '注意事項', edittype: "textarea",
+			editoptions: {
+				maxLength: 100,
+			},
+			formoptions: { rowpos: 7, colpos: 1 },
+		},
+		{
+			name: "PhoneCheckTime", label: "手機查看時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: 'Status', label: '貨件狀態', hidden: true,
+		},
+		{
+			name: "StatusTime", label: "貨件狀態時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+	];
+	subgrid2.jqGrid("autoWidthColumns").jqGrid({
+		url: "/New_Bill_Lading/GetSPJSON?ShdetNo=★",
+		datatype: "json",
+		datatype: "local",
+		colModel: subModel2,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		toppager: false,
+		//pager: "#subpager2",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 1000,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		toolbar: [true, "top"],
+		hidegrid: false,
+	}).jqGrid('navGrid', '#subpager2',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: false,
+		});
+	$("#gridbtn_caption").addClass("ui-state-disabled");
+	$("#t_subgrid2").css("height", "30px").append($('#toolbar_subgrid2'));
+	$("#subpager2").find(".ui-pg-button").hide();
+
+	var subModel8 = [
+		{ name: 'RedyTime', label: '取件時間' },
+		{ name: 'PickUpAreaName', label: '取件區域' },
+		{ name: 'CarryName', label: '取件名稱', },
+		{ name: 'Index', label: 'Index', key: true, hidden: true, },
+	];
+	subgrid8.jqGrid("autoWidthColumns").jqGrid({
+		url: "/New_Bill_Lading/GetSectorMission?sectorNo=★",
+		datatype: "json",
+		datatype: "local",
+		colModel: subModel8,
+		sortname: "sNo",
+		sortorder: "asc",
+		shrinkToFit: false,
+		autowidth: true,
+
+		toppager: false,
+		// pager: "#subpager8",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 100,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		toolbar: [true, "top"],
+		hidegrid: false,
+	}).jqGrid('navGrid', '#subpager',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: false
+		});
+	$("#gridbtn_caption").addClass("ui-state-disabled");
+	$("#t_subgrid8").css("height", "0px").append($('#toolbar_subgrid8'));
+	$("#subpager8").find(".ui-pg-button").hide();
+</script>
+
+<script>
+	function check(id) {
+		if (document.getElementById(id).checked) {
+			document.getElementById(id).value = true;
+		} else {
+			document.getElementById(id).value = false;
+		}
+	}
+
+	function setCheck(value, id) {
+		if (value == true) {
+			document.getElementById(id).value = true;
+			$('#' + id).prop('checked', true);
+		}
+		else {
+			document.getElementById(id).value = false;
+			$('#' + id).prop('checked', false);
+		}
+	}
+
+	$('#RedyDate').datebox({
+		formatter: function (date) {
+			var y = date.getFullYear();
+			var m = date.getMonth() + 1;
+			var d = date.getDate();
+			function formatNumber(value) {
+				return (value < 10 ? '0' : '') + value;
+			}
+			return y + '/' + formatNumber(m) + '/' + formatNumber(d);
+		},
+		parser: function (s) {
+			var t = Date.parse(s);
+			if (!isNaN(t)) {
+				return new Date(t);
+			} else {
+				return new Date();
+			}
+		},
+		onSelect: function () {
+			PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+		}
+	});
+
+	$('#RedyTime').timespinner({
+		onChange: function (newValue, oldValue) {
+			if (newValue!='' && oldValue!='')
+				PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+		}
+	});
+
+	function PickUpAreaNoChanged(newValue, oldValue) {
+	var redyDate = $('#RedyDate').val();
+	var redyTime = $('#RedyTime').val();
+	if (newValue != '' && IsLoadData == false) {
+		$.ajax({
+			url: '@Url.Action("PickUpAreaNoChanged", "ShdetF")',
+			type: "POST",
+			cache: false,
+			async: false,
+			dataType: 'json',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({ pickUpAreaNo: newValue, RedyDate: redyDate, RedyTime: redyTime }),
+			success: function (response) {
+				if (response.total > 0) {
+					$('#SectorNo').textbox('setValue', response.rows.SectorNo);
+					$('#SectorName').textbox('setValue', response.rows.SectorName);
+					$('#SectorPhone').textbox('setValue', response.rows.SectorPhone);
+					$('#EndDate').textbox('setValue', response.rows.EndTime)
+					$('#CarID').textbox('setValue', response.rows.CarID)
+					$('#CallStatNo').textbox('setValue', response.rows.SectorStat)
+				}
+			}
+		});
+		} else {
+			$('#SectorNo').textbox('setValue', null);
+			$('#SectorName').textbox('setValue', null);
+			$('#SectorPhone').textbox('setValue', null);
+			$('#EndDate').textbox('setValue', null)
+			$('#CarID').textbox('setValue', null)
+			$('#CallStatNo').textbox('setValue', null)
+		}
+	}
+</script>
+
+<!--貨物處理-->
+<script>
+	var NowStep = 1;
+    var LastAddedRow;
+	var $fmDetail = $('#fm2');
+	$(function () {
+		$('#DataGridBatchProd').datagrid({
+			title: '多筆新增',
+			singleSelect: "true",
+			columns: [[
+				{
+					field: 'action', title: 'Action', width: 80, align: 'center',
+					formatter: function (value, row, index) {
+						if (row.editing) {
+							var s = '<a href="javascript:void(0)" onclick="saverow(this)">OK</a> ';
+							var c = '<a href="javascript:void(0)" onclick="cancelrow(this)">Cancel</a>';
+							return s + c;
+						} else {
+							var e = '<a href="javascript:void(0)" onclick="editrow(this)">編輯此筆</a> ';
+							var d = '<a href="javascript:void(0)" onclick="deleterow(this)">刪除此筆</a>';
+							return e + d;
+						}
+					}
+				},
+				{ field: 'Pcs', title: '件數', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+				{ field: 'fLen', title: '長(cm)', width: 80, editor: 'text' },
+				{ field: 'fWidth', title: '寬(cm)', width: 80, editor: 'text' },
+				{ field: 'fHeight', title: '高(cm)', width: 80, editor: 'text' },
+				{ field: 'iTotNum', title: '總材數(材)', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+				{ field: 'Weig', title: '重量(KGS)', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+				{ field: 'remark3', title: '注意事項', width: 160, editor: 'text' },
+				{ field: 'remark1', title: '內部說明', width: 160, editor: 'text' },
+				{ field: 'CarID', title: '車輛ID', width: 50 },
+			]],
+			onEndEdit: function (index, row) {
+			},
+			onBeforeEdit: function (index, row) {
+				var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+				var row2 = $("#subgrid").jqGrid('getRowData', gsr);
+				if (row.ShdetNo) { } else { row.ShdetNo = row2.ShdetNo; }
+				if (row.CustNo) { } else { row.CustNo = row2.CustNo; }
+				if (row.sDtlNo) { } else { row.sDtlNo = row2.sNo; }
+				row.editing = true;
+				$(this).datagrid('refreshRow', index);
+			},
+			onBeginEdit: function (index, row) {
+				var edPcs = $(this).datagrid('getEditor', {
+					index: index,
+					field: 'Pcs'
+				});
+				var edfLen = $(this).datagrid('getEditor', {
+					index: index,
+					field: 'fLen'
+				});
+				var edfWidth = $(this).datagrid('getEditor', {
+					index: index,
+					field: 'fWidth'
+				});
+				var edfHeight = $(this).datagrid('getEditor', {
+					index: index,
+					field: 'fHeight'
+				});
+				var ediTotNum = $(this).datagrid('getEditor', {
+					index: index,
+					field: 'iTotNum'
+				});
+				$(edPcs.target).bind('keyup', function (e) {
+					if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+						var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val() * 1000) / 28350) / 1000
+						$(ediTotNum.target).val(x);
+					}
+				});
+				$(edfLen.target).bind('keyup', function (e) {
+					if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+						var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val() * 1000) / 28350) / 1000
+						$(ediTotNum.target).val(x);
+					}
+				});
+				$(edfWidth.target).bind('keyup', function (e) {
+					if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+						var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val() * 1000) / 28350) / 1000
+						$(ediTotNum.target).val(x);
+					}
+				});
+				$(edfHeight.target).bind('keyup', function (e) {
+					if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+						var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()) * 1000 / 28350) / 1000
+						$(ediTotNum.target).val(x);
+					}
+				});
+			},
+			onAfterEdit: function (index, row) {
+				row.editing = false;
+				$(this).datagrid('refreshRow', index);
+			},
+			onCancelEdit: function (index, row) {
+				row.editing = false;
+				$(this).datagrid('refreshRow', index);
+			}
+		});
+	});
+
+	function newBatchDetail3() {
+        var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+
+        if (gsr) {
+            var row = $("#subgrid").jqGrid('getRowData', gsr);
+            if (row.sNo) { } else { $.messager.alert('提示', '無調派明細'); return false; }
+        } else {
+            $.messager.alert('提示', '未選取明細');
+            return false;
+        }
+        $('#HubNoEd').val('');
+        $('#CcNoEd').val('');
+        $('#ProdSectorNoEd').val('');
+        $('#ProdStatNoEd').val('');
+        $('#CarIDEd').val('');
+        $("#copyToNew").prop("checked", true);
+        $('#DataGridBatchProd').datagrid('loadData', []);
+		$('#winBatchNewProd').window('open');
+		$('#SubCarID').textbox('setValue', row.CarID);
+
+    }
+
+	function insert() {
+		var row = $('#DataGridBatchProd').datagrid('getSelected');
+		if (row) {
+			var index = $('#DataGridBatchProd').datagrid('getRowIndex', row);
+		} else {
+			index = 0;
+		}
+		$('#DataGridBatchProd').datagrid('insertRow', {
+			index: index,
+			row: {
+				status: 'P',
+				CarID: $('#SubCarID').val()
+			}
+		});
+		$('#DataGridBatchProd').datagrid('selectRow', index);
+		$('#DataGridBatchProd').datagrid('beginEdit', index);
+	}
+
+	function getRowIndex(target) {
+		var tr = $(target).closest('tr.datagrid-row');
+		return parseInt(tr.attr('datagrid-row-index'));
+	}
+
+	function editrow(target) {
+		$('#DataGridBatchProd').datagrid('beginEdit', getRowIndex(target));
+	}
+
+	function deleterow(target) {
+		$.messager.confirm('確認', '刪除此筆?', function (r) {
+			if (r) {
+				$('#DataGridBatchProd').datagrid('deleteRow', getRowIndex(target));
+			}
+		});
+	};
+
+	function saverow(target) {
+		$('#DataGridBatchProd').datagrid('endEdit', getRowIndex(target));
+	}
+
+	function cancelrow(target) {
+		$('#DataGridBatchProd').datagrid('cancelEdit', getRowIndex(target));
+	}
+
+	 function saveDetail3BatchSubmit() {
+        var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+        var row2 = $('#DataGridBatchProd').datagrid('getRows');
+        if (row2) {
+            if (row2.length < 1)
+                return false;
+        } else {
+            return false;
+        }
+        for (var i = 0; i < row2.length ; i++){
+            if (row2[i].editing == true)
+                return false;
+        }
+        if (gsr) {
+            var row = $("#subgrid").jqGrid('getRowData', gsr);
+            if (row.sNo) { } else { $.messager.alert('提示', '無調派明細'); return false; }
+            //$.messager.progress();	// display the progress bar
+        } else {
+            return false;
+        }
+
+        var countOK = 0;
+        var countFAIL = 0;
+        var countR1 = 0;
+        var countR2 = 0;
+        var countR3 = 0;
+        var errorMsg = '';
+
+        var targetData = $('#DataGridBatchProd').datagrid('getData');
+
+        $.ajax({
+            url: '@Url.Action("NewShdet3Batch", "ShdetF")',
+            type: "POST",
+            cache: false,
+            async: false,
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            data: JSON.stringify(targetData),
+            success: function (response) {
+                //Some Code here
+                countOK = response.OK;
+                countFAIL = response.FAIL;
+                countR1 = response.R1;
+                countR2 = response.R2;
+                countR3 = response.R3;
+                errorMsg = response.errorMsg;
+            }
+        });
+
+		 if (countFAIL == 0) {
+			 //$.messager.alert('提示', '新增貨物資料' + countOK + '筆成功');
+			 $.messager.confirm('確認', '新增貨物資料' + countOK + '筆成功，是否取貨（轉正式調派）？', function (r) {
+				 if (r) {
+					 var selID = $('#grid').jqGrid('getGridParam', 'selrow');
+					 var selrow = $("#grid").jqGrid('getRowData', selID);
+					 $.ajax({
+								 type: "post",
+								 url: '/New_Bill_Lading/SetDesp',
+								 data: { ShdetNo: selrow.ShdetNo },
+								 success: function (result) {
+									 //var r = eval('(' + result + ')');
+									 var r = result;
+									 if (r.ok >= 0) {
+										 if (r.ok > 0) {
+											 //$.messager.alert('成功', '轉正式調派成功!');
+											 $("#tab2MsgLabel").html('轉正式調派成功! ');
+											 setTimeout(function () { $("#tab2MsgLabel").html(''); }
+												 , 3000);
+										 }
+										 else {
+											 $.messager.alert('警告', r.message, 'warning');
+										 }
+										 $('.fm2').form('clear');
+										 $('#grid').trigger('reloadGrid');
+										 $('#grid').jqGrid('setSelection', selID);
+										 lockForm();
+									 }
+									 else {
+										 $.messager.alert('錯誤', r.message, 'error');
+									 }
+						 }
+					 });
+				 }
+			 });
+		 }
+        else
+            $.messager.alert('提示', '新增貨物資料' + countOK + '筆成功，失敗' + countFAIL + '筆，失敗訊息：' + errorMsg);
+
+		 $('#winBatchNewProd').window('close');
+		 $('#subgrid2').trigger('reloadGrid');
+		 lockForm();
+    }
+
+	function openDetail3_win() {
+
+		//計算總材數
+		$('#Pcs').textbox('textbox').bind('keyup', function (e) {
+			if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+				var x = Math.round(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText') * 1000) / 28350) / 1000
+				$('#iTotNum').textbox('setValue', x);
+			}
+			//alert($('#Pcs').textbox('getText'));
+		});
+		$('#fLen').textbox('textbox').bind('keyup', function (e) {
+			if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+				var x = Math.round(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText') * 1000) / 28350) / 1000
+				$('#iTotNum').textbox('setValue', x);
+			}
+		});
+		$('#fWidth').textbox('textbox').bind('keyup', function (e) {
+			if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+				var x = Math.ceil(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText') * 1000) / 28350) / 1000
+				$('#iTotNum').textbox('setValue', x);
+			}
+		});
+		$('#fHeight').textbox('textbox').bind('keyup', function (e) {
+			if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+				var x = Math.ceil(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText') * 1000) / 28350) / 1000
+				$('#iTotNum').textbox('setValue', x);
+			}
+		});
+
+            $('#fm3').form('clear');
+            $('#ProdSNoDisplay').text('');
+		  var gsr = $("#subgrid2").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+                var row = $("#subgrid2").jqGrid('getRowData', gsr);
+                if (row.sNo) { } else { $.messager.alert('提示', '無調派明細'); return false; }
+                $('#fm3').form('load', row);
+                $('#ProdSNoDisplay').text(row.sNo);
+                $('#winProduct').window('open');
+            } else {
+                $.messager.alert('提示', '未選取貨物');
+                return false;
+            }
+        }
+
+	function saveDetail3_win() {
+            $('#fm3').form('submit', {
+                url: '@Url.Action("EditShdet3", "ShdetF")',
+                onSubmit: function () {
+                    return $(this).form('validate');
+                    //return true;
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+					} else {
+						$("#tab2MsgLabel").html('【貨物資料】修改成功! ');
+						setTimeout(function () { $("#tab2MsgLabel").html(''); }
+							, 3000);
+						$('#subgrid2').trigger('reloadGrid');
+						lockForm();
+                    }
+                }
+
+		});
+		$('#winProduct').window('close');
+	}
+
+	  function destroyDetail3_win() {
+            var gsr = $("#subgrid2").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+				var row = $("#subgrid2").jqGrid('getRowData', gsr);
+               $.messager.confirm('警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet3", "ShdetF")', { ShdetNo: row.ShdetNo, CustNo: row.CustNo, sDtlNo: row.sDtlNo,sNo:row.sNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+							   $('#subgrid2').trigger('reloadGrid');
+							   lockForm();
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+		}
+
+</script>
+

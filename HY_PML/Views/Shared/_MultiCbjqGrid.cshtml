@@ -1,0 +1,64 @@
+﻿<script>
+    var dlgId = '@ViewBag.dlgId';
+    var fmId = '@ViewBag.formId';
+    var gridId = '@ViewBag.gridId';
+    var postUrl = '@ViewBag.postUrl';
+    var id = null;
+    var funcName = null;
+    if ('@ViewBag.id') {
+        id = '@ViewBag.id';
+    }
+    if ('@ViewBag.funcName') {
+        console.log('@ViewBag.funcName');
+         funcName = '@ViewBag.funcName';
+    }
+</script>
+<div>
+    <div id="toolbar_s">
+        <a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick='pickRowtoForm(gridId, fmId, dlgId, postUrl)'>存檔</a>
+    </div>
+    <table id="DataGrid_s"></table>
+    <div id="pager_s"></div>
+</div>
+@RenderBody()
+<script type="text/javascript">
+    $(function () {
+        @RenderSection("initJS", required: false)
+        $("#DataGrid_s").jqGrid("autoWidthColumns").jqGrid({
+            caption: gridTitle,
+            url: url + (funcName === null ? 'GetGridJSON' : funcName) + (id === null ? "" : "/" + id),
+
+            datatype: "json",
+            colModel: model,
+            sortname: sortName,
+            sortorder: "asc",
+
+            shrinkToFit: false,
+            autowidth: true,
+
+            pager: "#pager_s",
+            pgbuttons: true,
+            pginput: true,
+            viewrecords: true,
+            rowNum: 40,
+            rowList: [40, 80, 120, 160],
+            hidegrid: false,
+            toolbar: [true, "top"],
+            multiselect: true,
+            multiselectWidth: 50,
+            multiboxonly: false,
+
+            altRows: true,
+            altclass: "ui-jz-altRow",
+        }).jqGrid("navGrid", "#pager_s",
+            {
+                edit: false, add: false, del: false,
+                search: false, view: false,
+            }).filterToolbar({
+				searchOnEnter: true
+            });
+
+        $("#t_DataGrid_s").append($('#toolbar_s'));
+    });
+    @RenderSection("innerJS", required: false)
+</script>

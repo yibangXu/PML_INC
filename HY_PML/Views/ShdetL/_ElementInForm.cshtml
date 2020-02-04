@@ -1,0 +1,382 @@
+﻿<table>
+	<tr>
+		<td style="vertical-align: top;">
+			<table>
+				<tr>
+					<b style="font-size:16px;background-color:aquamarine">調派主檔:</b>
+				</tr>
+				<tr>
+					<td><label class="required"> 客戶代號</label></td>
+					<td>
+						<input type="hidden" name="ShdetNo" id="ShdetNo">
+						<input type="hidden" name="sNo" id="sNo">
+						<input name="CustNo" id="CustNo" class="easyui-textbox" required style="display:none;width:90px" data-options="readonly:true">
+						@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				onclick="ShowWinForPickUpjqGrid('fm','CustCHName,CustNo','CustCHName,CustNo','@Url.Action("getSelectionjqGrid", "Cust")');"></a>*@
+					</td>
+				</tr>
+				<tr>
+					<td><label class="required">客戶名稱</label></td>
+					<td>
+						<input name="CustCHName" id="CustCHName" class="easyui-textbox" style="display:none;width:150px" required data-options="readonly:true">
+					</td>
+				</tr>
+				<tr>
+					<td><label id="newCustZoneLabel" style="display:none">區碼(3碼)</label></td>
+					<td>
+						<div id="newCustZone" style="display:none"><input name="Post3Code" id="Post3Code" class="easyui-textbox" style="display:none;width:90px"></div>
+					</td>
+				</tr>
+				<tr>
+					<td><label>業務專員</label></td>
+					<td>
+						<input name="Clerk" id="HeadClerk" class="easyui-textbox" style="display:none;width:90px">
+					</td>
+				</tr>
+				<tr>
+					<td><label class="required">路線</label></td>
+					<td>
+						<div style="display:none;width:90px"><input name="HubNo" id="HubNo" class="easyui-textbox" style="display:none;width:90px"></div>
+						<input name="HubName" id="HubName" class="easyui-textbox" data-options="readonly:true" style="display:none;width:90px" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm','HubName,HubNo','HubName,HubNo','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+					</td>
+				</tr>
+				<tr>
+					<td><label>目的地</label></td>
+					<td>
+						<input name="Dest" id="Dest" class="easyui-textbox" style="display:none;width:90px">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm','Dest','CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+					</td>
+				</tr>
+				<tr>
+					<td><label>預約日期</label></td>
+					<td>
+						<input name="ReserveDate" id="ReserveDate" class="easyui-datetimebox" style="display:none;width:140px" data-options="readonly:false">
+					</td>
+				</tr>
+				<tr>
+					<td><label>出貨日期</label></td>
+					<td>
+						<input name="SDate" id="SDate" class="easyui-datebox" style="display:none;width:140px" data-options="readonly:false">
+					</td>
+				</tr>
+				<tr>
+					<td><b style="font-size:16px;background-color:aquamarine">狀態:</b></td>
+				</tr>
+				<tr>
+					<td><label>調派狀態</label></td>
+					<td>
+						<input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp" onclick="return false;">
+					</td>
+				</tr>
+				<tr>
+					<td><label>取消狀態</label></td>
+					<td>
+						<input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel">
+					</td>
+				</tr>
+				<tr>
+					<td><label>回覆狀態</label></td>
+					<td>
+						<input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply" onclick="return false;">
+					</td>
+				</tr>
+				<tr>
+					<td><label>完成狀態</label></td>
+					<td>
+						<input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish">
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td style="width:50px"></td>
+		<td style="vertical-align: top;">
+			<table id="tableDetail">
+				<tr>
+					<b style="font-size:16px;background-color:aquamarine">明細資料:</b>
+				</tr>
+				<tr>
+					<td><label class="required">取件名稱</label></td>
+					<td>
+						<div class="fitem">
+							<input name="CarryName" id="CarryName" class="easyui-textbox" style="width:90px" required>
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpjqGrid('fm','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CarID,CcNo,Charge,CallStatNo,PickUpAreaNo','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CarID,CcNo,Charge,CallStatNo,PickUpAreaNo','@Url.Action("getSelectionjqGrid", "ShdetF")',$('#CustNo').val(),'GetGridJSON_HistoryShdetDetail');"></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label>郵政5碼</label></td>
+					<td colspan="3">
+						<div class="fitem">
+							<input name="Code5" id="Code5" class="easyui-textbox" style="width:70px" data-options="readonly:true">
+							<input name="Code7" id="Code7" class="easyui-textbox" style="width:70px" data-options="readonly:true" required>
+							<input name="CustAddr" id="CustAddr" class="easyui-textbox" style="width:240px" data-options="readonly:true,onChange:function(newValue,oldValue){ CustAddrChanged(newValue,oldValue);}" required>
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpGrid20('Code5','Code5','textbox','CustAddr','AdrressSimpleVer','textbox','PickUpAreaNo','PickUpAreaNo','textbox','EndDate','DateEnd','timespinner','Code7','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")',$('#Code5').val());"></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label>段巷弄號樓 </label></td>
+					<td colspan="3">
+						<div class="fitem">
+							<input name="Add_1" id="Add_1" class="easyui-textbox" style="width:30px">段
+							<input name="Add_2" id="Add_2" class="easyui-textbox" style="width:30px">巷
+							<input name="Add_3" id="Add_3" class="easyui-textbox" style="width:30px">弄
+							<input name="Add_4" id="Add_4" class="easyui-textbox" style="width:30px" required>號
+							<input name="Add_5" id="Add_5" class="easyui-textbox" style="width:30px">樓
+							,其他<input name="Add_6" id="Add_6" class="easyui-textbox" style="width:120px">
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label>英文地址</label></td>
+					<td colspan="3">
+						<div class="fitem">
+							<input name="CustENAddr1" id="CustENAddr1" class="easyui-textbox" style="width:240px">
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label>國家</label></td>
+					<td>
+						<div class="fitem">
+							<input name="Country" id="Country" class="easyui-textbox" style="width:90px">
+						</div>
+					</td>
+					<td><label class="required">業務部聯絡人</label></td>
+					<td>
+						<div class="fitem">
+							<input name="CtcSale" id="CtcSale" class="easyui-textbox" style="width:90px" required>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label class="required">電話</label></td>
+					<td>
+						<div class="fitem">
+							<input name="Tel" id="Tel" class="easyui-textbox" style="width:90px" required>
+						</div>
+					</td>
+
+					<td><label class="required">外務員</label></td>
+					<td>
+						<div class="fitem">
+							<input name="SectorName" id="SectorName" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+							<input type="hidden" name="SectorNo" id="SectorNo" class="easyui-textbox" style="width:0px;display:none !important" data-options="readonly:true" required>
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpjqGrid('fm','SectorName,SectorNo,CarID,CallStatNo','SectorName,SectorNo,CarID,StatNo','@Url.Action("getSelectionjqGrid_Add", "Sector")');"></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label class="required">調度區域</label></td>
+					<td>
+						<div class="fitem">
+							<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" style="width:90px" required data-options="readonly:true,onChange:function(newValue,oldValue){ PickUpAreaNoChanged(newValue,oldValue);}">
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpjqGrid('fm','PickUpAreaNo','PickUpAreaNo','@Url.Action("getSelectionjqGrid", "PickUpArea")');"></a>
+						</div>
+					</td>
+					<td><label class="required">截止時間</label></td>
+					<td>
+						<div class="fitem">
+							<input name="EndDate" id="EndDate" class="easyui-timespinner" style="width:80px;"
+								   data-options="showSeconds:false" required>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><label class="required">叫件站點</label></td>
+					<td>
+						<div class="fitem">
+							<input name="StatNo" id="StatNo" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpjqGrid('fm','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+						</div>
+					</td>
+					<td><label class="required">車輛ID</label></td>
+					<td>
+						<input name="CarID" id="CarID" class="easyui-textbox" style="width:90px" required data-options="readonly:true">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm','CarID','CarID','@Url.Action("getSelectionjqGrid", "Vehicle")');"></a>
+					</td>
+				</tr>
+				<tr>
+					<td><label>貨物類型</label></td>
+					<td>
+						<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+							<option value="0">0.文件</option>
+							<option value="1">1.包裹5KG以下</option>
+							<option value="2">2.箱貨5KG以上</option>
+							<option value="3">3.木箱</option>
+							<option value="4">4.棧板</option>
+						</select>
+						<script type="text/javascript">
+							var WeigLevel = [
+								{ val: '0', text: '0.文件' },
+								{ val: '1', text: '1.包裹5KG以下' },
+								{ val: '2', text: '2.箱貨5KG以上' },
+								{ val: '3', text: '3.木箱' },
+								{ val: '4', text: '4.棧板' }
+							];
+						</script>
+					</td>
+					<td><label>報關類型</label></td>
+					<td>
+						<select class="easyui-combobox" name="CocustomTyp" style="width:auto;display:none">
+							<option value="0">0.不報關</option>
+							<option value="1">1.正式報關</option>
+							<option value="2">2.簡易報關</option>
+							<option value="3">3.正式報關+後段核銷</option>
+							<option value="4">4.簡易報關+後段核銷</option>
+							<option value="5">5.不報關+後段核銷</option>
+							<option value="6">6.其他</option>
+						</select>
+						<script type="text/javascript">
+							var CocustomTyp = [
+								{ val: '0', text: '0.不報關' },
+								{ val: '1', text: '1.正式報關' },
+								{ val: '2', text: '2.簡易報關' },
+								{ val: '3', text: '3.正式報關+後段核銷' },
+								{ val: '4', text: '4.簡易報關+後段核銷' },
+								{ val: '5', text: '5.不報關+後段核銷' },
+								{ val: '6', text: '6.其他' }
+							];
+						</script>
+					</td>
+				</tr>
+				<tr>
+					<td><label>付款方式</label></td>
+					<td>
+						<input name="CcNo" id="CcNo" class="easyui-textbox" style="display:none;width:90px" data-options="readonly:true">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+					</td>
+					<td><label>收款金額</label></td>
+					<td><input name="Charge" id="Charge" class="easyui-textbox" style="display:none;width:90px"></td>
+				</tr>
+				<tr>
+					<td><label class="required">取件站點</label></td>
+					<td>
+						<div class="fitem">
+							<input name="CallStatNo" id="CallStatNo" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+							<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+							   onclick="ShowWinForPickUpjqGrid('fm','CallStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+						</div>
+					</td>
+					<td><label>可取件日期</label></td>
+					<td><input id="RedyDate" name="RedyDate" class="easyui-datebox" style="display:none;width:90px" data-options="onSelect:onChangeDate"></td>
+				</tr>
+				<tr>
+					<td><label class="required">可取件時間</label></td>
+					<td><input id="RedyTime" name="RedyTime" class="easyui-timespinner" style="display:none;width:80px" required></td>
+					<td>
+						<label>準時取件:</label>
+					</td>
+					<td>
+						<div class="fitem">
+							<input name="IsRedy" id="IsRedy" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>回覆說明:</label>
+					</td>
+					<td colspan="3">
+						<input name="ReplyComment" class="easyui-textbox" style="display:none;width:400px" data-options="multiline:'true'">
+					</td>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<script>
+	function onChangeDate() {
+		PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+	}
+
+	//$('#RedyDate').datebox({
+	//	onSelect: function () {
+	//		PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+	//	}
+	//});
+
+	$('#RedyTime').timespinner({
+		onChange: function (newValue, oldValue) {
+			if (newValue != '' && oldValue != '')
+				PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+		}
+	});
+
+	function PickUpAreaNoChanged(newValue, oldValue) {
+		var redyDate = $('#RedyDate').val();
+		var redyTime = $('#RedyTime').val();
+		if (FirstLoad == false) {
+			if (newValue != '') {
+				$.ajax({
+					url: '@Url.Action("PickUpAreaNoChanged", "ShdetF")',
+					type: "POST",
+					cache: false,
+					async: false,
+					dataType: 'json',
+					contentType: 'application/json; charset=UTF-8',
+					data: JSON.stringify({ pickUpAreaNo: newValue, RedyDate: redyDate, RedyTime: redyTime }),
+					success: function (response) {
+						$('#SectorNo').textbox('setValue', response.rows.SectorNo);
+						$('#SectorName').textbox('setValue', response.rows.SectorName);
+						$('#EndDate').textbox('setValue', response.rows.EndTime)
+						$('#CarID').textbox('setValue', response.rows.CarID)
+						$('#CallStatNo').textbox('setValue', response.rows.SectorStat)
+					}
+				});
+			} else {
+				$('#SectorNo').textbox('setValue', null);
+				$('#SectorName').textbox('setValue', null);
+				$('#EndDate').textbox('setValue', null)
+				$('#CarID').textbox('setValue', null)
+				$('#CallStatNo').textbox('setValue', null)
+			}
+        }
+    }
+
+    //取件地址改變
+    var isAddrModifiedByMachine = false;
+	function CustAddrChanged(newValue, oldValue) {
+        if (isAddrModifiedByMachine) {
+            isAddrModifiedByMachine = false;
+            return false;
+        }
+        var targetAry = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+        if (newValue !== null && newValue !== '') {
+            var posTarget = newValue.indexOf('段');
+            //有段
+            if (posTarget >= 0) {
+                var beforeTarget = newValue.substring(posTarget - 1, posTarget);
+                var posBeforeTarget = targetAry.indexOf(beforeTarget);
+                //段前1的是數字
+                if (posBeforeTarget >= 0) {
+                    var beforeTwoTarget = newValue.substring(posTarget - 2, posTarget - 1);
+                    var posBeforeTwoTarget = targetAry.indexOf(beforeTwoTarget);
+                    //段前2的是數字
+                    if (posBeforeTwoTarget >= 0) {
+                        //只處理段前1、2
+						$('#Add_1').textbox('setValue', (posBeforeTwoTarget * 10 + posBeforeTarget).toString());
+                        isAddrModifiedByMachine = true;
+                        $('#CustAddr').textbox('setValue', newValue.replace(beforeTwoTarget + beforeTarget + '段', ''));
+
+                    } else {
+                        //只處理段前1
+						$('#Add_1').textbox('setValue', posBeforeTarget.toString());
+                        isAddrModifiedByMachine = true;
+                        $('#CustAddr').textbox('setValue', newValue.replace(beforeTarget + '段', ''));
+                    }
+                }
+            }
+        }
+    }
+</script>

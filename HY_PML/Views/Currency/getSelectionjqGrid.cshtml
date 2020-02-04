@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Currency/';
+    var gridTitle = '幣別資料';
+    var sortName = 'CurrencyNo';
+    var model = [
+        {
+            name: "ID", label: "ID", hidden: true, key: true
+        },
+        {
+            name: "CurrencyNo", label: "幣別代碼", search: true,
+            readonly: "edit", editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 3 },
+            formoptions: { label: "*幣別代碼" },
+        },
+        {
+            name: "CurrencyName", label: "幣別名稱", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 8, },
+            formoptions: { label: "*幣別名稱" },
+        },
+        {
+            name: "Exch", label: "匯率", search: false,
+            editable: true,
+            editrules: { required: true, number: true },
+            formoptions: { label: "*匯率" },
+        },
+        {
+            name: "IsServer", label: "是否啟用", search: true,
+            editable: true, edittype: "select",
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true, },
+            formoptions: { label: "*是否啟用" },
+            formatter: "select",
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+    ];
+</script>

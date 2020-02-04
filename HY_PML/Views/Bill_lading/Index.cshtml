@@ -1,0 +1,427 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGrid2Layout.cshtml";
+}
+
+<style>
+	#dlg1 {
+		width: 950px !important;
+		height: 575px !important;
+		padding: 2px 6px 2px 6px !important;
+	}
+
+	#dlg2 {
+		width: 960px !important;
+		height: 575px !important;
+		padding: 2px 6px 2px 6px !important;
+	}
+</style>
+
+<table id="grid"></table>
+<div id="pager">
+	@*@using (Html.BeginForm("Upload", "Bill_Lading", null, FormMethod.Post, new { enctype = "multipart/form-data", style = "width:400px" }))
+		{
+			@Html.AntiForgeryToken()
+			@Html.ValidationSummary()
+			<label><input type="file" id="dataFile" name="upload" /></label>
+			<input type="submit" value="匯入資料" class="btn-sm btn-primary" />
+		}*@
+	<form action="@Url.Action("Upload", "Bill_Lading")" id="excelForm" enctype="multipart/form-data" method="post">
+		@Html.AntiForgeryToken()
+		@Html.ValidationSummary()
+		<label><input type="file" id="dataFile" name="upload" onchange="hasFile()" /></label>
+		<input type="submit" id="sb_upload" value="匯入資料" class="btn-sm btn-primary" disabled />
+	</form>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var apiURL = "/Bill_Lading/";
+
+	var model = [
+		{
+			name: "LadingNo", label: "提單號碼", search: true, key: true,
+		},
+		{
+			name: "LadingDate", label: "提單日期", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "HubNo", label: "路線", hidden: true
+		},
+		{
+			name: "HubName", label: "路線", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+				},
+				dataEvents: [
+					{
+						type: 'change', fn: function (e) {
+							SetReportOption(this.value)
+						}
+					},
+				]
+			},
+		},
+		{
+			name: "WarehouseRNo", label: "倉單號碼", search: true,
+		},
+		{
+			name: "WarehouseRDate", label: "倉單日期", search: true, formatter: "date",
+		},
+		{
+			name: "TransferNo", label: "轉單號碼", search: false,
+		},
+		{
+			name: "OrderNo", label: "訂單號碼", search: false,
+		},
+		{
+			name: "SendCustNo", label: "寄件客戶", search: false, hidden: true
+		},
+		{
+			name: "SendCHName", label: "寄件客戶", search: false,
+		},
+		{
+			name: "SendPhone", label: "寄件人電話", search: false,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "SendCustAddr", label: "寄件地址", search: false,
+		},
+		{
+			name: "RecBy", label: "收件人", search: false,
+		},
+		{
+			name: "RecPhone", label: "收件人電話", search: false,
+		},
+		{
+			name: "RecCompany", label: "收件公司", search: false,
+		},
+		{
+			name: "RecCustCHName", label: "中文名稱", search: false, hidden: true
+		},
+		{
+			name: "RecChAddr", label: "中文地址", search: false,
+		},
+		{
+			name: "RecCustEName1", label: "英文名稱1", search: false, hidden: true
+		},
+		{
+			name: "RecCustEName2", label: "英文名稱2", search: false, hidden: true
+		},
+		{
+			name: "RecCustENAddr1", label: "英文地址1", search: false, hidden: true
+		},
+		{
+			name: "RecCustENAddr2", label: "英文地址2", search: false, hidden: true
+		},
+		{
+			name: "RecInvNo", label: "統編/CR.No", search: false,
+		},
+		{
+			name: "RecCity", label: "城市", search: false, hidden: true
+		},
+		{
+			name: "RecState", label: "省/州", search: false, hidden: true
+		},
+		{
+			name: "RecCountry", label: "國家", search: false,
+		},
+		{
+			name: "RecPostDist", label: "郵政專號", search: false,
+		},
+		{
+			name: "SectorNo", label: "取件員", search: false, hidden: true
+		},
+		{
+			name: "SectorName", label: "取件員", search: false,
+		},
+		{
+			name: "SStatNo", label: "寄件站點", search: false, hidden: true
+		},
+		{
+			name: "SStatName", label: "寄件站點", search: false,
+		},
+		{
+			name: "AStatNo", label: "派件站點", search: false, hidden: true
+		},
+		{
+			name: "AStatName", label: "派件站點", search: false,
+		},
+		{
+			name: "DestNo", label: "目的地", search: false, hidden: true
+		},
+		{
+			name: "CName", label: "目的地", search: false,
+		},
+		{
+			name: "Type", label: "類型", search: false,
+			formatter: function (value) {
+				if (value === '0') return '0.文件';
+				if (value === '1') return '1.包裹5KG以下';
+				if (value === '2') return '2.箱貨5KG以上';
+				if (value === '3') return '3.木箱';
+				if (value === '4') return '4.棧板';
+				return value;
+			},
+		},
+		{
+			name: "ProductNo", label: "品名", search: false, hidden: true
+		},
+		{
+			name: "ProductName", label: "品名", search: false,
+		},
+		{
+			name: "PiecesNo", label: "件數", search: false,
+		},
+		{
+			name: "Qty", label: "數量", search: false,
+		},
+		{
+			name: "Weight", label: "實重", search: false,
+		},
+		{
+			name: "Volume", label: "材積重", search: false,
+		},
+		{
+			name: "Cost", label: "貨品價值", search: false,
+		},
+		{
+			name: "CostCurrency", label: "貨品價值", search: false, hidden: true
+		},
+		{
+			name: "CcNo", label: "付款方式", search: false,
+		},
+		{
+			name: "PayCustNo", label: "付款客戶", search: false, hidden: true
+		},
+		{
+			name: "PayCustCHName", label: "付款客戶", search: false,
+		},
+		{
+			name: "Freight", label: "運費", search: false,
+		},
+		{
+			name: "FuelCosts", label: "燃油費", search: false,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false,
+		},
+		{
+			name: "ToPaymentCurrency", label: "到付款", search: false, hidden: true
+		},
+		{
+			name: "AgentPay", label: "代收款", search: false,
+		},
+		{
+			name: "AgentPayCurrency", label: "代收款", search: false, hidden: true
+		},
+		{
+			name: "ProdIdPay", label: "產證費", search: false
+		},
+		{
+			name: "CustomsPay", label: "報關費", search: false
+		},
+		{
+			name: "InsurancePay", label: "保險費", search: false
+		},
+		{
+			name: "OtherPayTax", label: "其他(有稅)", search: false,
+		},
+		{
+			name: "OtherPayNoTax", label: "其他(無稅)", search: false
+		},
+		{
+			name: "Length", label: "長", search: false,
+		},
+		{
+			name: "Width", label: "寬", search: false,
+		},
+		{
+			name: "Height", label: "高", search: false,
+		},
+		{
+			name: "Total", label: "總金額", search: false,
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "Remark2", label: "備註2", search: false,
+		},
+		{
+			name: "ImOrEx", label: "進/出口", search: false, hidden: false,
+		},
+		{
+			name: "PhoneCheckTime", label: "手機查看時間", search: false,
+		},
+		{
+			name: "Status", label: "貨件狀態", search: false,
+		},
+		{
+			name: "StatusTime", label: "狀態時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "Source", label: "來源", search: false,
+		},
+		{
+			name: "IsConfirm", label: "確認", search: false,
+		},
+		{
+			name: "ConfirmBy", label: "確認", search: false, hidden: true
+		},
+		{
+			name: "IsCheck", label: "檢核", search: false,
+		},
+		{
+			name: "CheckBy", label: "檢核人員", search: false, hidden: true
+		},
+		{
+			name: "CheckTime", label: "檢核時間", search: false, hidden: true
+		},
+		{
+			name: "ShdetNo", label: "調派編號", search: false, hidden: true
+		},
+		{
+			name: "CreateBy", label: "建單人員", search: false
+		},
+		{
+			name: "CreateTime", label: "建單時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	grid.jqGrid({
+		caption: "提單資料",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "LadingNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	//取得今天日期
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function getBeforeSevenDays() {
+		var today = new Date();
+		var sevendays = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+		return sevendays.getFullYear() + '-' + (sevendays.getMonth() + 1) + '-' + sevendays.getDate();
+	}
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#toolbar_grid").append(' | <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>')
+		//.append('<select id="RpType" name="RpType" style="width: 100px;" class= "easyui-combobox" data - options="valueField:"Key",textField:"Value" ><option></option></select >')
+	});
+
+	//function SetReportOption(value) {
+	//	var rpTypeData = [];
+	//	switch (value) {
+	//		case '空運件':
+	//			rpTypeData.push({ "text": "11", "id": 1 });
+	//			rpTypeData.push({ "text": "22", "id": 1 });
+	//			break;
+	//		case 'ID-PIBK':
+	//			rpTypeData.push({ "text": "111", "id": 1 });
+	//			rpTypeData.push({ "text": "222", "id": 1 });
+	//			break;
+	//	}
+	//	$("#RpType").combobox("loadData", rpTypeData);
+	//}
+
+	//上傳檔案，已選取檔案才開啟匯入按鈕
+	function hasFile() {
+		if ($('#dataFile').val() != "") {
+			var userAct = $('#UserAct').val();
+			setTimeout(function () {
+				if (userAct.includes("Impot") == false) {
+					$('#sb_upload').prop("disabled", true);
+				} else
+					$('#sb_upload').prop("disabled", false);
+		 }, 300);
+		}
+		else
+			$('#sb_upload').prop("disabled", true);
+	}
+
+	//上傳檔案
+	$('#excelForm').submit(function (event) {
+		event.preventDefault();
+		var formdata = new FormData($(this).get(0));
+		$.ajax({
+			url: this.action,
+			type: this.method,
+			data: formdata,
+			processData: false,
+			contentType: false,
+			beforeSend: ajaxLoading,
+			success: function (result) {
+				if (result.ok > 0) {
+					$.messager.alert('匯入提單成功', result.message);
+					grid.trigger('reloadGrid');
+				} else {
+
+					$.messager.alert({
+						title: '失敗',
+						msg: result.message,
+						height: 'auto',
+						maxHeight: 400,
+						resizable: true
+					})
+				}
+				$('#dataFile').val('');
+				ajaxLoadEnd()
+				hasFile();
+			},
+
+		});
+	});
+
+	function ajaxLoading() {
+		$("<div class=\"datagrid-mask\"></div>").css({ display: "block", width: "100%", height: $(window).height() }).appendTo("body");
+		$("<div class=\"datagrid-mask-msg\"  style = 'width: 120px;height:45px'></div>").html("匯入中…").appendTo("body").css({ display: "block", left: ($(document.body).outerWidth(true) - 190) / 2, top: ($(window).height() - 30) / 2 });
+
+	}
+	function ajaxLoadEnd() {
+		$(".datagrid-mask").remove();
+		$(".datagrid-mask-msg").remove();
+	}
+
+</script>
+
+

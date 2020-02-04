@@ -1,0 +1,68 @@
+﻿<div id="typeTab5" title="貨件狀態" style="padding:2px;display:none;overflow:hidden">
+	<div class="pull-left">
+		<table id="subgrid5"></table>
+		<div id="subpager5"></div>
+	</div>
+</div>
+<script>
+	var subgrid5 = $("#subgrid5");
+	var subModel3 = [
+		{
+			name: "Index", label: "Index", key: true, hidden: true,
+		},
+		{
+			name: "TransportationNo", label: "運務單號", hidden: true,
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: false, hidden: true,
+		},
+		{
+			name: "Time", label: "時間", search: false,
+		},
+		{
+			name: "Status", label: "狀態", search: false,
+		},
+		{
+			name: "Stat", label: "抵達站", search: false,
+		},
+		{
+			name: "FromGo", label: "來源/去向", search: false,
+		},
+		{
+			name: "Pcs", label: "件數", search: false,
+		},
+		{
+			name: "TransportNo", label: "轉運/子單號", search: false,
+		},
+		{
+			name: "By", label: "操作員", search: false,
+		}
+
+	];
+	subgrid5.jqGrid("autoWidthColumns").jqGrid({
+		url: "/Bill_Lading_View/GetGridJSON2?LadingNo=★",
+		datatype: "json",
+		colModel: subModel3,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#subpager5",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 100,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+	}).jqGrid('navGrid', '#subpager5',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: true
+		});
+	$("#t_subgrid5").css("height", "0px").append($('#toolbar_subgrid5'));
+</script>

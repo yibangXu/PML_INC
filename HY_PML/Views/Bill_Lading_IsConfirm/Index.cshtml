@@ -1,0 +1,352 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGrid2Layout.cshtml";
+}
+
+<style>
+	#dlg1 {
+		width: 950px !important;
+		height: 575px !important;
+		padding: 2px 6px 2px 6px !important;
+	}
+
+	#dlg2 {
+		width: 960px !important;
+		height: 575px !important;
+		padding: 2px 6px 2px 6px !important;
+	}
+</style>
+<table id="grid"></table>
+<div id="pager"></div>
+
+
+<script>
+	var grid = $("#grid");
+	var apiURL = "/Bill_Lading_IsConfirm/";
+
+	var model = [
+		{
+			name: "IsConfirm", label: "確認", search: true, width: 80, stype: 'select',
+			formatter: function (value) { if (value === true) return '已確認'; return '未確認'; },
+			defval: true,
+			searchoptions:
+			{
+				value: { null: "不分", true: "已確認", false: "未確認" }, searchhidden: true, dataInit: function (el) {
+				},
+			},
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: true, key: true, hidden: true,
+		},
+		{
+			name: "LadingNo_Type", label: "提單號碼", search: true,
+		},
+		{
+			name: "LadingDate", label: "提單日期", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "HubNo", label: "路線", hidden: true
+		},
+		{
+			name: "HubName", label: "路線", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+				},
+			},
+		},
+		{
+			name: "WarehouseRNo", label: "倉單號碼", search: true,
+		},
+		{
+			name: "WarehouseRDate", label: "倉單日期", search: true, formatter: "date",
+		},
+		{
+			name: "TransferNo", label: "轉單號碼", search: false,
+		},
+		{
+			name: "OrderNo", label: "訂單號碼", search: false,
+		},
+		{
+			name: "SendCustNo", label: "寄件客戶", search: false, hidden: true
+		},
+		{
+			name: "SendCHName", label: "寄件客戶", search: false,
+		},
+		{
+			name: "SendPhone", label: "寄件人電話", search: false,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "SendCustAddr", label: "寄件地址", search: false,
+		},
+		{
+			name: "RecBy", label: "收件人", search: false,
+		},
+		{
+			name: "RecPhone", label: "收件人電話", search: false,
+		},
+		{
+			name: "RecCompany", label: "收件公司", search: false,
+		},
+		{
+			name: "RecCustCHName", label: "中文名稱", search: false,
+		},
+		{
+			name: "RecChAddr", label: "中文地址", search: false,
+		},
+		{
+			name: "RecCustEName1", label: "英文名稱1", search: false,
+		},
+		{
+			name: "RecCustEName2", label: "英文名稱2", search: false,
+		},
+		{
+			name: "RecCustENAddr1", label: "英文地址1", search: false,
+		},
+		{
+			name: "RecCustENAddr2", label: "英文地址2", search: false,
+		},
+		{
+			name: "RecInvNo", label: "統編/CR.No", search: false,
+		},
+		{
+			name: "RecCity", label: "城市", search: false,
+		},
+		{
+			name: "RecState", label: "省/州", search: false,
+		},
+		{
+			name: "RecCountry", label: "國家", search: false,
+		},
+		{
+			name: "RecPostDist", label: "郵政專號", search: false,
+		},
+		{
+			name: "SectorNo", label: "取件員", search: false, hidden: true
+		},
+		{
+			name: "SectorName", label: "取件員", search: false,
+		},
+		{
+			name: "SStatNo", label: "寄件站點", search: false, hidden: true
+		},
+		{
+			name: "SStatName", label: "寄件站點", search: false,
+		},
+		{
+			name: "AStatNo", label: "派件站點", search: false, hidden: true
+		},
+		{
+			name: "AStatName", label: "派件站點", search: false,
+		},
+		{
+			name: "DestNo", label: "目的地", search: false, hidden: true
+		},
+		{
+			name: "CName", label: "目的地", search: false,
+		},
+		{
+			name: "Type", label: "類型", search: false,
+		},
+		{
+			name: "ProductNo", label: "品名", search: false, hidden: true
+		},
+		{
+			name: "ProductName", label: "品名", search: false,
+		},
+		{
+			name: "PiecesNo", label: "件數", search: false,
+		},
+		{
+			name: "Qty", label: "數量", search: false,
+		},
+		{
+			name: "Weight", label: "實重", search: false,
+		},
+		{
+			name: "Volume", label: "材積重", search: false,
+		},
+		{
+			name: "Cost", label: "貨品價值", search: false,
+		},
+		{
+			name: "CostCurrency", label: "貨品價值", search: false, hidden: true
+		},
+		{
+			name: "CcNo", label: "付款方式", search: false,
+		},
+		{
+			name: "PayCustNo", label: "付款客戶", search: false, hidden: true
+		},
+		{
+			name: "PayCustCHName", label: "付款客戶", search: false,
+		},
+		{
+			name: "Freight", label: "運費", search: false,
+		},
+		{
+			name: "FuelCosts", label: "燃油費", search: false,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false,
+		},
+		{
+			name: "ToPaymentCurrency", label: "到付款", search: false, hidden: true
+		},
+		{
+			name: "AgentPay", label: "代收款", search: false,
+		},
+		{
+			name: "AgentPayCurrency", label: "代收款", search: false, hidden: true
+		},
+		{
+			name: "ProdIdPay", label: "產證費", search: false
+		},
+		{
+			name: "CustomsPay", label: "報關費", search: false
+		},
+		{
+			name: "InsurancePay", label: "保險費", search: false
+		},
+		{
+			name: "OtherPayTax", label: "其他(有稅)", search: false,
+		},
+		{
+			name: "OtherPayNoTax", label: "其他(無稅)", search: false
+		},
+		{
+			name: "Length", label: "長", search: false,
+		},
+		{
+			name: "Width", label: "寬", search: false,
+		},
+		{
+			name: "Height", label: "高", search: false,
+		},
+		{
+			name: "Total", label: "總金額", search: false,
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "ImOrEx", label: "進/出口", search: false, hidden: true
+		},
+		{
+			name: "Status", label: "提單狀態", search: false, hidden: true
+		},
+		{
+			name: "StatusTime", label: "狀態時間", search: false, hidden: true
+		},
+		{
+			name: "IsConfirm", label: "確認", search: false, hidden: true
+		},
+		{
+			name: "ConfirmBy", label: "確認人員", search: false, hidden: true
+		},
+		{
+			name: "ShdetNo", label: "調派編號", search: false, hidden: true
+		},
+		{
+			name: "ShdetNo", label: "調派編號", search: false, hidden: true
+		},
+		{
+			name: "CreateBy", label: "建單人員", search: false
+		},
+		{
+			name: "CreateTime", label: "建單時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	grid.jqGrid({
+		caption: "提單確認",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "LadingNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: true,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	//取得今天日期
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function getBeforeSevenDays() {
+		var today = new Date();
+		var sevendays = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+		return sevendays.getFullYear() + '-' + (sevendays.getMonth() + 1) + '-' + sevendays.getDate();
+	}
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	function BillLadingConfirm() {
+		var data = $("#grid").jqGrid("getGridParam", "selarrrow");
+		if (data.length > 0) {
+			$.messager.confirm('Confirm', '是否確認?',
+				function (r) {
+					if (r) {
+						$.post('@Url.Action("BillLadingConfirm", "Bill_Lading_IsConfirm")', { LadingNo: data }, function (data, textStatus, jqXHR) {
+                            if (data.ok >= 0) {
+                                $('#grid').trigger('reloadGrid');
+                                $('#subgrid').trigger('reloadGrid');
+                                $.messager.alert('成功', '確認成功!');
+                            } else {
+                                $.messager.alert('錯誤', data.message, 'error');
+                            }
+                        }, 'json');
+					}
+				});
+		} else {
+			$.messager.alert('警告', '尚未選擇資料!', 'warning');
+		}
+	}
+
+	$(function () {
+		$("#toolbar_grid").html('')
+			.append('<a class="easyui-linkbutton" id="BillLadingConfirm" iconCls="icon-ok" onclick="BillLadingConfirm();">確認</a>')
+			.append(' ｜ <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("BillLadingConfirm") == false) {
+				$("#BillLadingConfirm").linkbutton('disable');
+			}
+	 }, 300);
+	});
+
+</script>
+
+

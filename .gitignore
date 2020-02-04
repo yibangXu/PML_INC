@@ -1,0 +1,7 @@
+HY_PML/obj/
+HY_PML/bin/
+HY_PML/Web.config
+HY_PML/Properties/
+packages/
+.vs/
+HY_PML/HY_PML.csproj.user

@@ -1,0 +1,134 @@
+﻿<table>
+    <tbody>
+        <tr>
+            <td>
+                <label>目的地代號:</label>
+            </td>
+            <td>
+                <div class="fitem">
+                    <input name="DestNo" id="DestNo" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[8]'">
+                    <input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>中文目的地:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="CName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[50]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>英文目的地:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="ChName" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>站點批價區域:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="Zone" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[40]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>州/省:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="State" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>國家:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="Country" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>外務批價區域:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="Areas" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[40]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>郵編:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="Zip" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[40]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>區號:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="Tel" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[40]'">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>所屬站點:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="StatID" id="StatID" type="hidden">
+                    <input name="StatNo" id="StatNo" class="easyui-textbox" />
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                       onclick="ShowWinForPickUpjqGrid('fm','StatID,StatNo','ID,StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>區域:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="AreaID" id="AreaID" type="hidden">
+                    <input name="AreaNo" id="AreaNo" class="easyui-textbox" />
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                       onclick="ShowWinForPickUpjqGrid('fm','AreaID,AreaNo','ID,AreaNo','@Url.Action("getSelectionjqGrid", "Area")');"></a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>目的幣別:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="CurrencyID" id="CurrencyID" type="hidden">
+                    <input name="CurrencyNo" id="CurrencyNo" class="easyui-textbox" />
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                       onclick="ShowWinForPickUpjqGrid('fm','CurrencyID,CurrencyNo','ID,CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td><label>是否啟用:</label></td>
+            <td>
+                <div class="fitem">
+                    <input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

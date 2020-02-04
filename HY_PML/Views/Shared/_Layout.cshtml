@@ -1,0 +1,395 @@
+﻿@using HY_PML.helper;
+@using HY_PML.Controllers;
+@using System.Web.Configuration
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>@ViewBag.Title - PML</title>
+	<base href="~/" target="_self" />
+	@Styles.Render("~/Content/css")
+	@Scripts.Render("~/bundles/modernizr")
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	@RenderSection("styles", required: false)
+	<style type="text/css">
+		@@media (min-width: 767px) {
+			#navigation {
+				padding-bottom: 0px;
+			}
+
+			.navbar-nav > li > a {
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+		}
+
+		.navbar-nav > li > a {
+			padding-top: 10px;
+			padding-bottom: 10px;
+			line-height: 20px;
+		}
+
+		.navbar {
+			min-height: 30px;
+			margin-bottom: 20px;
+			border: 1px solid transparent;
+		}
+
+		.nav > li > a {
+			position: relative;
+			display: block;
+			padding: 5px 10px;
+		}
+
+		div#scrollable {
+			overflow: auto;
+			height: 100%;
+		}
+
+		header, footer {
+			padding: 1em;
+			clear: left;
+			text-align: center;
+		}
+
+		a {
+			color: #462E15;
+		}
+
+		#mwt_mwt_slider_scroll {
+			top: 0;
+			left: -200px;
+			width: 200px;
+			position: fixed;
+			z-index: 9999;
+		}
+
+		#mwt_slider_content {
+			background: #B9D1EA;
+			padding-top: 0px;
+		}
+
+		#mwt_fb_tab {
+			position: absolute;
+			top: 0px;
+			right: -60px;
+			width: 60px;
+			background: #B9D1EA;
+			color: #462E15;
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+			padding: 9px 0;
+			-moz-border-radius-topright: 10px;
+			-moz-border-radius-bottomright: 10px;
+			-webkit-border-top-right-radius: 10px;
+			-webkit-border-bottom-right-radius: 10px;
+		}
+
+			#mwt_fb_tab span {
+				display: block;
+				height: 12px;
+				padding: 1px 0;
+				line-height: 12px;
+				text-transform: uppercase;
+				font-size: 12px;
+			}
+
+		#mwt_mwt_slider_scroll2 {
+			top: 0;
+			left: 2000px;
+			width: 200px;
+			position: fixed;
+			z-index: 9999;
+		}
+
+		#mwt_slider_content2 {
+			background: #B9D1EA;
+			padding-top: 20px;
+		}
+
+		#mwt_fb_tab2 {
+			position: absolute;
+			top: 0px;
+			left: -60px;
+			width: 60px;
+			background: #B9D1EA;
+			color: #462E15;
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+			padding: 9px 0;
+			-moz-border-radius-topleft: 10px;
+			-moz-border-radius-bottomleft: 10px;
+			-webkit-border-top-left-radius: 10px;
+			-webkit-border-bottom-left-radius: 10px;
+		}
+
+			#mwt_fb_tab2 span {
+				display: block;
+				height: 12px;
+				padding: 1px 0;
+				line-height: 12px;
+				text-transform: uppercase;
+				font-size: 12px;
+			}
+
+		#naviTree {
+			padding-left: 0px;
+		}
+	</style>
+</head>
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top" style="background-color:#ffffe1;height:20px">
+		<div class="container">
+			<div class="navbar-header" style="padding-left:30px">
+				<ul class="nav navbar-nav ">
+					<li>
+						<a>
+							<span class="glyphicon glyphicon-th-list"></span>
+						</a>
+					</li>
+					<li>
+						<a>
+							@WebConfigurationManager.AppSettings["WebName"]
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div style="padding-right:30px;text-align:right;font-size:18px">
+				<input class="easyui-textbox" id="UserAct" name="searchType" value="@ViewBag.UserAct" type="hidden" />
+				Version: 2020-02-04 v1
+			</div>
+		</div>
+	</div>
+	@if (!string.IsNullOrWhiteSpace(WebSiteHelper.CurrentUserID))
+	{
+		<div class="container-fluid">
+			<div class="row">
+				<div id="main" class="col-lg-12 col-md-12 col-sm-12 fill">
+					<div>
+						@RenderBody()
+						<hr />
+						<div id="navigation">
+							<div id="mwt_mwt_slider_scroll">
+								<div id="mwt_fb_tab">
+									<span>功能選單</span>
+								</div>
+								<div id="mwt_slider_content">
+									<div id="scrollable">
+										@if (!string.IsNullOrWhiteSpace(WebSiteHelper.CurrentUserID))
+										{
+											var info = (UserLoginInfo)Session["UserLoginInfo"];
+
+											try
+											{
+												if (info != null && info.name != null)
+												{
+													@Html.Label("帳號:" + WebSiteHelper.CurrentUserID)
+													@Html.ActionLink("(登出)", "Logout", "Login")
+													<br>
+													@Html.Label("姓名:" + info.name)
+													<br>
+													@Html.Label("站點:" + info.statNo)
+												}
+												else
+												{
+													Response.Redirect("~/Login/Logout");
+												}
+											}
+											catch (Exception e)
+											{
+												Response.Redirect("~/Login/Logout");
+											}
+										}
+										<ul id="naviTree"></ul>
+									</div>
+								</div>
+							</div>
+
+							<div id="mwt_mwt_slider_scroll2">
+								<div id="mwt_fb_tab2">
+									<span>快捷功能</span>
+								</div>
+								<div id="mwt_slider_content2">
+									<div id="quick_content">
+										<label style="float:left;vertical-align:central">調派單號:</label>
+										<input class="form-control" name="QueryNo" id="QueryNo" type="text" style="height:20px;width:130px" />
+										<button class="btn btn-primary btn-xs" onclick="doQuickQueryShdet();">查詢</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+	else
+	{
+		@RenderBody()
+	}
+	@RenderSection("scripts", required: false)
+</body>
+</html>
+<script type="text/javascript" src="~/Content/easyui/locale/easyui-lang-zh_TW.js"></script>
+<script type="text/javascript">
+	$(function () {
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("Add") == false) {
+				$("#add-btn").linkbutton('disable');
+			}
+			if (userAct.includes("Edit") == false) {
+				$("#edit-btn").linkbutton('disable');
+			}
+			if (userAct.includes("Del") == false) {
+				$("#del-btn").linkbutton('disable');
+			}
+	 }, 300);
+
+		$("#mwt_mwt_slider_scroll2").css("left", ($(window).width() + 'px'));
+
+		$('#naviTree').jstree({
+			'core': {
+				'data': {
+					'url': '@Url.Action("GetnNaviTreeJSON","Login")',
+					'data': function (node) {
+						return {
+							'id': node.id,
+							'text': node.text,
+							'children': node.children,
+							'icon': node.icon
+						};
+					},
+					'themes': {
+						'theme': "default",
+						'dots': false,
+						'icons': true
+					},
+					'types': {
+						'default': {
+							'icon': 'jstree-folder'
+						},
+						'file': {
+							'icon': 'jstree-file'
+						}
+					}
+				}
+			}
+		}).on('loaded.jstree', function () {
+			$('#naviTree').jstree('open_all');
+		}).on("changed.jstree", function (e, data) {
+			if (data.node.children.length === 0) {
+				document.location = data.node.original.href;
+			}
+		});
+
+		//slide menu
+		var w = $("#mwt_slider_content").width();
+		$("#mwt_slider_content").css("height", ($(window).height() + 'px'));
+		$("#mwt_slider_content2").css("height", ($(window).height() + 'px'));
+
+		$("#mwt_fb_tab").click(function () {
+			if ($("#mwt_mwt_slider_scroll").css('left') === '-' + w + 'px') {
+				$("#mwt_mwt_slider_scroll").animate({
+					left: '0px'
+				}, 400, 'swing');
+			}
+			else {
+				$("#mwt_mwt_slider_scroll").animate({
+					left: '-' + w + 'px'
+				}, 400, 'swing');
+			}
+		});
+
+		$("#mwt_fb_tab2").click(function () {
+			if ($("#mwt_mwt_slider_scroll2").css('left') === ($(window).width()) + 'px') {
+				$("#mwt_mwt_slider_scroll2").animate({
+					left: ($(window).width() - 200) + 'px'
+				}, 400, 'swing');
+			}
+			else {
+				$("#mwt_mwt_slider_scroll2").animate({
+					left: ($(window).width()) + 'px'
+				}, 400, 'swing');
+			}
+		});
+	});
+
+	function doQuickQueryShdet() {
+		if ($('#QueryNo').val() !== '') {
+			window.location = '@Url.Action("Index", "ShdetF")' + '?QueryNo=' + $("#QueryNo").val();
+		}
+	}
+
+	//20180719 因為開始使用session，所以用前後端間隔對話來keep session
+	autoRefresh(300);
+	function autoRefresh(seconds) {
+		var period = seconds * 1000;
+		$.ajax({
+			type: 'POST',
+			async: true,
+			url: '@Url.Content("~/Login/getRequery")',
+			data: { 'refreshQuery': 'ok' },
+			success: function (_data) {
+				setTimeout('autoRefresh(' + seconds + ')', period);
+			},
+			complete: function () {
+			}
+		});
+	}
+</script>
+
+<script>
+	$.extend($.fn.validatebox.defaults.rules, {
+		numberCheckSub: {
+			validator: function (value) {
+				return /^[0-9]+$/.test(value);
+			},
+			message: "只能輸入數字"
+		},
+		minLength: {
+			validator: function (value, param) {
+				return value.length >= param[0];
+			},
+			message: '最小長度為{0}'
+		},
+		maxLength: {
+			validator: function (value, param) {
+				return value.length <= param[0];
+			},
+			message: '最大長度為{0}'
+		}
+	});
+
+	$.fn.datebox.defaults.formatter = function (date) {
+		var y = date.getFullYear();
+		var m = date.getMonth() + 1;
+		var d = date.getDate();
+		return y + '/' + (m < 10 ? ('0' + m) : m) + '/' + (d < 10 ? ('0' + d) : d);
+	};
+
+	$.fn.datebox.defaults.parser = function (s) {
+		var t = Date.parse(s);
+		if (!isNaN(t)) {
+			return new Date(t);
+		} else {
+			return new Date();
+		}
+	};
+
+	$.extend($.fn.textbox.methods, {
+		show: function (jq) {
+			return jq.each(function () {
+				$(this).next().show();
+			});
+		},
+		hide: function (jq) {
+			return jq.each(function () {
+				$(this).next().hide();
+			});
+		}
+	});
+</script>

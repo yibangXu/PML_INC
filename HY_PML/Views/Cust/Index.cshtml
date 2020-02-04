@@ -1,0 +1,677 @@
+﻿@{
+	Layout = "~/Views/Shared/_DoubleGridLayout.cshtml";
+}
+
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var subgrid = $("#subgrid");
+	var apiURL = "/Cust/";
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true
+		},
+		{
+			name: "IsFormal", label: "正式客戶", search: true,
+			formatter: "select",
+			editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				defaultValue: "true",
+				value: { true: "正式客戶", false: "不收款客戶", both: "不分" }
+			},
+		},
+		{
+			name: "CustNo", label: "客戶代號", search: true, key: true,
+		},
+		{
+			name: "InvNo", label: "統一編號", search: true,
+		},
+		{
+			name: "CustCName", label: "客戶簡稱", search: true,
+		},
+		{
+			name: "CustEName", label: "客戶英文簡稱", search: true,
+		},
+		{
+			name: "CustCHName", label: "中文全稱", width: 240, search: true,
+		},
+		{
+			name: "CustEName1", label: "英文名稱1", width: 240, search: false,
+
+		},
+		{
+			name: "CustEName2", label: "英文名稱2", width: 240, search: false,
+		},
+		{
+			name: "CustAddr", label: "中文地址", width: 240, search: false, hidden: true,
+		},
+		{
+			name: "CustAddrFull", label: "中文地址", width: 240, search: true,
+		},
+		{
+			name: "CustENAddr1", label: "英文地址1", width: 280, search: false,
+		},
+		{
+			name: "CustENAddr2", label: "英文地址2", width: 280, search: false,
+		},
+		{
+			name: "State", label: "省/州", search: false,
+		},
+		{
+			name: "Country", label: "國家", search: false,
+		},
+		{
+			name: "Email", label: "Email", search: false,
+		},
+		{
+			name: "PostDist", label: "郵編", search: false,
+		},
+		{
+			name: "Phone", label: "電話", search: true,
+		},
+		{
+			name: "FaxNo", label: "傳真", search: false,
+		},
+		{
+			name: "CtcAcc", label: "會計聯絡人", search: false,
+		},
+		{
+			name: "CtcSale", label: "業務部聯絡人", search: false,
+		},
+		{
+			name: "CtcSale2", label: "業務部聯絡人2", search: false,
+		},
+		{
+			name: "CtcSale3", label: "業務部聯絡人3", search: false,
+		},
+		{
+			name: "CcNo", label: "付款方式", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Cc/GetGridJSON?sidx=CcNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "CcNo", "CcNo,CcName", true);
+				},
+			},
+		},
+		{
+			name: "CcID", label: "付款方式",
+			search: false, editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 4, colpos: 4 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Cc/GetGridJSON?sidx=CcNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "CcNo,CcName", true);
+				},
+			},
+		},
+		{
+			name: "PayTerm", label: "付款期限", search: false,
+			editable: true,
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", },
+			formoptions: { rowpos: 5, colpos: 1 }
+		},
+		{
+			name: "SuspDate", label: "暫停日期", search: false,
+			editable: true,
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", },
+			formoptions: { rowpos: 5, colpos: 2 }
+		},
+		{
+			name: "Discnt", label: "收價報價檔號", search: false,
+		},
+		{
+			name: "Account", label: "業務代表", search: false,
+		},
+		{
+			name: "IDNo", label: "身分證字號", search: true,
+		},
+		{
+			name: "InvTitle", label: "發票抬頭", search: false,
+		},
+		{
+			name: "InvAddr", label: "發票地址", search: false,
+		},
+		{
+			name: "PayDate", label: "出帳日期", search: false,
+			editable: true,
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", },
+			formoptions: { rowpos: 6, colpos: 4 }
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "QuoType", label: "啟用信用額度", search: false,
+		},
+		{
+			name: "Balance", label: "信用額度金額", search: false,
+
+		},
+		{
+			name: "DayOfWeek", label: "周叫件日", search: false,
+		},
+		{
+			name: "RedyTime", label: "可收件時間", search: false,
+			editable: true,
+			editoptions: {
+				maxLength: 5,
+				dataInit: function (elm) {
+					$(elm).timepicker({
+						timeFormat: "HH:mm"
+					});
+				},
+			},
+			formatoptions: { newformat: "H:m", },
+			formoptions: { rowpos: 7, colpos: 4 }
+		},
+		{
+			name: "IsAgent", label: "代理或同行", search: false,
+			editable: true,
+			edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+			formoptions: { rowpos: 8, colpos: 1 }
+		},
+		{
+			name: "StatNo", label: "站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "StatID", label: "站點",
+			search: false, editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 8, colpos: 2 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "IsCommon", label: "公共客戶", search: true, editable: true,
+			formoptions: { label: "是否供其他站點選擇", rowpos: 8, colpos: 3 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "AccPhone", label: "會計部電話", search: false,
+			editable: true,
+			formoptions: { rowpos: 8, colpos: 4 }
+		},
+		{
+			name: "SectorName", label: "調派外務員", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Sector/GetGridJSON?sidx=SectorName&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true);
+				},
+			},
+		},
+		{
+			name: "SectorNo", label: "調派外務員",
+			search: false, editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 9, colpos: 1 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Sector/GetGridJSON?sidx=SectorNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "SectorNo,SectorName", true);
+				},
+			},
+		},
+		{
+			name: "DiscntOut", label: "派件報價檔號", search: false,
+		},
+		{
+			name: "IsinVoice", label: "是否開發票", search: false,
+			editable: true,
+			edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+			formatter: "select",
+			formoptions: { rowpos: 9, colpos: 3 }
+		},
+		{
+			name: "PickUpAreaName", label: "所屬調度區域", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "PickUpArea/GetGridJSON?sidx=PickUpAreaName&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "PickUpAreaName", "PickUpAreaName", true);
+				},
+			},
+		},
+		{
+			name: "PickUpAreaID", label: "所屬調度區域",
+			search: false, editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 9, colpos: 4 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "PickUpArea/GetGridJSON?sidx=PickUpAreaNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "PickUpAreaName", true);
+				},
+			},
+		},
+		{
+			name: "Remark5", label: "調度重要說明", search: false,
+		},
+		{
+			name: "SignDate", label: "簽約日期", search: false,
+			editable: true,
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", },
+			formoptions: { rowpos: 10, colpos: 1 },
+		},
+		{
+			name: "IsServer", label: "是否啟用", search: true, editable: true,
+			formoptions: { rowpos: 10, colpos: 2 },
+			edittype: "select", formatter: "select",
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+		{ name: 'Add_1', label: 'add1', hidden: true, },
+		{ name: 'Add_2', label: 'add2', hidden: true, },
+		{ name: 'Add_3', label: 'add3', hidden: true, },
+		{ name: 'Add_4', label: 'add4', hidden: true, },
+		{ name: 'Add_5', label: 'add5', hidden: true, },
+		{ name: 'Add_6', label: 'add6', hidden: true, },
+		{ name: 'CustLevel', label: '客戶等級', search: false, hidden: true, },
+	];
+	grid.jqGrid({
+		caption: "客戶基本資料",
+		url: apiURL + "GetGridJSON",
+
+		datatype: "local",
+		colModel: model,
+		sortname: "CustNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (id, selected) {
+			$("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+			if (selected) {
+				subgrid.jqGrid("setGridParam", {
+					url: apiURL + "GetGridJSON2?CustNo=" + id,
+				});
+				subgrid[0].clearToolbar();
+			}
+			else
+				subgrid.jqGrid("clearGridData");
+		},
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+	$('#grid').setGridParam({ datatype: 'json', url: apiURL + 'GetGridJSON', });
+	$('#grid')[0].triggerToolbar();
+</script>
+
+<script>
+	var subModel = [
+		{
+			name: "sNo", label: "序號", key: true, hidden: true, editable: true,
+		},
+		{
+			name: "CustNo", label: "客戶代號", hidden: true, editable: true,search: true,
+			editoptions: {
+				defaultValue: function () {
+					var id = grid.jqGrid('getGridParam', 'selrow');
+					return grid.jqGrid('getCell', id, 'CustNo');
+				},
+			},
+		},
+		{
+			name: "CustLevel", label: "客戶等級", search: false, hidden: true,
+		},
+		{
+			name: "CustCHName", label: "中文全稱", search: true, hidden: true,
+		},
+		{
+			name: "CustEName1", label: "英文名稱1", search: false, hidden: true,
+		},
+		{
+			name: "CustEName2", label: "英文名稱2", search: false, hidden: true,
+		},
+		{
+			name: "CustCName", label: "中文簡稱", search: false, hidden: true,
+		},
+		{
+			name: "CustEName", label: "英文簡稱", search: false, hidden: true,
+		},
+		{
+			name: "CarryName", label: "取件名稱", search: true,
+		},
+		{
+			name: "Code5", label: "郵政5碼", search: false,
+		},
+		{
+			name: "Code7", label: "郵政7碼", search: false, hidden: true,
+		},
+		{ name: 'Add_1', label: 'add1', search: false, hidden: true, },
+		{ name: 'Add_2', label: 'add2', search: false, hidden: true, },
+		{ name: 'Add_3', label: 'add3', search: false, hidden: true, },
+		{ name: 'Add_4', label: 'add4', search: false, hidden: true, },
+		{ name: 'Add_5', label: 'add5', search: false, hidden: true, },
+		{ name: 'Add_6', label: 'add6', search: false, hidden: true, },
+		{
+			name: "CustAddr", label: "中文地址", search: false, hidden: true,
+		},
+		{
+			name: "CustENAddr1", label: "英文地址1", search: false,
+		},
+		{
+			name: "CustENAddr2", label: "英文地址2", search: false,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "InvNo", label: "統一編號", search: true,
+		},
+		{
+			name: "PostDist", label: "郵政專號", search: false,
+		},
+		{
+			name: "City", label: "城市", search: false,
+		},
+		{
+			name: "State", label: "省/州", search: false,
+		},
+		{
+			name: "Country", label: "國家", search: false,
+		},
+		{
+			name: "ESendBy", label: "寄件人", search: false, hidden: true,
+		},
+		{
+			name: "EInvNo", label: "統一編號", search: false, hidden: true,
+		},
+		{
+			name: "EPostDist", label: "郵政專號", search: false, hidden: true,
+		},
+		{
+			name: "ECity", label: "城市", search: false, hidden: true,
+		},
+		{
+			name: "EState", label: "省/州", search: false, hidden: true,
+		},
+		{
+			name: "ECountry", label: "國家", search: false, hidden: true,
+		},
+		{
+			name: "IDNo", label: "身分證字號", search: false, hidden: true,
+		},
+		{
+			name: "Email", label: "EMAIL", search: false, hidden: true,
+		},
+		{
+			name: "Phone", label: "電話", search: true, hidden: true,
+		},
+		{
+			name: "FaxNo", label: "傳真", search: false, hidden: true,
+		},
+		{
+			name: "CtcAcc", label: "會計聯絡人", search: false,
+		},
+		{
+			name: "AccPhone", label: "會計部電話", search: false, hidden: true,
+		},
+		{
+			name: "CtcSale", label: "業務部聯絡人", search: false, hidden: true,
+		},
+		{
+			name: "CtcSale2", label: "業務部聯絡人2", search: false, hidden: true,
+		},
+		{
+			name: "CtcSale3", label: "業務部聯絡人3", search: false, hidden: true,
+		},
+		{
+			name: "Account", label: "業務代表", search: false,
+		},
+		{
+			name: "PayTerm", label: "付款期限", search: false, hidden: true,
+		},
+		{
+			name: "CcID", label: "付款方式", search: false, hidden: true,
+		},
+		{
+			name: "PayDate", label: "出帳日期", search: false, hidden: true,
+		},
+		{
+			name: "SignDate", label: "簽約日期", search: false, hidden: true,
+		},
+		{
+			name: "SuspDate", label: "暫停日期", search: false, hidden: true,
+		},
+		{
+			name: "Discnt", label: "收價報價檔號", search: false, hidden: true,
+		},
+		{
+			name: "DiscntOut", label: "派件報價檔號", search: false, hidden: true,
+		},
+		{
+			name: "QuoType", label: "啟用信用額度", search: false, hidden: true,
+		},
+		{
+			name: "Balance", label: "信用額度金額", search: false, hidden: true,
+		},
+		{
+			name: "IsinVoice", label: "是否開發票", search: false, hidden: true,
+		},
+		{
+			name: "InvTitle", label: "發票抬頭", search: false,
+		},
+		{
+			name: "InvAddr", label: "發票地址", search: false,
+		},
+		{
+			name: "StatID", label: "所屬站點", search: false, hidden: true,
+		},
+		{
+			name: "IsAgent", label: "代理或同行", search: false, hidden: true,
+		},
+		{
+			name: "IsCommon", label: "公共客戶", search: false, hidden: true,
+		},
+		{
+			name: 'IsServer', label: '是否啟用', search: false,
+			editable: true,
+			formatter: "select", edittype: "select",
+			formoptions: { rowpos: 9, colpos: 2 },
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true },
+		},
+		{
+			name: "IsMas", label: "為主資料", search: false, hidden: true,
+		},
+		{
+			name: "PickUpAreaID", label: "所屬調度區域", search: false, hidden: true,
+		},
+		{
+			name: "Remark5", label: "調度重要說明", search: false, hidden: true,
+		},
+		{
+			name: "SectorNo", label: "調派外務員", search: false, hidden: true,
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "DayOfWeek", label: "周叫件日", search: false, hidden: true,
+		},
+		{
+			name: "RedyDayWeekly", label: "取件週期", search: false,
+		},
+		{
+			name: "RedyTime", label: "取件時間", search: false,
+			editable: true,
+			formoptions: { rowpos: 7, colpos: 1 },
+			editoptions: {
+				dataInit: function (elm) {
+					$(elm).timepicker({
+						timeFormat: "HH:mm"
+					});
+				},
+			},
+			formatoptions: { newformat: "H:m", }
+		},
+		{ name: "Code5_C", label: "郵政5碼", search: false, hidden: true, },
+		{ name: "Code7_C", label: "郵政7碼", search: false, hidden: true, },
+		{ name: 'Add_1_C', label: 'add1_C', hidden: true, },
+		{ name: 'Add_2_C', label: 'add2_C', hidden: true, },
+		{ name: 'Add_3_C', label: 'add3_C', hidden: true, },
+		{ name: 'Add_4_C', label: 'add4_C', hidden: true, },
+		{ name: 'Add_5_C', label: 'add5_C', hidden: true, },
+		{ name: 'Add_6_C', label: 'add6_C', hidden: true, },
+		{
+			name: "CustAddr_C", label: "取件地址", search: false, hidden: true,
+		},
+		{
+			name: "CustAddrFull_C", label: "取件地址", search: false, hidden: true,
+		},
+		{
+			name: "CustAddrFull", label: "完整地址", search: false,
+		},
+		{
+			name: "CustAddrFull", label: "完整地址", search: false, hidden: true,
+		},
+		{ name: 'CcNo', label: 'CcNo', hidden: true, },
+		{ name: 'StatNo', label: 'StatNo', hidden: true, },
+		{ name: 'SectorName', label: 'SectorName', hidden: true, },
+		{ name: 'PickUpAreaNo', label: 'PickUpAreaNo', hidden: true, },
+		{ name: 'PickUpAreaName', label: 'PickUpAreaName', hidden: true, },
+	];
+	subgrid.jqGrid({
+		caption: "客戶其他資料",
+		url: apiURL + "GetGridJSON2?CustNo=★",
+		datatype: "json",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: true,
+		rowNum: 40,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>
+<script>
+	$(function () {
+		$("#edit-btn").css('display', 'none');
+		$('#toolbar_grid').append('<input type="radio" name="custType" value="true">正式客戶</input> &nbsp');
+		$('#toolbar_grid').append('<input type="radio" name="custType" value="false">不收款客戶</input> &nbsp');
+		$('#toolbar_grid').append('<input type="radio" name="custType" value="both">不分</input>');
+
+		var $radios = $('input:radio[name=custType]');
+		if ($radios.is(':checked') === false) {
+			$radios.filter('[value=true]').prop('checked', true);
+		}
+
+		$("input[type=radio][name='custType']").on('change', function () {
+			var value = $("input[type=radio][name='custType']:checked").val();
+			$("#gs_grid_IsFormal").val(value);
+			$('#gs_grid_IsFormal').trigger("change");
+			$("#grid")[0].triggerToolbar();
+		});
+	});
+
+	function afterSaveDetail() {
+		$('#grid').trigger('reloadGrid');
+	};
+</script>

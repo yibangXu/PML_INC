@@ -1,0 +1,48 @@
+﻿<table>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>報表中文名稱:</label>
+				<input name="ReportCName" class="easyui-textbox" style="width:250px" required data-options="validType:'maxLength[20]'">
+				<input type="hidden" name="ID" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>報表英文名稱:</label>
+				<input name="ReportEName" class="easyui-textbox" style="width:250px" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>報表代號:</label>
+				<input name="ReportCode" class="easyui-textbox" style="width:150px" data-options="validType:'maxLength[10]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>路線:</label>
+				<input name="HubNo" id="CustID" type="hidden">
+				<input name="HubCode" id="HubCode" class="easyui-textbox" style="width:50px" readonly />
+				<input name="HubName" id="HubName" class="easyui-textbox" style="width:200px" readonly />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','HubNo,HubCode,HubName','HubNo,HubCode,HubName','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>是否回填:</label>
+				<input name="IsBackfill" id="IsBackfill" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+			</div>
+		</td>
+		<td></td>
+	</tr>
+</table>

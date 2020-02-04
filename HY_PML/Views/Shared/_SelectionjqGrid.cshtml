@@ -1,0 +1,113 @@
+﻿<script>
+    var fmId = '@ViewBag.formId';
+    var inputFields = [];
+    var inputValues = [];
+    var id = null;
+    var funcName = null;
+    if ('@ViewBag.id') {
+        id = '@ViewBag.id';
+    }
+    if ('@ViewBag.funcName') {
+        console.log('@ViewBag.funcName');
+         funcName = '@ViewBag.funcName';
+    }
+    @foreach (var item in ViewBag.inputFields)
+    {
+        @:inputFields.push("@item");
+    }
+     @foreach (var item in ViewBag.inputValues)
+    {
+        @:inputValues.push("@item");
+    }
+</script>
+<div>
+	<div id="toolbar_s">
+		<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick='pickRowtoForm(fmId, inputFields, inputValues); AfterPick(url);'>挑選</a>
+	</div>
+	<table id="DataGrid_s"></table>
+	<div id="pager_s"></div>
+</div>
+@RenderBody()
+<script type="text/javascript">
+    $(function () {
+        @RenderSection("initJS", required: false)
+        $("#DataGrid_s").jqGrid("autoWidthColumns").jqGrid({
+            caption: gridTitle,
+            url: url + (funcName === null ? 'GetGridJSON' : funcName) + (id === null ? "" : "/" + id),
+
+            datatype: "json",
+            colModel: model,
+            sortname: sortName,
+            sortorder: "asc",
+
+            shrinkToFit: false,
+            autowidth: true,
+			height:320,
+
+            pager: "#pager_s",
+            pgbuttons: true,
+            pginput: true,
+            viewrecords: true,
+            rowNum: 40,
+            rowList: [40, 80, 120, 160],
+			hidegrid: false,
+            toolbar: [true, "top"],
+
+            altRows: true,
+			altclass: "ui-jz-altRow",
+			ondblClickRow: function (rowid) {
+				pickRowtoForm(fmId, inputFields, inputValues, rowid);
+				if (typeof AfterPick === "function") {
+					AfterPick(url);
+				}
+			},
+        }).jqGrid("navGrid", "#pager_s",
+            {
+                edit: false, add: false, del: false,
+                search: false, view: false,
+            },
+            {/*edit*/
+
+            },
+            {/*add*/
+
+            },
+            {/*del*/
+
+            },
+            {/*search*/
+            },
+            {/*view*/
+            }).filterToolbar({
+				searchOnEnter: true
+            });
+
+        $("#t_DataGrid_s").append($('#toolbar_s'));
+    });
+
+	function pickRowtoForm(fmId, inputFields, inputValues, rowid) {
+		if (rowid == undefined ){
+			var gsr = $("#DataGrid_s").jqGrid('getGridParam', 'selrow');
+		} else {
+			var gsr = rowid;
+		}
+        if (gsr) {
+            var retRow = $("#DataGrid_s").jqGrid('getRowData', gsr);
+            var newRow = new Object();
+			for (var i = 0; i < inputFields.length; i++) {
+                if (retRow[inputValues[i]] !== undefined) {
+                    newRow[inputFields[i]] = retRow[inputValues[i]];
+                }
+            }
+            $('#' + fmId).form('load', newRow);
+            $('#win').window('close');
+        }
+        else {
+            alert("未選擇資料");
+        }
+	}
+	function AfterPick(url) {
+		afterPickfun(url);
+	}
+    @RenderSection("innerJS", required: false)
+</script>

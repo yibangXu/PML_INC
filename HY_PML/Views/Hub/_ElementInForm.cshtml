@@ -1,0 +1,67 @@
+﻿<table>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>路線名稱:</label>
+				<input name="HubName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[20]'">
+				<input type="hidden" name="ID" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>路線代號:</label>
+				<input name="HubCode" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[15]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>客戶代號:</label>
+				<input name="CustID" id="CustID" type="hidden">
+				<input name="CustNo" id="CustNo" class="easyui-textbox" />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CustID,CustNo','ID,CustNo','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>列印名稱:</label>
+				<input name="HubPName" class="easyui-textbox" style="width:auto"  data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>列印語言:</label>
+				<select name="PrintLang" id="PrintLang" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
+					<option value="">請選擇</option>
+					<option value="zh">中文資料</option>
+					<option value="en">英文資料</option>
+				</select>
+				<script type="text/javascript">
+					var PrintLang = [
+						{ val: '', text: '請選擇' },
+						{ val: 'zh', text: '中文資料' },
+						{ val: 'en', text: '英文資料' },
+					];
+				</script>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>是否啟用:</label>
+				<input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+			</div>
+		</td>
+		<td></td>
+	</tr>
+
+</table>

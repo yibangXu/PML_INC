@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Vehicle/';
+    var gridTitle = '車輛資料';
+    var sortName = 'CarNO';
+    var model = [
+        {
+            name: "CarID", label: "車輛編號", key: true,
+            search: true, readonly: "edit", editable: true,
+            formoptions: { label: "*車輛編號", rowpos: 1, colpos: 1 },
+            editoptions: { maxLength: 4 },
+            editrules: { required: true },
+        },
+        {
+            name: "CarNO", label: "車牌號碼",
+            search: true, editable: true,
+            formoptions: { rowpos: 1, colpos: 2 },
+            editoptions: { maxLength: 20 },
+        },
+        {
+            name: "CarKind", label: "車型",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 1 },
+            editoptions: { maxLength: 20 },
+        },
+    ];
+</script>

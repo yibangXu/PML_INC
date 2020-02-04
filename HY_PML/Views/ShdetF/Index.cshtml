@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/Views/Shared/_ShdetLayoutJQGridVersion.cshtml";
+}
+
+@section despButton{
+    <a class="easyui-linkbutton" iconCls="icon-large-smartart" plain="true" id="despButton" onclick="$.messager.confirm({ title: '詢問', ok: '是', cancel: '否', msg: '是否轉正式調派?', fn: function (r) { if (r) { goDesp(); } } });">收件</a>
+}
+
+@section disableBtn{
+    DisableWhenIsDesp();
+}
+
+@section enableBtnWithDesp{
+    EnableWhenNotDesp();
+}
+
+<table style="display:none">
+    <tr>
+        <td><label>調派狀態</label></td>
+        <td>
+            @*<input name="IsDesp" id="IsDesp" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true',readonly:true" checked>*@
+
+            @*<div class="form-check">
+
+                </div>*@
+            <input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp" onclick="return false;">
+            @*<label class="form-check-label" for="IsDesp">
+                    不收款客戶
+                </label>*@
+
+        </td>
+        <td><label>取消狀態</label></td>
+        <td>
+            @*<input name="IsCancel" id="IsCancel" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true',readonly:true" checked>*@
+
+            <input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel" onclick="return false;">
+        </td>
+    </tr>
+
+    <tr>
+        <td><label>回覆狀態</label></td>
+        <td>
+            @*<input name="IsReply" id="IsReply" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true',readonly:true" checked>*@
+
+            <input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply" onclick="return false;">
+        </td>
+        <td><label>完成狀態</label></td>
+        <td>
+            @*<input name="IsFinish" id="IsFinish" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true',readonly:true" checked>*@
+
+            <input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish" onclick="return false;">
+        </td>
+    </tr>
+
+
+</table>

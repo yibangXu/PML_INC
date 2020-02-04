@@ -1,0 +1,200 @@
+﻿<div data-options="region:'center'">
+    <div id="p" class="easyui-panel" title="基礎部份"
+         style="width:100%;height:170px;padding:10px;background:#fafafa; "
+         data-options="closable:false,
+                    collapsible:false,minimizable:false,maximizable:false,style:{margin:'0 auto'}">
+        <div class="fitem">
+            <table>
+                <tr>
+                    <td>
+                        <label class="required">站點代號:</label>
+                    </td>
+                    <td>
+                        <input name="StatNo" id="StatNo" class="easyui-textbox" required style="width:auto" data-options="validType:'maxLength[10]'">
+                        <input type="hidden" name="ID" class="easyui-textbox">
+                    </td>
+                    <td>
+                        <label class="required">站點名稱:</label>
+                    </td>
+                    <td>
+                        <input name="StatName" class="easyui-textbox" required style="width:auto" data-options="validType:'maxLength[20]'">
+                    </td>
+                    <td>
+                        <label>站點類型:</label>
+                    </td>
+                    <td>
+                        <input name="Stattype" class="easyui-textbox" required style="width:auto" data-options="validType:'maxLength[2]'">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>區域:</label>
+                    </td>
+                    <td>
+                        <input name="AreaID" id="AreaID" type="hidden">
+                        <input name="AreaNo" id="AreaNo" class="easyui-textbox" data-options="readonly:'true'"/>
+                        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                           onclick="ShowWinForPickUpjqGrid('fm','AreaID,AreaNo','ID,AreaNo','@Url.Action("getSelectionjqGrid", "Area")');"></a>
+                    </td>
+                    <td>
+                        <label>財務中心:</label>
+                    </td>
+                    <td>
+                        <input name="CenterID" class="easyui-textbox" style="width:auto">
+                    </td>
+                    <td>
+                        <label>目的地:</label>
+                    </td>
+                    <td>
+                        <input name="DestID" id="DestID" type="hidden">
+                        <input name="DestNo" id="DestNo" class="easyui-textbox"/>
+                        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                           onclick="ShowWinForPickUpjqGrid('fm','DestID,DestNo','ID,CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>收件成本檔:</label>
+                    </td>
+                    <td>
+                        <input name="N1" class="easyui-textbox" style="width:auto">
+                    </td>
+                    <td>
+                        <label>派件成本檔:</label>
+                    </td>
+                    <td>
+                        <input name="N2" class="easyui-textbox" style="width:auto">
+                    </td>
+                    <td>
+                        <label>運輸成本檔:</label>
+                    </td>
+                    <td>
+                        <input name="N3" class="easyui-textbox" style="width:auto">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>網路站點:</label>
+                    </td>
+                    <td>
+                        <input name="Isnetwork" id="Isnetwork" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="p2" class="easyui-panel" title="其他部份"
+         style="width:100%;height:300px;padding:10px;background:#fafafa; "
+         data-options="closable:false,
+                    collapsible:false,minimizable:false,maximizable:false,style:{margin:'0 auto'}">
+        <div class="fitem">
+            <table>
+                <tr>
+                    <td>
+                        <label>主管:</label>
+                    </td>
+                    <td>
+                        <input name="SendDirector" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+
+                    </td>
+                    <td>
+                        <label>主管電話:</label>
+                    </td>
+                    <td>
+                        <input name="SendTel" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+                    </td>
+                    <td>
+                        <label>查詢小姐:</label>
+                    </td>
+                    <td>
+                        <input name="SendDirectorHand" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>傳真:</label>
+                    </td>
+                    <td>
+                        <input name="SendFax" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+                    </td>
+                    <td>
+                        <label>電話:</label>
+                    </td>
+                    <td>
+                        <input name="Tel" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+                    </td>
+                    <td>
+                        <label>所屬倉庫:</label>
+                    </td>
+                    <td>
+                        <input name="StorageID" class="easyui-textbox" style="width:auto">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>派送時效:</label>
+                    </td>
+                    <td>
+                        <input name="SendTime" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+                    </td>
+                    <td colspan="4">
+                        <label>網站公布:</label>
+                        <input name="IsWww" id="IsWww" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required style="width:50px">
+                        <label>作當天件:</label>
+                        <input name="IsCod" id="IsCod" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required style="width:50px">
+                        <label>做簽回單:</label>
+                        <input name="IsReturn" id="IsReturn" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required style="width:50px">
+                        <br />
+                        <label>做到付款:</label>
+                        <input name="IsToday" id="IsToday" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required style="width:50px">
+                        <label>做代收款:</label>
+                        <input name="IsCc" id="IsCc" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required style="width:50px">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>到付現額:</label>
+                    </td>
+                    <td>
+                        <input name="CccCharge" class="easyui-textbox" style="width:auto">
+                    </td>
+                    <td>
+                        <label>代付限額:</label>
+                    </td>
+                    <td>
+                        <input name="CcodCharge" class="easyui-textbox" style="width:auto">
+                    </td>
+                    <td>
+                        <label>本位幣:</label>
+                    </td>
+                    <td>
+                        <input name="CurrencyID" id="CurrencyID" type="hidden">
+                        <input name="CurrencyNo" id="CurrencyNo" class="easyui-textbox" style="width:auto">
+                        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                           onclick="ShowWinForPickUpjqGrid('fm','CurrencyID,CurrencyNo','ID,CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" width="50%">
+                        <label>備註　　　:</label>
+                        <input name="Remark" class="easyui-textbox" style="width:240px;height:36px" data-options="multiline:'true',validType:'maxLength[100]'">
+                    </td>
+                    <td colspan="3" width="50%">
+                        <label>派件區域　　:</label>
+                        <input name="SendArea" class="easyui-textbox" style="width:240px;height:36px" data-options="multiline:'true'">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" width="50%">
+                        <label>不派件區域:</label>
+                        <input name="SendAreaNo" class="easyui-textbox" style="width:240px;height:36px" data-options="multiline:'true'">
+                    </td>
+                    <td colspan="3" width="50%">
+                        <label>非當天件區域:</label>
+                        <input name="List" class="easyui-textbox" style="width:240px;height:36px" data-options="multiline:'true'">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

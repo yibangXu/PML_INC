@@ -1,0 +1,847 @@
+﻿@model List<HY_PML.Models.BL_Report>
+@{
+	Layout = null;
+}
+@Styles.Render("~/Content/report/a4")
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width" charset="UTF-8" />
+	<title> 報表號碼：@(Model.Select(x => x.ReportNo).FirstOrDefault())</title>
+	<style>
+		td, th {
+			padding-left: 1mm;
+		}
+	</style>
+</head>
+
+<body>
+	@switch (Model.Select(x => x.ReportCName).FirstOrDefault())
+	{
+		case "印尼PIBK派件明細表":
+		case "印尼FTZ派件明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 5;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page landscape">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:290mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:48mm;font-size:36px;text-align:center">EXPRESS  MANIFEST</td>
+									</tr>
+									<tr>
+										<td style="width:28mm;text-align:center">CONSIGN TO : </td>
+										<td style="width:88mm">PT. TATA HARMONI SARANATAMA</td>
+										<td colspan="2" style="width:48mm ;text-align:left">PML EXPRESS LTD</td>
+										<td colspan="2" style="width:48mm"></td>
+									</tr>
+									<tr>
+										<td style="width:28mm;text-align:center">MAWB NO : </td>
+										<td style="width:88mm;text-align:left">@data.MasterNo</td>
+										<td colspan="2" style="width:48mm ;text-align:left">TEL : 4128800</td>
+										<td colspan="2" style="width:48mm"></td>
+									</tr>
+									<tr>
+										<td style="width:28mm;text-align:center">FLIGHT NO : </td>
+										<td style="width:88mm;text-align:left">@data.FlightNo</td>
+										<td colspan="4" style="width:48mm"></td>
+									</tr>
+									<tr>
+										<td style="width:28mm;text-align:center">FROM : </td>
+										<td style="width:88mm;text-align:left">TAIWAN</td>
+										<td colspan="4" style="width:48mm"></td>
+									</tr>
+									<tr>
+										<td style="width:28mm;text-align:center">TO : </td>
+										<td style="width:88mm;text-align:left">JKT</td>
+										<td colspan="2" style="width:48mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:48mm"></td>
+									</tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:45mm 0 0 5mm;width:290mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">No</td>
+								<td style="border:0.5px solid #000;">Hawb No</td>
+								<td style="border:0.5px solid #000;">SHIPPER</td>
+								<td style="border:0.5px solid #000;">CNEE</td>
+								<td style="border:0.5px solid #000;">PKG</td>
+								<td style="border:0.5px solid #000;">DESCRIPTION</td>
+								<td style="border:0.5px solid #000;">PCS</td>
+								<td style="border:0.5px solid #000;">KG</td>
+								<td style="border:0.5px solid #000;">VALUE<br>(USD)</td>
+								<td style="border:0.5px solid #000;">PP (TWD)</td>
+								<td style="border:0.5px solid #000;">CC (TWD)</td>
+								<td style="border:0.5px solid #000;">REMARK1</td>
+								<td style="border:0.5px solid #000;">STATION</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="max-height:5mm">
+									<td style="text-align:left;width:22mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:22mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:24mm;border:0.5px solid #000;">
+										@item.SendEName1 <br>@item.SendENAddr1<br>TEL:@item.SendPhone<br>ATTN:@item.SendBy
+									</td>
+									<td style="text-align:left;width:24mm;border:0.5px solid #000;">
+										@item.RecCompany<br>@item.RecChAddr<br>TEL:@item.RecPhone<br>ATTN:@item.RecBy
+									</td>
+									<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:left;width:22mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.DtlQty</td>
+									<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.DtlPrice</td>
+
+									@if (item.CcNo == "PP")
+									{
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.Freight</td>
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;"></td>
+									}
+									else if (item.CcNo == "CC")
+									{
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;"></td>
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;">@item.ToPayment</td>
+									}
+									else
+									{
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;"></td>
+										<td style="text-align:right;width:22mm;border:0.5px solid #000;"></td>
+									}
+									<td style="text-align:left;width:22mm;border:0.5px solid #000;">@item.Remark</td>
+									<td style="text-align:left;width:22mm;border:0.5px solid #000;">@item.Remark2</td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "印尼PIBK清關明細表":
+		case "印尼FTZ清關明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 25;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page portrait">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:200mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:33mm;font-size:36px;text-align:center">EXPRESS  MANIFEST</td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">CONSIGN TO : </td>
+										<td style="width:60mm">PT. TATA HARMONI SARANATAMA</td>
+										<td colspan="2" style="width:33mm ;text-align:left">PML EXPRESS LTD</td>
+										<td colspan="2" style="width:33mm"> </td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">MAWB NO : </td>
+										<td style="width:60mm;text-align:left">@data.MasterNo</td>
+										<td colspan="2" style="width:33mm ;text-align:left">TEL : 4128800</td>
+										<td colspan="2" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FLIGHT NO : </td>
+										<td style="width:60mm;text-align:left">@data.FlightNo</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FROM : </td>
+										<td style="width:60mm;text-align:left">TAIWAN</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">TO : </td>
+										<td style="width:60mm;text-align:left">JKT</td>
+										<td colspan="2" style="width:33mm ;text-align:left">DATE :  @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:33mm"> </td>
+									</tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:45mm 0 0 5mm;width:200mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">No</td>
+								<td style="border:0.5px solid #000;">Hawb No</td>
+								<td style="border:0.5px solid #000;">PKG</td>
+								<td style="border:0.5px solid #000;">DESCRIPTION</td>
+								<td style="border:0.5px solid #000;">PCS</td>
+								<td style="border:0.5px solid #000;">KG</td>
+								<td style="border:0.5px solid #000;">STATION</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlQty</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.Remark2</td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "印尼海關PIBK清關明細表":
+		case "印尼海關FTZ清關明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 6;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page portrait">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:200mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:33mm;font-size:36px;text-align:center">MANIFEST CLEARANCE</td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">CONSIGN TO : </td>
+										<td style="width:60mm">PT. TATA HARMONI SARANATAMA</td>
+										<td colspan="2" style="width:33mm ;text-align:left">PML EXPRESS LTD</td>
+										<td colspan="2" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">MAWB NO : </td>
+										<td style="width:60mm;text-align:left">@data.MasterNo</td>
+										<td colspan="2" style="width:33mm ;text-align:left">TEL : 4128800</td>
+										<td colspan="2" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FLIGHT NO : </td>
+										<td style="width:60mm;text-align:left">@data.FlightNo	</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FROM : </td>
+										<td style="width:60mm;text-align:left">TAIWAN</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">TO : </td>
+										<td style="width:60mm;text-align:left">JKT</td>
+										<td colspan="2" style="width:33mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:33mm"></td>
+									</tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:45mm 0 0 5mm;width:200mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">No</td>
+								<td style="border:0.5px solid #000;">Hawb No</td>
+								<td style="border:0.5px solid #000;">SHIPPER</td>
+								<td style="border:0.5px solid #000;">CNEE</td>
+								<td style="border:0.5px solid #000;">PKG</td>
+								<td style="border:0.5px solid #000;">DESCRIPTION</td>
+								<td style="border:0.5px solid #000;">PCS</td>
+								<td style="border:0.5px solid #000;">KG</td>
+								<td style="border:0.5px solid #000;">VALUE<br>(USD)</td>
+								<td style="border:0.5px solid #000;">REMARK1</td>
+								<td style="border:0.5px solid #000;">STATION</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">
+										@item.SendEName1<br>@item.SendENAddr1<br>TEL:@item.SendPhone<br>ATTN:@item.SendBy
+									</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">
+										@item.RecCompany<br>@item.RecChAddr<br>TEL:@item.RecPhone<br>ATTN:@item.RecBy
+									</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlQty</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlPrice</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.Remark</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.Remark2</td>
+								</tr>
+							}
+							@if (p == total_page - 1)
+							{
+								<tr>
+									<td colspan="2" style="text-align:center;width:36.4mm;border:0.5px solid #000;">TOTAL</td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@data.Items.Sum(x => x.DtlWeight)</td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+									<td style="width:18.2mm;border:0.5px solid #000;"></td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "印尼海關PIBK明細表":
+		case "印尼海關FTZ明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 10;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page landscape">
+						<table class="page-center f2" style="margin:5mm 3.5mm 5mm 3.5mm;width:290mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">No</td>
+								<td style="border:0.5px solid #000;">Hawb No</td>
+								<td style="border:0.5px solid #000;">Shipper Name</td>
+								<td style="border:0.5px solid #000;">Shipper Address</td>
+								<td style="border:0.5px solid #000;">Consignee Name</td>
+								<td style="border:0.5px solid #000;">Consignee Address</td>
+								<td style="border:0.5px solid #000;">PKG</td>
+								<td style="border:0.5px solid #000;">DESCRIPTION</td>
+								<td style="border:0.5px solid #000;">HS CODE</td>
+								<td style="border:0.5px solid #000;">PCS</td>
+								<td style="border:0.5px solid #000;">KG</td>
+								<td style="border:0.5px solid #000;">FOB Value</td>
+								<td style="border:0.5px solid #000;">CN</td>
+								<td style="border:0.5px solid #000;">Consignee City</td>
+								<td style="border:0.5px solid #000;">Consignee Region</td>
+								<td style="border:0.5px solid #000;">Consignee ZIP Code</td>
+								<td style="border:0.5px solid #000;">Contact Person</td>
+								<td style="border:0.5px solid #000;">Contact Phone</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.SendEName1</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.SendENAddr1</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecCompany</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecChAddr</td>
+									<td style="text-align:right;width:16.1mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.DtlHSNo</td>
+									<td style="text-align:right;width:16.1mm;border:0.5px solid #000;">@item.DtlQty</td>
+									<td style="text-align:right;width:16.1mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:right;width:16.1mm;border:0.5px solid #000;">@item.DtlPrice</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.Remark</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecCity</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecState</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecPostDist</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecBy</td>
+									<td style="text-align:left;width:16.1mm;border:0.5px solid #000;">@item.RecPhone</td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "CN-SF順豐大陸派件明細表":
+		case "CN-承鼎海特快大陸派件明細表":
+		case "CN-承鼎小貿大陸派件明細表":
+		case "CN-慧璞小貿大陸派件明細表":
+		case "CN-欣浩小貿大陸派件明細表":
+		case "CN-欣浩特貨大陸派件明細表":
+		case "CN-欣浩大貿大陸派件明細表":
+		case "香港派件明細表":
+		case "香港海快派件明細表":
+		case "澳門派件明細表":
+		case "柬埔寨派件明細表":
+		case "越南派件明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 9;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page landscape">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5.5mm;width:290mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:290mm;font-size:12px;text-align:center">遠達(國際空運快遞)有限公司</td>
+									</tr>
+									@if (data.ReportCName != "越南派件明細表")
+									{
+										<tr>
+											<td colspan="6" style="width:290mm;font-size:12px;text-align:center">@data.ReportCName</td>
+										</tr>
+									}
+									else
+									{
+										<tr>
+											<td colspan="6" style="width:290mm;font-size:12px;text-align:center">@data.HubName 出貨明細表</td>
+										</tr>
+									}
+									<tr>
+										<td style="width:30mm;text-align:center">FROM : </td>
+										@if (data.ReportCName != "越南派件明細表")
+										{
+											<td style="width:60mm">台灣總公司</td>
+											<td colspan="2" style="width:100mm ;text-align:left">MASTER NO : @data.ReportNo</td>
+										}
+										else
+										{
+											<td style="width:60mm"></td>
+											<td colspan="2" style="width:100mm ;text-align:left">MASTER NO :@data.MasterNo</td>
+										}
+										<td colspan="2" style="width:100mm"></td>
+									</tr>
+									<tr>
+										<td style="width:30mm;text-align:center">出貨日期 : </td>
+										<td style="width:60mm;text-align:left">@DateTime.Now.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:100mm ;text-align:left">FLT NO : @data.FlightNo</td>
+										<td colspan="2" style="width:100mm"></td>
+									</tr>
+									<tr>
+										<td style="width:30mm;text-align:center">清關公司 : </td>
+										@if (data.ReportCName != "越南派件明細表")
+										{
+											<td colspan="2" style="width:60mm ;text-align:left">思邦</td>
+										}
+										else
+										{
+											<td colspan="2" style="width:60mm ;text-align:left"></td>
+										}
+										<td colspan="2" style="width:100mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:100mm"> </td>
+									</tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:30mm 0 0 5mm;width:280mm;border:none;">
+							<tr>
+								<td style="border:0.5px solid #000;">袋號</td>
+								<td style="border:0.5px solid #000;">運單號碼</td>
+								<td style="border:0.5px solid #000;">寄件公司</td>
+								<td style="border:0.5px solid #000;">收件公司</td>
+								<td style="border:0.5px solid #000;">物品名稱</td>
+								<td style="border:0.5px solid #000;">件數</td>
+								<td style="border:0.5px solid #000;">實重<br />(公斤)</td>
+								<td style="border:0.5px solid #000;">類別</td>
+								<td style="border:0.5px solid #000;">寄件地址</td>
+								<td style="border:0.5px solid #000;">收件電話</td>
+								<td style="border:0.5px solid #000;">收件地址</td>
+								<td style="border:0.5px solid #000;">付款方式</td>
+								<td style="border:0.5px solid #000;">金額</td>
+								<td style="border:0.5px solid #000;">幣別</td>
+								<td style="border:0.5px solid #000;">備註欄</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.SendCHName</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.RecCompany</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:19.3mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:right;width:19.3mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.DtlType</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.SendCustAddr</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.RecPhone / @item.RecBy</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.RecChAddr</td>
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.CcNo</td>
+									@if (item.CcNo == "PP")
+									{
+										<td style="text-align:right;width:19.3mm;border:0.5px solid #000;">@item.Freight</td>
+										<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.FreightCurrency</td>
+									}
+									else if (item.CcNo == "CC")
+									{
+										<td style="text-align:right;width:19.3mm;border:0.5px solid #000;">@item.ToPayment</td>
+										<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.ToPaymentCurrency</td>
+									}
+									else
+									{
+										<td style="text-align:right;width:19.3mm;border:0.5px solid #000;"></td>
+										<td style="text-align:left;width:19.3mm;border:0.5px solid #000;"></td>
+									}
+									<td style="text-align:left;width:19.3mm;border:0.5px solid #000;">@item.Remark</td>
+								</tr>
+							}
+							@if (p == total_page - 1)
+							{
+								<tr style="border:none">
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;text-align:left;">TOTAL：</td>
+									<td style="width:19.3mm;">共 @items.Sum(x => x.DtlPcs) 袋</td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;text-align:right;">@items.Sum(x => x.DtlPcs)</td>
+									<td style="width:19.3mm;text-align:right;">@items.Sum(x => x.DtlWeight)</td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+									<td style="width:19.3mm;"></td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "河內派件明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 6;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page portrait">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:200mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:33mm;font-size:36px;text-align:center">EXPRESS  MANIFEST</td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">CONSIGN TO : </td>
+										<td style="width:60mm">Smart Cargo Service Co.,Ltd</td>
+										<td colspan="2" style="width:33mm ;text-align:left">PML EXPRESS LTD</td>
+										<td colspan="2" style="width:33mm"> </td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">MAWB NO : </td>
+										<td style="width:60mm;text-align:left">@data.MasterNo</td>
+										<td colspan="2" style="width:33mm ;text-align:left">TEL : 06-4128800</td>
+										<td colspan="2" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FLIGHT NO : </td>
+										<td style="width:60mm;text-align:left">@data.FlightNo	</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">FROM : </td>
+										<td style="width:60mm;text-align:left">TAIWAN</td>
+										<td colspan="4" style="width:33mm"></td>
+									</tr>
+									<tr>
+										<td style="width:23mm;text-align:center">TO : </td>
+										<td style="width:60mm;text-align:left">HA NOI</td>
+										<td colspan="2" style="width:33mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+										<td colspan="2" style="width:33mm"> </td>
+									</tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:45mm 0 0 5mm;width:200mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">No</td>
+								<td style="border:0.5px solid #000;">Hawb No</td>
+								<td style="border:0.5px solid #000;">SHIPPER</td>
+								<td style="border:0.5px solid #000;">CNEE</td>
+								<td style="border:0.5px solid #000;">PKG</td>
+								<td style="border:0.5px solid #000;">DESCRIPTION</td>
+								<td style="border:0.5px solid #000;">PCS</td>
+								<td style="border:0.5px solid #000;">KG</td>
+								<td style="border:0.5px solid #000;">VALUE<br>(USD)</td>
+								<td style="border:0.5px solid #000;">	PP  (TWD)</td>
+								<td style="border:0.5px solid #000;">CC   (TWD)</td>
+								<td style="border:0.5px solid #000;">REMARK1</td>
+								<td style="border:0.5px solid #000;">STATION</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">
+										@item.SendEName1<br>@item.SendENAddr1<br>TEL:@item.SendPhone<br>ATTN:@item.SendBy
+									</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">
+										@item.RecCompany<br>@item.RecChAddr<br>TEL:@item.RecPhone<br>ATTN:@item.RecBy
+									</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlQty</td>
+									<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.DtlPrice</td>
+									@if (item.CcNo == "PP")
+									{
+										<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.Freight</td>
+										<td style="text-align:left;width:18.2mm;border:0.5px solid #000;"></td>
+									}
+									else if (item.CcNo == "CC")
+									{
+										<td style="text-align:left;width:18.2mm;border:0.5px solid #000;"></td>
+										<td style="text-align:right;width:18.2mm;border:0.5px solid #000;">@item.ToPayment</td>
+									}
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.Remark</td>
+									<td style="text-align:left;width:18.2mm;border:0.5px solid #000;">@item.sStatNo</td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "CN-SF順豐大陸清關明細表":
+		case "CN-承鼎海特快大陸清關明細表":
+		case "CN-承鼎小貿大陸清關明細表":
+		case "CN-慧璞小貿大陸清關明細表":
+		case "CN-欣浩小貿大陸清關明細表":
+		case "CN-欣浩特貨大陸清關明細表":
+		case "CN-欣浩大貿大陸清關明細表":
+		case "香港清關明細表":
+		case "香港海快清關明細表":
+		case "澳門清關明細表":
+		case "柬埔寨清關明細表":
+		case "越南清關明細表":
+		case "河內清關明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 25;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page portrait">
+						@if (p == 0)
+						{
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:200mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="6" style="width:200mm;font-size:12px;text-align:center">遠達(國際空運快遞)有限公司</td>
+									</tr>
+									<tr>
+										<td colspan="6" style="width:200mm;font-size:12px;text-align:center">@data.ReportCName</td>
+									</tr>
+									@if (data.ReportCName != "越南清關明細表" && data.ReportCName != "河內清關明細表")
+									{
+										<tr>
+											<td style="width:25mm;text-align:center">FROM : </td>
+											<td style="width:45mm">KHH</td>
+											<td colspan="2" style="width:90mm ;text-align:left">MASTER NO : @data.ReportNo</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+										<tr>
+											<td style="width:25mm;text-align:center">出貨日期 : </td>
+											<td style="width:45mm;text-align:left">@DateTime.Now.ToString("yyyy.MM.dd")</td>
+											<td colspan="2" style="width:90mm ;text-align:left">FLT NO : @data.FlightNo</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+										<tr>
+											<td style="width:25mm;text-align:center">清關公司 : </td>
+											<td style="width:45mm;text-align:left">	思邦</td>
+											<td colspan="2" style="width:90mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+									}
+									else
+									{
+										<tr>
+											<td style="width:25mm;text-align:center">FROM : </td>
+											<td style="width:45mm">台灣總公司</td>
+											<td colspan="2" style="width:90mm ;text-align:left">MASTER NO : @data.MasterNo</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+										<tr>
+											<td style="width:25mm;text-align:center">出貨日期 : </td>
+											<td style="width:45mm;text-align:left">@DateTime.Now.ToString("yyyy.MM.dd")</td>
+											<td colspan="2" style="width:90mm ;text-align:left">FLT NO : @data.FlightNo</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+										<tr>
+											<td style="width:25mm;text-align:center">清關公司 : </td>
+											<td style="width:45mm;text-align:left"></td>
+											<td colspan="2" style="width:90mm ;text-align:left">DATE : @data.CreatedDate.ToString("yyyy.MM.dd")</td>
+											<td colspan="2" style="width:40mm"></td>
+										</tr>
+									}
+
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:30mm 0 0 5mm;width:200mm;border:none">
+							<tr>
+								<td style="border:0.5px solid #000;">袋號</td>
+								<td style="border:0.5px solid #000;">運單號碼</td>
+								<td style="border:0.5px solid #000;">物品名稱</td>
+								<td style="border:0.5px solid #000;">件數</td>
+								<td style="border:0.5px solid #000;">實重<br />(公斤)</td>
+								<td style="border:0.5px solid #000;">類別</td>
+								<td style="border:0.5px solid #000;">備註欄</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:28.5mm;border:0.5px solid #000;">@item.DtlBagNo</td>
+									<td style="text-align:left;width:28.5mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:28.5mm;border:0.5px solid #000;">@item.DtlProductName</td>
+									<td style="text-align:right;width:28.5mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:right;width:28.5mm;border:0.5px solid #000;">@item.DtlWeight</td>
+									<td style="text-align:left;width:28.5mm;border:0.5px solid #000;">@item.DtlType</td>
+									<td style="text-align:left;width:28.5mm;border:0.5px solid #000;">@item.Remark</td>
+								</tr>
+							}
+							@if (p == total_page - 1)
+							{
+								<tr>
+									<td style="width:28.5mm;"></td>
+									<td style="width:28.5mm;text-align:left;">TOTAL：</td>
+									<td style="width:28.5mm;text-align:left;">共 @items.Sum(x => x.DtlPcs) 袋</td>
+									<td style="width:28.5mm;text-align:right;">@items.Sum(x => x.DtlPcs)</td>
+									<td style="width:28.5mm;text-align:right;">@items.Sum(x => x.DtlWeight)</td>
+									<td style="width:28.5mm;"></td>
+									<td style="width:28.5mm;"></td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		case "EMS出貨明細表":
+			foreach (var data in Model)
+			{
+				var seq = 0;
+				const int rpp = 12;
+				int total_page = (data.Items.Count() - 1) / rpp + 1;
+				var items = data.Items.OrderBy(x => x.SNo).ToArray();
+				for (var p = 0; p < total_page; ++p)
+				{
+					var pages = p + 1;
+					<div class="page portrait">
+						@if (p == 0)
+						{
+							var year = data.CreatedDate.Year - 1911;
+							<table class="page-center f3" style="margin:5mm 0 0 5mm;width:200mm;border:none;text-align:left;font-weight:700">
+								<thead>
+									<tr>
+										<td colspan="8" style="width:200mm;font-size:24px;text-align:center"> E M S  國 際 快 捷 郵 件 出 貨 明 細 表  </td>
+									</tr>
+									<tr>
+										<td style="width:25mm;text-align:center;padding-top:8mm;">合約編號 : </td>
+										<td style="width:20mm;text-align:center;padding-top:8mm;"></td>
+										<td style="width:25mm;text-align:center;padding-top:8mm;">遠達快遞</td>
+										<td style="width:25mm;text-align:center;padding-top:8mm;"></td>
+										<td style="width:20mm;text-align:center;padding-top:8mm;">總重 :</td>
+										<td style="width:25mm;text-align:center;padding-top:8mm;">@items.Sum(x => x.DtlGrossWeight)</td>
+										<td style="width:20mm;text-align:center;padding-top:8mm;">日期 :</td>
+										<td style="width:40mm;text-align:center;padding-top:8mm;">@year 年 @data.CreatedDate.Month 月 @data.CreatedDate.Day 日</td>
+									<tr>
+								</thead>
+							</table>
+						}
+						<table class="page-center f2" style="margin:30mm 0 0 5mm;width:200mm;">
+							<tr>
+								<td style="border:0.5px solid #000;">編號</td>
+								<td style="border:0.5px solid #000;">提單號碼</td>
+								<td style="border:0.5px solid #000;">寄件公司</td>
+								<td style="border:0.5px solid #000;">重量</td>
+								<td style="border:0.5px solid #000;">長</td>
+								<td style="border:0.5px solid #000;">寬</td>
+								<td style="border:0.5px solid #000;">高</td>
+								<td style="border:0.5px solid #000;">材積</td>
+								<td style="border:0.5px solid #000;">簡碼</td>
+								<td style="border:0.5px solid #000;">目的地</td>
+								<td style="border:0.5px solid #000;">文件</td>
+								<td style="border:0.5px solid #000;">包裹</td>
+								<td style="border:0.5px solid #000;">件數</td>
+								<td style="border:0.5px solid #000;">郵局簽收人</td>
+							</tr>
+							@foreach (var item in items.Skip(p * rpp).Take(rpp))
+							{
+								var Cuft = Math.Round(item.DtlLength * item.DtlWidth * item.DtlHeight * 1000 / 6000) / 1000;
+								seq = seq + 1;
+								<tr style="height:8mm">
+									<td style="text-align:left;width:14.2mm;border:0.5px solid #000;">@seq</td>
+									<td style="text-align:left;width:14.2mm;border:0.5px solid #000;">@item.LadingNo</td>
+									<td style="text-align:left;width:14.2mm;border:0.5px solid #000;">@item.SendCHName</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.DtlGrossWeight</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.DtlLength</td>
+									<td style="text-align:left;width:14.2mm;border:0.5px solid #000;">@item.DtlWidth</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.DtlHeight</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@Cuft</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.DestNo</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.CName</td>
+									@if (item.Type == "0" || item.Type == "DOX")
+									{
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">V</td>
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;"></td>
+									}
+									else if (item.Type == "1" || item.Type == "2" || item.Type == "SPX")
+									{
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;"></td>
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">V</td>
+									}
+									else
+									{
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;"></td>
+										<td style="text-align:right;width:14.2mm;border:0.5px solid #000;"></td>
+									}
+
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">@item.DtlPcs</td>
+									<td style="text-align:right;width:14.2mm;border:0.5px solid #000;">　　　　　</td>
+								</tr>
+							}
+						</table>
+					</div>
+				}
+			}
+			break;
+		default:
+			break;
+	}
+	<script>
+		window.print();
+	</script>
+</body>
+</html>
+
+

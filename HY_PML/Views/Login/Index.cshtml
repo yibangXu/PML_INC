@@ -1,0 +1,51 @@
+﻿@using HY_PML.helper
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    ViewBag.Title = "登入系統";
+}
+<style type="text/css">
+    #p {
+        width: 290px;
+        height: 250px;
+        padding: 10px;
+        background: #fafafa;
+    }
+</style>
+
+@if (!string.IsNullOrWhiteSpace(WebSiteHelper.CurrentUserID))
+{
+    <h1>最新消息</h1>
+}
+else
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <br>
+        <center>
+
+            <div id="p">
+                <label class="glyphicon glyphicon-lock">
+                    @ViewBag.Title
+                </label>
+                <div>
+                    <form action="/" method="post">
+                        <div class="form-group">
+                            <label style="float:left">帳號</label>
+                            <input type="text" class="form-control" id="user_id" name="user_id">
+                        </div>
+                        <div class="form-group">
+                            <label style="float:left">密碼</label>
+                            <input type="password" class="form-control" id="user_password" name="user_password">
+                        </div>
+                        <div class="form-group">
+                            <input style="float:right" type="submit" value="送出" class="btn btn-default" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </center>
+    }
+}

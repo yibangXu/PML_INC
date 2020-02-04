@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Product/';
+	var gridTitle = '物品資料';
+	var sortName = 'ProductNo';
+    var model = [
+        {
+			name: "ProductNo", label: "品名代號", search: true,
+        },
+        {
+			name: "ProductName", label: "中文品名", search: true,
+		},
+		{
+			name: "ProductEName", label: "英文品名", search: true,
+		},
+		{
+			name: "Country", label: "生產國", search: true,
+		},
+		{
+			name: "Hsno", label: "HS編碼", search: true,
+		},
+    ];
+</script>

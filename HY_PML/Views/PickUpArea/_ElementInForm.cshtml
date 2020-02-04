@@ -1,0 +1,75 @@
+﻿<table>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>調度區域代號:</label>
+				<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[20]'">
+				<input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>調度區域名稱:</label>
+				<input name="PickUpAreaName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>　截止時間:　</label>
+				<input name="DateEnd" class="easyui-timespinner" style="width:auto" data-options="showSeconds:false">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>　站　　點:　</label>
+				<input name="StatID" id="StatID" type="hidden">
+				<input name="StatNo" id="StatNo" class="easyui-textbox" data-options="readonly:true">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','StatID,StatNo','ID,StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>　外　務　員:　</label>
+				<input name="SectorNo" id="SectorNo" class="easyui-textbox" style="width:80px" data-options="readonly:true">
+				<input name="SectorName" id="SectorName" class="easyui-textbox" style="width:120px" data-options="readonly:true">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SectorName,SectorNo','SectorName,SectorNo','@Url.Action("getSelectionjqGrid", "Sector")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>調度區域地址:</label>
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpGridMulti('CityAreaRoadRow','CityAreaRoadRow','tagbox','none','none','none','選擇地址','@Url.Action("getSelectionGrid", "PostCode")');"></a>
+				<input class="easyui-tagbox" name="CityAreaRoadRow" id="CityAreaRoadRow" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>　備　　註:　</label>
+				<input name="Remark" class="easyui-textbox" multiline="true" style="width:auto" data-options="validType:'maxLength[100]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<label>　是否啟用:　</label>
+				<input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+			</div>
+		</td>
+	</tr>
+</table>

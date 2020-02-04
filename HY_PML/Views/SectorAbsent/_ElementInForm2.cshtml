@@ -1,0 +1,77 @@
+﻿<table>
+	<tr>
+		<td>
+			<label>外務代號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ID" type="hidden" style="width:auto">
+				<input name="SectorNo" id="SectorNo" class="easyui-textbox" readonly style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>請假時間起:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input id="StartDT" name="StartDT" class="easyui-datetimebox" style="width:auto" data-options="showSeconds:false">
+
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>請假時間迄:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="EndDT" class="easyui-datetimebox" style="width:auto" data-options="showSeconds:false" value=“3/4/2010 20:11”>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label class="required">代理人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="AgentSectorName" id="AgentSectorName" class="easyui-textbox" required style="width:auto">
+				<input name="AgentSectorNo" id="AgentSectorNo" class="easyui-textbox" type="hidden" required style="width:auto">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm2','AgentSectorNo,AgentSectorName','SectorNo,SectorName','@Url.Action("getSelectionjqGrid", "Sector")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>銷假日期:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="BackDT" class="easyui-datebox" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>備註:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Remark" class="easyui-textbox" style="width:auto" data-options="multiline:true,validType:'maxLength[100]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>是否啟用:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+			</div>
+		</td>
+	</tr>
+</table>

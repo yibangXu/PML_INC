@@ -1,0 +1,79 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionGrid.cshtml";
+}
+
+
+
+@section additionalSearch{
+<input id="CityName" class="easyui-combobox" name="CityName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctCityName", ViewBag.ThisControllerName))'">
+<input id="AreaName" class="easyui-combobox" name="AreaName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctAreaName", ViewBag.ThisControllerName))'">
+<input id="RoadName" class="easyui-combobox" name="RoadName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetRoadName", ViewBag.ThisControllerName))'">
+
+
+}
+
+@section initJS{
+
+$('#CityName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        //alert ('on click event trigger....');
+        $('#AreaName').combobox('clear');
+        $('#RoadName').combobox('clear');
+        //alert ('two combo clear....');
+        var newValue = record.id;
+        //alert ('new value = '+ newValue);
+        $('#AreaName').combobox('reload', '@Html.Raw(Url.Action("GetDistinctAreaName", ViewBag.ThisControllerName))'+'?cityName='+encodeURIComponent(newValue));
+        //alert ('reload Area...');
+        $('#DataGrid_s').datagrid('load', {
+            roadName: '',
+            cityName: newValue,
+            areaName: ''
+        });
+    }
+});
+$('#AreaName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert ('on click event trigger....');
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        $('#RoadName').combobox('clear');
+        var newValue = record.id;
+        $('#RoadName').combobox('reload', '@Html.Raw(Url.Action("GetRoadName", ViewBag.ThisControllerName))' + '?areaName=' + encodeURIComponent(newValue) + '&cityName=' + encodeURIComponent($('#CityName').combobox('getValue')));
+        
+        $('#DataGrid_s').datagrid('load', {
+            roadName: '',
+            cityName: $('#CityName').combobox('getValue'),
+            areaName: newValue
+        });
+    }
+});
+$('#RoadName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        var newValue = record.id;
+        if (newValue == '' || newValue == null)
+            return false;
+
+        $('#DataGrid_s').datagrid('load', {
+            roadName: newValue,
+            cityName: $('#CityName').combobox('getValue'),
+            areaName: $('#AreaName').combobox('getValue')
+        });
+    }
+});
+
+
+
+}
+
+
+

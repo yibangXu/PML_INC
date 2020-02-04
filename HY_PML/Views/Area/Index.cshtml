@@ -1,0 +1,63 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/Area/';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "AreaNo", label: "區域代號", search: true,
+			readonly: "edit", editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 20 },
+			formoptions: { label: "*區域代號" },
+		},
+		{
+			name: "AreaCode", label: "提單簡碼", search: false,
+		},
+		{
+			name: "AreaName", label: "區域名稱", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 40, },
+			formoptions: { label: "*區域名稱" },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "區域資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "AreaNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

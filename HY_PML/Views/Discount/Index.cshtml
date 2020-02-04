@@ -1,0 +1,95 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/Discount/';
+	var model =
+		[
+			{
+				name: "CRNo", label: "單號", search: true, key: true
+			},
+			{
+				name: "CustNo", label: "客戶", search: false, hidden: true
+			},
+			{
+				name: "CustName", label: "客戶", search: true,
+			},
+			{
+				name: "LadingNo", label: "提單號碼", search: true,
+			},
+			{
+				name: "Total", label: "應收金額", search: false,
+			},
+			{
+				name: "discount", label: "折讓金額", search: false,
+			},
+			{
+				name: "Reason", label: "折讓原因", search: false,
+			},
+			{
+				name: "IsCheck", label: "檢核", search: false, hidden: true
+			},
+			{
+				name: "CheckBy", label: "檢核人員", search: false, hidden: true
+			},
+			{
+				name: "CheckTime", label: "檢核日期", search: false, hidden: true
+			},
+			{
+				name: "CreateBy", label: "建單人員", search: false
+			},
+			{
+				name: "CreateTime", label: "建單時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+		];
+	$("#grid").jqGrid({
+		caption: "折讓",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+		datatype: "json",
+		colModel: model,
+		sortname: "ReceiveTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+</script>
+
+<script>
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#toolbar_grid").append(' | <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+	});
+</script>

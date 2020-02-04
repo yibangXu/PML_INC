@@ -1,0 +1,568 @@
+﻿<style>
+	.BillLading {
+		width: 940px;
+	}
+
+	td {
+		height: 10PX;
+	}
+</style>
+<table class="BillLading">
+	<tr>
+		<td>
+			<label>提單號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:100px" data-options="readonly:'true'" required>
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','LadingNo,LadingDate,HubName,SendCustNo,SendCHName,SendCustAddr,SendPhone,SendBy,SectorNo,SectorName,AStatNo,AStatName,DestNo,CName,Type','LadingNo,DateTimeNow,HubName,CustNo,CustCHName,CustAddrFull,Tel,CtcSale,SectorNo,SectorName,PickUpAreaNo,PickUpAreaName,DestNo,Dest,WeigLevel','@Url.Action("getSelectionjqGrid", "ShdetL")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>提單日期:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="LadingDate" id="LadingDate" class="easyui-datetimebox" style="width:150px;">
+			</div>
+		</td>
+		<td>
+			<label>倉單號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="WarehouseRNo" id="WarehouseRNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>倉單時間:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="WarehouseRDate" id="WarehouseRDate" class="easyui-datebox" style="width:100px;">
+			</div>
+		</td>
+	</tr>
+	<tr style="border-bottom: 2px solid RGB(166,203,240);">
+		<td>
+			<label>轉單號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="TransferNo" id="TransferNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>訂單號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="OrderNo" id="OrderNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>路線:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="HubName" id="HubName" class="easyui-textbox" style="width:100px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','HubNo,HubName','HubNo,HubName','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+				<input name="HubNo" class="easyui-textbox" style="width:auto" type="hidden">
+			</div>
+		</td>
+	</tr>
+</table>
+<table class="BillLading">
+	<tr>
+		<td>
+			<label>寄件客戶:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SendCustNo" id="SendCustNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="SendCHName" id="SendCHName" class="easyui-textbox" style="width:200px">
+			</div>
+		</td>
+		<td>
+			<label>寄件人電話:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SendPhone" id="SendPhone" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td td>
+			<label>寄件人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SendBy" id="SendBy" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr style="border-bottom: 2px solid RGB(166,203,240);">
+		<td>
+			<label>寄件人地址:</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				<input name="SendCustAddr" id="SendCustAddr" class="easyui-textbox" style="width:300px">
+			</div>
+		</td>
+	</tr>
+</table>
+<table class="BillLading">
+	<tr>
+		<td>
+			<label>收件人電話:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecPhone" id="RecPhone" class="easyui-textbox" style="width:100px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','RecPhone,RecCustEName1,RecCustEName2,RecBy,RecCompany,RecCustENAddr1,RecCustENAddr2,RecChAddr,RecCustCHName,RecInvNo,RecState,RecCountry,RecPostDist,RecCity','Tel,Enconsin1,Enconsin2,Consinee,ConsinComp,Enaddr1,Enaddr2,Cnaddr,Cnconsin,UnifyNo,State,Country,Zip,City','@Url.Action("getSelectionjqGrid", "Consin")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>收件人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecBy" id="RecBy" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>收件公司:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCompany" id="RecCompany" class="easyui-textbox" style="width:200px">
+			</div>
+		</td>
+
+	</tr>
+	<tr>
+		<td>
+			<label>中文名稱:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustCHName" id="RecCustCHName" class="easyui-textbox" style="width:200px">
+			</div>
+		</td>
+
+		<td>
+			<label>英文名稱1:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustEName1" id="RecCustEName1" class="easyui-textbox" style="width:200px">
+			</div>
+		</td>
+		<td>
+			<label>英文名稱2:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustEName2" id="RecCustEName2" class="easyui-textbox" style="width:200px">
+			</div>
+		</td>
+
+	</tr>
+	<tr>
+		<td>
+			<label>中文地址:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecChAddr" id="RecChAddr" class="easyui-textbox" style="width:230px">
+			</div>
+		</td>
+		<td>
+			<label>英文地址1:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustENAddr1" id="RecCustENAddr1" class="easyui-textbox" style="width:230px">
+			</div>
+		</td>
+		<td>
+			<label>英文地址2:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustENAddr2" id="RecCustENAddr2" class="easyui-textbox" style="width:230px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>英文地址3:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCustENAddr2" id="RecCustENAddr2" class="easyui-textbox" style="width:230px">
+			</div>
+		</td>
+		<td>
+			<label>統編/CR.No.:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecInvNo" id="RecInvNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>郵政專號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecPostDist" id="RecPostDist" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr style="border-bottom: 2px solid RGB(166,203,240);">
+		<td>
+			<label>省/州:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecState" id="RecState" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>國家:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCountry" id="RecCountry" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+		<td>
+			<label>城市:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecCity" id="RecCity" class="easyui-textbox" style="width:120px">
+				<a class="easyui-linkbutton" iconCls="icon-back" plain="true" onclick="SaveRec()">新增收件人</a>
+			</div>
+		</td>
+	</tr>
+</table>
+<table class="BillLading">
+	<tr>
+		<td>
+			<label>取件員:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SectorNo" id="SectorNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="SectorName" id="SectorName" class="easyui-textbox" style="width:130px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SectorNo,SectorName','SectorNo,SectorName','@Url.Action("getSelectionjqGrid", "Sector")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>寄件站點:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SStatNo" id="SStatNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="SStatName" id="SStatName" class="easyui-textbox" style="width:130px" data-options="readonly:'true'">
+			</div>
+		</td>
+		<td>
+			<label>派件站點:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="AStatNo" id="AStatNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="AStatName" id="AStatName" class="easyui-textbox" style="width:130px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','AStatNo,AStatName','StatNo,StatName','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr style="border-bottom: 2px solid RGB(166,203,240);">
+		<td>
+			<label>目的地:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="DestNo" id="DestNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="CName" id="CName" class="easyui-textbox" style="width:130px">
+
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','DestNo,CName','DestNo,CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>類型:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<select name="Type" id="Type" class="easyui-combobox" style="width:100px;">
+					<option value="null">請選擇</option>
+					<option value="0">0.文件</option>
+					<option value="1">1.包裹5KG以下</option>
+					<option value="2">2.箱貨5KG以上</option>
+				</select>
+			</div>
+		</td>
+		<td>
+			<label>品名:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ProductNo" id="ProductNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="ProductName" id="ProductName" class="easyui-textbox" style="width:130px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','ProductNo,ProductName','ProductNo,ProductName','@Url.Action("getSelectionjqGrid", "Product")');"></a>
+			</div>
+		</td>
+	</tr>
+</table>
+<table>
+	<tr>
+		<td>
+			<label>件數:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PiecesNo" id="PiecesNo" class="easyui-numberspinner" style="width:90px" data-options="min:1">
+			</div>
+		</td>
+		<td>
+			<label>數量:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Qty" id="Qty" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>實重:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Weight" id="Weight" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>材積重:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Volume" id="Volume" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>長:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Length" id="Length" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>寬:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Width" id="Width" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>高:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Height" id="Height" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+
+	</tr>
+	<tr>
+		<td>
+			<label>貨品價值:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="Cost" id="Cost" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+				<input name="CostCurrency" id="CostCurrency" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CostCurrency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>付款方式:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CcNo" id="CcNo" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>付款客戶:</label>
+		</td>
+		<td colspan="7">
+			<div class="fitem">
+				<input name="PayCustNo" id="PayCustNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="PayCustName" id="PayCustName" class="easyui-textbox" style="width:200px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SendCustNo,SendCHName,SendPhone,SendBy,SendCustAddr','CustNo,CustCHName,Phone,CtcSale,CustAddr','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>到付款:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="ToPayment" id="ToPayment" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+				<input name="ToPaymentCurrency" id="ToPaymentCurrency" style="width:50px" class="easyui-textbox" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','ToPaymentCurrency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>代收款:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="AgentPay" id="AgentPay" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+				<input name="AgentPayCurrency" id="AgentPayCurrency" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','AgentPayCurrency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>運費:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Freight" id="Freight" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>燃油費:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="FuelCosts" id="FuelCosts" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>產證費:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ProdIdPay" id="ProdIdPay" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+</table>
+<table class="BillLading">
+	<tr>
+		<td>
+			<label>報關費:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustomsPay" id="CustomsPay" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>保險費:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="InsurancePay" id="InsurancePay" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>總金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Total" id="Total" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>其他(有稅):</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="OtherPayTax" id="OtherPayTax" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>其他(無稅):</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="OtherPayNoTax" id="OtherPayNoTax" class="easyui-numberbox" style="width:90px" data-options="min:0,precision:2">
+			</div>
+		</td>
+
+	</tr>
+	<tr style="border-bottom: 2px solid RGB(166,203,240);">
+		<td>
+			<label>備註:</label>
+		</td>
+		<td colspan="9">
+			<div class="fitem">
+				<input name="Remark" class="easyui-textbox" style="width:500px">
+			</div>
+		</td>
+	</tr>
+</table>
+
+<script>
+	function getToday(){
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+	function SaveRec() {
+		var recBy = $('#RecBy').val();
+		var recPhone = $('#RecPhone').val();
+		var recChAddr = $('#RecChAddr').val();
+		if (recBy && recPhone && recChAddr) {
+			var row = {
+				Consinee : recBy,
+				Tel: recPhone,
+				Cnconsin: $('#RecCustCHName').val(),
+				Cnaddr: recChAddr,
+				Enconsin1: $('#RecCustEName1').val(),
+				Enconsin2: $('#RecCustEName2').val(),
+				Enaddr1: $('#RecCustENAddr1').val(),
+				Enaddr2: $('#RecCustENAddr2').val(),
+				UnifyNo: $('#RecInvNo').val(),
+				State: $('#RecState').val(),
+				Country: $('#RecCountry').val(),
+				Zip: $('#RecPostDist').val(),
+				City: $('#RecCity').val(),
+			};
+                $.messager.confirm('Confirm', '確認新增此收件人資料?', function (r) {
+                    if (r) {
+                        $.post('@Url.Action("SaveRec", "Bill_Lading")', { data: row }, function (data, textStatus, jqXHR) {
+                            if (data.ok >= 0) {
+                                $('#grid').trigger('reloadGrid');
+                                $('#subgrid').trigger('reloadGrid');
+                                $.messager.alert('成功', '新增成功!');
+                            } else {
+                                $.messager.alert('錯誤', data.message, 'error');
+                            }
+                        }, 'json');
+                    }
+                });
+            } else {
+			$.messager.alert('警告', '至少填入收件人、收件人電話、中文地址!', 'warning');
+            }
+	}
+</script>

@@ -1,0 +1,114 @@
+﻿<table>
+	<tr style="display:none">
+		<td><label>單號:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="CRNo" id="CRNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>客戶:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="CustNo" id="CustNo" class="easyui-textbox" style="width:100px" data-options="readonly:'true'">
+				<input name="CustName" id="CustName" class="easyui-textbox" style="width:200px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CustNo,CustName','CustNo,CustCHName','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+		<td><label>提單號碼:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>應收金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Total" id="Total" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>收款時間:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RecvTime" id="RecvTime" class="easyui-datetimebox" style="width:150px;">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>票據銀行:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="BillBank" id="BillBank" class="easyui-textbox" style="width:150px">
+			</div>
+		</td>
+		<td>
+			<label>票據號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="BillNo" id="BillNo" class="easyui-textbox" style="width:130px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>票據到期日:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="BillDueDate" id="BillDueDate" class="easyui-datebox" style="width:100px;">
+			</div>
+		</td>
+		<td>
+			<label>票面金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="BillAmount" id="BillAmount" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>備註:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Remark" id="Remark" class="easyui-textbox" data-options="multiline:true" style="height:50px;width:300px">
+			</div>
+		</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

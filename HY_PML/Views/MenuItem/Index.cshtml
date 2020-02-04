@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+    var apiURL = '/MenuItem/';
+    var model = [
+        { name: "ID", label: "ID", hidden: true, key: true },
+        {
+            name: "PCaption", label: "父選單",
+            readonly: "edit", search: true, editable: true,
+            formoptions: { rowpos: 1, colpos: 1 },
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/Menu/GetGridJSON?rows=1000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "Caption", "Caption", true));
+                }
+            },
+        },
+        {
+            name: "Caption", label: "選單文字",
+            search: true, editable: true,
+            formoptions: { label: "*選單文字", rowpos: 1, colpos: 2 },
+            editoptions: { maxLength: 50 },
+            editrules: { required: true },
+        },
+        {
+            name: "Sequence", label: "排序",
+            search: false, editable: true,
+            formoptions: { label: "*排序", rowpos: 2, colpos: 1 },
+            editrules: { integer: true, required: true },
+        },
+        {
+            name: "IsDelete", label: "是否顯示",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 2 },
+            formatter: "select", edittype: "select",
+            editoptions: { value: { false: "是", true: "否" }, },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "否", false: "是" }
+            },
+        },
+
+    ];
+    $("#grid").jqGrid({
+        caption: "選單維護",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "ID",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+    $(function () {
+		$("#toolbar_grid").html('').append('<a class="easyui-linkbutton" iconCls="icon-edit" plain="true" id="edit-btn" onclick="edit()">修改</a>');
+    });
+</script>

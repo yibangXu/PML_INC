@@ -1,0 +1,353 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+    var apiURL = '/Stat/';
+    var model = [
+        {
+            name: "ID", label: "ID", search: true, key: true, hidden: true
+        },
+        {
+            name: "StatNo", label: "站點代號", search: true,
+            readonly: "edit", editable: true,
+            formoptions: { label: "*站點代號", rowpos: 1, colpos: 1 },
+            editoptions: { maxLength: 10 },
+            editrules: { required: true },
+        },
+        {
+            name: "StatName", label: "站點名稱",
+            search: true, editable: true,
+            formoptions: { label: "*站點名稱", rowpos: 1, colpos: 2 },
+            editoptions: { maxLength: 20 },
+            editrules: { required: true },
+        },
+        {
+            name: "Stattype", label: "站點類型",
+            search: true, editable: true,
+            formoptions: { label: "*站點類型", rowpos: 1, colpos: 3 },
+            editoptions: { maxLength: 2 },
+            editrules: { required: true },
+        },
+        {
+            name: "AreaNo", label: "區域", search: true,
+            stype: "select",
+            searchoptions:
+                {
+                    dataUrl: "Area/GetGridJSON?sidx=AreaNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "AreaNo", "AreaNo,AreaName", true);
+                    },
+                },
+        },
+        {
+            name: "AreaID", label: "區域", editable: true,
+            edittype: "select", hidden: true,
+            formoptions: { rowpos: 2, colpos: 1 },
+            editrules: { edithidden: true },
+            editoptions:
+                {
+                    dataUrl: "Area/GetGridJSON?sidx=AreaNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "ID", "AreaNo,AreaName", true);
+                    },
+                },
+        },        
+        {
+            name: "CenterID", label: "財務中心",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 2 },
+            editrules: {
+                interger: true,
+            }
+        },
+        {
+            name: "DestNo", label: "目的地", search: true,
+            stype: "select",
+            searchoptions:
+                {
+                    dataUrl: "Dest/GetGridJSON?sidx=DestNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "DestNo", "DestNo,CName", true);
+                    },
+                },
+        },
+        {
+            name: "DestID", label: "目的地",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 3 },
+            edittype: "select", hidden: true,
+            editrules: { edithidden: true },
+            editoptions:
+                {
+                    dataUrl: "Dest/GetGridJSON?sidx=DestNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "ID", "DestNo,CName", true);
+                    },
+                },
+        },        
+        {
+            name: 'N1', label: '收件成本檔', search: false,
+            editable: true,
+            formoptions: { rowpos: 3, colpos: 1 },
+            editrules: {
+                number: true,
+            }
+        },
+        {
+            name: 'N2', label: '派件成本檔', search: false,
+            editable: true,
+            formoptions: { rowpos: 3, colpos: 2 },
+            editrules: {
+                number: true,
+            }
+        },
+        {
+            name: 'N3', label: '運輸成本檔', search: true,
+            editable: true,
+            formoptions: { rowpos: 3, colpos: 3 },
+            editrules: {
+                number: true,
+            }
+        },
+        {
+            name: 'Isnetwork', label: '網路站點', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { label: '*網路站點', rowpos: 4, colpos: 1 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            },
+            editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'SendDirector', label: '主管', search: true,
+            editable: true,
+            formoptions: { rowpos: 4, colpos: 2 },
+        },
+        {
+            name: 'SendTel', label: '主管電話', search: true,
+            editable: true,
+            formoptions: { rowpos: 4, colpos: 3 },
+        },
+        {
+            name: 'SendDirectorHand', label: '查詢小姐', search: true,
+            editable: true,
+            formoptions: { rowpos: 5, colpos: 1 },
+        },
+        {
+            name: 'SendFax', label: '傳真', search: true,
+            editable: true,
+            formoptions: { rowpos: 5, colpos: 2 },
+        },
+        {
+            name: 'Tel', label: '電話', search: true,
+            editable: true,
+            formoptions: { rowpos: 5, colpos: 3 },
+        },
+        {
+            name: 'StorageID', label: '所屬倉庫', search: false,
+            editable: true,
+            formoptions: { rowpos: 6, colpos: 1 },
+            editrules: {
+                interger: true,
+            }
+        },
+        {
+            name: 'SendTime', label: '派送時效', search: true,
+            editable: true,
+            formoptions: { rowpos: 6, colpos: 2 },
+        },
+        {
+            name: 'IsWww', label: '網站公布', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 6, colpos: 3 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'IsCod', label: '作當天件', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 7, colpos: 1 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'IsReturn', label: '做簽回單', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 7, colpos: 2 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'IsToday', label: '做到付款', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 7, colpos: 3 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'IsCc', label: '做代收款', search: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 8, colpos: 1 },
+            editable: true,
+            editoptions: {
+                defaultValue: "false",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'CccCharge', label: '到付現額', search: false,
+            formoptions: { rowpos: 8, colpos: 2 },
+            editable: true,
+            editrules: {
+                number: true,
+            }
+        },
+        {
+            name: 'CcodCharge', label: '代付限額', search: false,
+            formoptions: { rowpos: 8, colpos: 3 },
+            editable: true,
+            editrules: {
+                number: true,
+            }
+        },
+        {
+            name: 'CurrencyNo', label: '本位幣', search: true,
+            stype: "select",
+            searchoptions:
+                {
+                    dataUrl: "Currency/GetGridJSON?sidx=CurrencyNo&IsServer=true&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "CurrencyNo", "CurrencyNo,CurrencyName", true);
+                    },
+                },
+        },
+        {
+            name: 'CurrencyID', label: '本位幣', search: true, hidden: true,
+            formoptions: { rowpos: 9, colpos: 1 },
+            editable: true, edittype: "select",
+            editrules: { edithidden: true },
+            editoptions:
+                {
+                    dataUrl: "Currency/GetGridJSON?sidx=CurrencyNo&IsServer=true&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "ID", "CurrencyNo,CurrencyName", true);
+                    },
+                },
+        },       
+        {
+            name: 'Remark', label: '備註', search: false,
+            formoptions: { rowpos: 10, colpos: 1 },
+            editable: true, edittype: "textarea",
+            editoptions: {
+                maxLength: 100,
+                cols: 22
+            }
+        },
+        {
+            name: 'SendArea', label: '派件區域', search: false,
+            formoptions: { rowpos: 10, colpos: 2 },
+            editable: true, edittype: "textarea",
+            editoptions: {
+                cols: 22
+            }
+        },
+        {
+            name: 'SendAreaNo', label: '不派件區域', search: false,
+            formoptions: { rowpos: 11, colpos: 1 },
+            editable: true, edittype: "textarea",
+            editoptions: {
+                cols: 22
+            }
+        },
+        {
+            name: 'List', label: '非當天件區域', search: false,
+            formoptions: { rowpos: 11, colpos: 2 },
+            editable: true, edittype: "textarea",
+            editoptions: {
+                cols: 22
+            }
+        },
+        {
+            name: 'IsServer', label: '是否啟用', search: true,
+            editable: true,
+            formatter: "select", edittype: "select",
+            formoptions: { rowpos: 9, colpos: 2 },
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            },
+            editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+    ];
+    $("#grid").jqGrid({
+        caption: "站點資料",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "StatNo",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true});
+
+</script>
+

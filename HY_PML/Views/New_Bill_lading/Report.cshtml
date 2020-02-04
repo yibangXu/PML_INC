@@ -1,0 +1,185 @@
+﻿@model HY_PML.Models.BillLadingReport
+@{
+	Layout = null;
+	@Styles.Render("~/Content/report/e-report.css");
+}
+
+<body>
+	<page size="E-Report">
+		<img style="position:absolute;padding-top:1.5mm;padding-left:25.5mm;width:180px;height:35px" src="@Url.Action("Barcode","New_Bill_Lading", new { barCode = Model.LadingNo_Type })" />
+		<div style="position:absolute;padding-top:10.75mm;width:76mm;">
+			<span style="padding-left:48.5mm;display:inline-block;width:35mm">
+				@Model.SendCustNo
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:14.5mm;width:76mm;">
+			<span style="padding-left:2mm;display:inline-block;width:74mm">
+				@Model.SendCompany
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:23mm;width:76mm">
+			<span style="padding-left:2mm;display:inline-block;width:73mm">
+				@Model.RecCompany
+			</span>
+			<br />
+			<span style="padding-left:2mm;display:inline-block;width:73mm">
+				@Model.RecChAddr
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:39mm;width:76mm;">
+			<span style="padding-left:11.5mm;display:inline-block;width:65mm">
+				@Model.RecBy
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:42.25mm;width:76mm;">
+			<span style="padding-left:8mm;display:inline-block;width:65mm;">
+				@Model.RecPhone
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:46.5mm;width:76mm;">
+			<span style="padding-left:7mm;display:inline-block;width:30mm">
+				@Model.SStatNo
+			</span>
+			<span style="padding-left:13mm;display:inline-block;width:24mm">
+				@Model.AStatNo
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:50.5mm;width:76mm;">
+			<span style="padding-left:11mm;display:inline-block;width:25mm">
+				@if (Model.Weight != 0)
+				{
+					@Model.Weight
+				}
+			</span>
+			<span style="position:absolute;padding-left:21mm;display:inline-block;width:19mm">
+				@Model.HubPName
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:54mm;width:76mm;">
+			<span style="padding-left:17mm;display:inline-block;width:20mm">
+				@if (Model.Volume != 0)
+				{
+					@Model.Volume
+				}
+			</span>
+			<span style="padding-left:7mm;;display:inline-block;width:30mm">
+				@Model.LadingDate
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:58mm;width:76mm;">
+			<span style="padding-left:12.5mm;display:inline-block;width:23mm">
+				@Model.CcNo
+			</span>
+			<span style="padding-left:21.5mm;display:inline-block;width:18mm">
+				@if (Model.CcNo == "CC" && Model.ToPayment != 0)
+				{
+					@Model.Currency@Model.ToPayment
+				}
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:65mm;width:76mm;">
+			<span style="padding-left:1mm;display:inline-block;width:75mm">
+				@Model.Remark
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:82.5mm;width:76mm;font-size:16px !important; font-weight:800">
+			<span style="padding-left:10mm;display:inline-block;width:66mm">
+				@if (Model.Qty != 0)
+				{
+					@Model.Qty
+				}
+			</span>
+		</div>
+		<img style="position:absolute;padding-top:87.5mm;padding-left:25.5mm;width:180px;height:35px" src="@Url.Action("Barcode","New_Bill_Lading", new { barCode = Model.LadingNo_Type  })" />
+		<div style="position:absolute;padding-top:97.25mm;">
+			<span style="padding-left:59.5mm;display:inline-block;width:17mm">
+				@Model.LadingDate
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:100.5mm;line-height:11px">
+			<span style="padding-left:7mm;display:inline-block;width:69mm">
+				@Model.RecCompany
+			</span>
+		</div>
+		<img style="position:absolute;padding-top:127mm;padding-left:25.5mm;width:180px;height:35px" src="@Url.Action("Barcode","New_Bill_Lading", new { barCode = Model.LadingNo_Type  })" />
+		<div style="position:absolute;padding-top:136.5mm;width:76mm;">
+			<span style="padding-left:47.5mm;display:inline-block;width:29mm">
+				@Model.SendCustNo
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:140.5mm;width:76mm;">
+			<span style="padding-left:2mm;display:inline-block;width:74mm">
+				@Model.SendCompany
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:148mm;width:76mm">
+			<span style="padding-left:2mm;display:inline-block;width:73mm">
+				@Model.RecCompany
+			</span>
+			<br />
+			<span style="padding-left:2mm;display:inline-block;width:73mm">
+				@Model.RecChAddr
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:159mm;width:76mm;line-height:11px">
+			<span style="padding-left:11mm;display:inline-block;width:65mm">
+				@Model.RecBy
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:162.25mm;width:76mm;line-height:11px">
+			<span style="padding-left:7.5mm;display:inline-block;width:65mm">
+				@Model.RecPhone
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:165.5mm;width:76mm;line-height:11px">
+			<span style="padding-left:9mm;display:inline-block;width:28mm">
+				@if (Model.Qty != 0)
+				{
+					@Model.Qty
+				}
+			</span>
+			<span style="padding-left:19mm;display:inline-block;width:18mm">
+				@Model.HubPName
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:169mm;width:76mm;">
+			<span style="padding-left:11.5mm;display:inline-block;width:26mm">
+				@if (Model.Weight != 0)
+				{
+					@Model.Weight
+				}
+			</span>
+			<span style="padding-left:7mm;display:inline-block;width:30mm">
+				@Model.LadingDate
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:173mm;width:76mm;">
+			<span style="padding-left:17mm;display:inline-block;width:20mm">
+				@if (Model.Volume != 0)
+				{
+					@Model.Volume
+				}
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:176mm;width:76mm;">
+			<span style="padding-left:12.5mm;display:inline-block;width:23mm">
+				@Model.CcNo
+			</span>
+			<span style="padding-left:21.5mm;display:inline-block;width:18mm">
+				@if (Model.CcNo == "CC" && Model.ToPayment != 0)
+				{
+					@Model.Currency@Model.ToPayment
+				}
+			</span>
+		</div>
+	</page>
+</body>
+
+<script>
+	//window.onload = function () {
+	//    window.print();
+	//};
+</script>
+
+
+

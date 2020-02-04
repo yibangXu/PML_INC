@@ -1,0 +1,140 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+    var apiURL = '/Company/';
+
+    var model =
+        [
+            { name: "ID", label: "ID", hidden: true, key: true },
+
+            {
+                name: "CompanyNo", label: "公司代碼", readonly: "edit"
+                , search: true, sortable: false, editable: true, 
+                formoptions: { label: "*公司代碼", rowpos: 1, colpos: 1 },
+                editoptions: { maxLength: 20 },
+                editrules: { required: true },
+            },
+            {
+                name: "CompanyName", label: "公司名稱",
+                search: true, sortable: false, editable: true,
+                formoptions: { label: "*公司名稱", rowpos: 1, colpos: 2 },
+                editoptions: { maxLength: 40 },
+                editrules: { required: true },
+            },
+            {
+                name: "CompanyEName", label: "英文名稱",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 2, colpos: 1 },
+                editoptions: { maxLength: 40 },
+            },
+            {
+                name: "GuiNa", label: "發票抬頭",
+                search: true, sortable: false, editable: true,
+                formoptions: { label: "*發票抬頭", rowpos: 2, colpos: 2 },
+                editoptions: { maxLength: 40 },
+                editrules: { required: true },
+            },
+            {
+                name: "GuiNo", label: "統一編號",
+                search: true, sortable: false, editable: true,
+                formoptions: { label: "*統一編號", rowpos: 3, colpos: 1 },
+                editoptions: { maxLength: 14 },
+                editrules: { required: true },
+            },
+            {
+                name: "TaxNo", label: "稅籍編號",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 3, colpos: 2 },
+                editoptions: { maxLength: 14 },
+            },
+            {
+                name: "Tel", label: "電話",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 4, colpos: 1 },
+                editoptions: { maxLength: 20 },
+            },
+            {
+                name: "Fax", label: "傳真",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 4, colpos: 2 },
+                editoptions: { maxLength: 20 },
+            },
+            {
+                name: "CAddr", label: "中文地址",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 5, colpos: 1 },
+                editoptions: { maxLength: 40 },
+            },
+            {
+                name: "EAddr", label: "英文地址",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 5, colpos: 2 },
+                editoptions: { maxLength: 100 },
+            },
+            {
+                name: "GuiAddr", label: "發票地址",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 6, colpos: 1 },
+                editoptions: { maxLength: 60 },
+            },
+            {
+                name: "Url", label: "網址",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 6, colpos: 2 },
+                editoptions: { maxLength: 100 },
+            },
+            {
+                name: "NetWork", label: "網路代號",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 7, colpos: 1 },
+                editoptions: { maxLength: 30 },
+            },
+            {
+                name: "Email", label: "Email",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 7, colpos: 2 },
+                editoptions: { maxLength: 30 },
+            },
+            {
+                name: "Ip", label: "通訊IP",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 8, colpos: 1 },
+                editoptions: { maxLength: 30 },
+            },
+            {
+                name: "IpBak", label: "備份IP",
+                search: true, sortable: false, editable: true,
+                formoptions: { rowpos: 8, colpos: 2 },
+                editoptions: { maxLength: 30 },
+            },
+        ];
+
+    $("#grid").jqGrid({
+        caption: "公司主檔",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "CompanyNo",
+        sortorder: "asc",
+      
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

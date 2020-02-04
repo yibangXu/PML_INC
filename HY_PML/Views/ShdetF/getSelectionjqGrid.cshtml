@@ -1,0 +1,108 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/ShdetF/';
+    var gridTitle = '歷史資料及主檔資料';
+    var sortName = '';
+    var model = [
+        {
+            name: "Type", label: "類型", search: false,
+		},
+		{
+			name: "CustNo", label: "CustNo", hidden: true,
+		},
+        {
+            name: "CarryName", label: "取件名稱", search: true,
+        },
+        {
+            name: "Tel", label: "電話", search: true, 
+        },
+        {
+            name: "Code5", label: "郵政5碼", search: false,
+		},
+		{
+			name: "Code7", label: "郵政7碼", search: false,
+		},
+        {
+            name: "CustAddrFull", label: "完整地址", search: true, 
+        },
+        {
+            name: "CustAddr", label: "中文地址", search: false, hidden:true,
+        },
+        {
+            name: "Add_1", label: "add1", search: false, hidden: true,
+        },
+        {
+            name: "Add_2", label: "add2", search: false, hidden: true,
+        },
+        {
+            name: "Add_3", label: "add3", search: false, hidden: true,
+        },
+        {
+            name: "Add_4", label: "add4", search: false, hidden: true,
+        },
+        {
+            name: "Add_5", label: "add5", search: false, hidden: true,
+        },
+        {
+            name: "Add_6", label: "add6", search: false, hidden: true,
+        },
+        {
+            name: "Country", label: "國家", search: false, hidden: true,
+        },
+        {
+            name: "State", label: "省/州", search: false, hidden: true,
+        },
+        {
+            name: "City", label: "城市", search: false, hidden: true,
+        },
+        {
+            name: "CustENAddr2", label: "英文地址2", search: false, hidden: true,
+        },
+        {
+            name: "CustENAddr1", label: "英文地址1", search: false, hidden: true,
+        },
+        
+        {
+            name: "CtcSale", label: "業務部聯絡人", search: false,
+        },
+        {
+            name: "PickUpAreaNo", label: "調度區域", search: false, hidden: true,
+        },
+        {
+            name: "PickUpAreaName", label: "調度區域", search: false,
+        },
+        {
+            name: "CallDate", label: "叫件時間", search: false,
+        },
+        {
+            name: "EndDate", label: "截止時間", search: false,
+        },
+        {
+            name: "SectorNo", label: "外務員", search: false, hidden:true,
+        },
+        {
+			name: "SectorName", label: "外務員", search: false, hidden: true,
+        },
+        {
+            name: "CallType", label: "叫件類型", search: false,
+        },
+        {
+            name: "StatNo", label: "叫件站點", search: false,
+        },
+        {
+            name: "CallStatNo", label: "取件站點", search: false,
+        },
+        {
+            name: "SectorNo", label: "外務員", search: false,
+        },
+        {
+            name: "CarID", label: "車輛ID", search: false,
+		},
+		{
+			name: "CreatedDate", label: "建單時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		}
+    ];
+</script>

@@ -1,0 +1,27 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Area/';
+    var gridTitle = '區域資料';
+    var sortName = 'AreaNo';
+    var model = [
+        {
+            name: "ID", label: "ID", hidden: true, key: true
+        },
+        {
+            name: "AreaNo", label: "區域代號", search: true,
+            readonly: "edit", editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 20 },
+            formoptions: { label: "*區域代號" },
+        },
+        {
+            name: "AreaName", label: "區域名稱", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 40, },
+            formoptions: { label: "*區域名稱" },
+        },
+    ];
+</script>

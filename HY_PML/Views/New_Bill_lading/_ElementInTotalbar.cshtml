@@ -1,0 +1,71 @@
+﻿<div>
+	<form id="fmTotalbar">
+		<table style="margin-top:2.5px" id="totalbarData">
+			<tr>
+				<td class="td1">
+					<label class="td1">票數</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumQty" readonly>
+				</td>
+				<td class="td1">
+					<label class="td1">件數</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumPiecesNo" readonly>
+				</td>
+				<td class="td1">
+					<label class="td1">材積重</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumVolume" readonly>
+				</td>
+				<td class="td1">
+					<label class="td1">實重</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumWeight" readonly>
+				</td>
+				<td class="td1">
+					<label class="td1">運費</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumFreight" readonly>
+				</td>
+				<td class="td1">
+					<label class="td1">到付款</label>
+				</td>
+				<td class="td2">
+					<input class="td2" name="SumToPayment" readonly>
+				</td>
+				<td class="td1">    <label class="td1"></label></td>
+				<td class="td1">    <label class="td1"></label></td>
+			</tr>
+			<tr>
+				<td class="td1">    <label class="td1">代收款</label></td>
+				<td class="td2">    <input class="td2" name="SumAgentPay" readonly></td>
+				<td class="td1">    <label class="td1">燃油費</label></td>
+				<td class="td2">   <input class="td2" name="SumFuelCosts" readonly></td>
+				<td class="td1">    <label class="td1">報關費</label></td>
+				<td class="td2">   <input class="td2" name="SumCustomsPay" readonly></td>
+				<td class="td1">    <label class="td1">保險費</label></td>
+				<td class="td2">    <input class="td2" name="SumInsurancePay" readonly></td>
+				<td class="td1">    <label class="td1">產証費</label></td>
+				<td class="td2">    <input class="td2" name="SumProdIdPay" readonly></td>
+				<td class="td1">    <label class="td1">其他有稅</label></td>
+				<td class="td2">   <input class="td2" name="SumOtherPayTax" readonly></td>
+				<td class="td1">    <label class="td1">其他無稅</label></td>
+				<td class="td2">   <input class="td2" name="SumOtherPayNoTax" readonly></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script>
+	$(function () {
+		var w = $(window);
+		var tWidth = w.innerWidth() - 45;
+		$("#totalbarData").css("width", tWidth);
+		$(".td1").css("width", tWidth / 14 - 10);
+		$(".td2").css("width", tWidth / 14 + 10);
+	});
+</script>

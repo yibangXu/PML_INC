@@ -1,0 +1,246 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+
+<table id="grid"></table>
+<div id="pager">
+	<div>
+		<label>【選擇報表】：</label>
+		<input id="RpType" name="RpType" data-options="panelHeight: 'auto',valueField: 'value',textField: 'text', editable:false">
+		<input type="button" id="RpPrint" value="產生單號" class="btn-sm btn-info" onclick="" />
+		<input type="button" id="RpPrint" value="列印" class="btn-sm btn-primary" onclick="print()" />
+	</div>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var apiURL = "/Bill_Lading_Report/";
+
+	var model = [
+		{
+			name: "RowNumber", label: "Index", hidden: true, key: true,
+		},
+		{
+			name: "Already", label: "報表", search: true, width: 80, stype: 'select',
+			formatter: function (value) { if (value === 'true') return '已產生'; return '未產生'; },
+			defval: true,
+			searchoptions:
+			{
+				value: { 'true': "已產生", 'false': "未產生" }, searchhidden: true, dataInit: function (el) {
+				},
+			},
+		},
+		{
+			name: "WarehouseRNo", label: "倉單號碼", search: true,
+		},
+		{
+			name: "HubName", label: "路線", hidden: true
+		},
+		{
+			name: "HubNo", label: "路線", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubNo", "HubName", true);
+				},
+				dataEvents: [
+					{
+						type: 'change',
+						fn: function (e) {
+							setRpType(this.value)
+						}
+					}]
+			},
+		},
+		{
+			name: "SStatName", label: "寄件站點", search: false, hidden: true
+		},
+		{
+			name: "SStatNo", label: "寄件站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatName", true);
+				},
+			},
+		},
+		{
+			name: "AStatName", label: "派件站點", search: false, hidden: true
+		},
+		{
+			name: "AStatNo", label: "派件站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatName", true);
+				},
+			},
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: false,
+		},
+		{
+			name: "SendCustNo", label: "寄件客戶", search: false, hidden: true
+		},
+		{
+			name: "SendCHName", label: "寄件客戶", search: false,
+		},
+		{
+			name: "RecCompany", label: "收件公司", search: false,
+		},
+		{
+			name: "DtlProductNo", label: "品名代號", search: false, hidden: true
+		},
+		{
+			name: "DtlProductName", label: "品名", search: false,
+		},
+		{
+			name: "DtlPcs", label: "件數", search: false,
+		},
+		{
+			name: "DtlWeight", label: "重量", search: false,
+		},
+		{
+			name: "DtlType", label: "類別", search: false,
+		},
+		{
+			name: "SendCustAddr", label: "寄件地址", search: false,
+		},
+		{
+			name: "RecPhone", label: "收件人電話", search: false,
+		},
+		{
+			name: "RecChAddr", label: "中文地址", search: false,
+		},
+		{
+			name: "CcNo", label: "付款方式", search: false,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false,
+		},
+		{
+			name: "ToPaymentCurrency", label: "到付款", search: false,
+		},
+		{
+			name: "DtlRemark", label: "備註", search: false,
+		},
+	];
+	grid.jqGrid({
+		caption: "提單報表",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday() + "&IsCheck=False",
+
+		datatype: "json",
+		colModel: model,
+		sortname: "LadingNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: false,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	//取得今天日期
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue') + "&IsCheck=False",
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#toolbar_grid").html('')
+			.append(' <label>提單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="提單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="提單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>')
+		//.append('<input id="RpType" name="RpType">');
+
+		$("#RpType").combobox({
+			panelHeight: 'auto',
+			valueField: 'value',
+			textField: 'text',
+		});
+
+		//$("#gs_grid_Already").children().each(function () {
+		//	if ($(this).text() == "已產生") {
+		//		debugger
+		//		//jQuery給法
+		//		$(this).attr("selected", "selected");
+
+		//		//javascript給法
+		//		this.selected = true;
+		//	}
+		//});
+	});
+
+	function setRpType(value) {
+		$('#RpType').combobox('clear');
+		var data = [];
+		switch (value) {
+			case "0000000030":
+				data.push(
+					{ value: '香港派件明細表', text: '香港派件明細表' },
+					{ value: '香港清關明細表', text: '香港清關明細表' }
+				);
+				break;
+			default:
+				data = [];
+				break;
+		}
+		$('#RpType').combobox('loadData', data);
+	}
+
+	//function print() {
+	//	var rpType = $('#RpType').val();
+	//	//if (rpType == "") {
+	//	//	$.messager.alert("錯誤", "尚未選擇報表類型！", "error");
+	//	//}
+	//	//else {
+	//	debugger
+	//	$.ajax({
+	//		url: ' /Bill_Lading_Report/GetGridJSON',
+	//		data: {
+	//			method: "print",
+	//			rptype: rpType,
+	//			WarehouseRNo: $("#grid").jqGrid('getGridParam', 'postData').WarehouseRNo,
+	//			HubName: $("#grid").jqGrid('getGridParam', 'postData').HubNo,
+	//			SStatName: $("#grid").jqGrid('getGridParam', 'postData').SStatNo,
+	//			AStatName: $("#grid").jqGrid('getGridParam', 'postData').AStatNo,
+	//		},
+	//		success: function (result) {
+	//			if (result.ok > 0) {
+	//			} else {
+	//			}
+	//		},
+	//	});
+	//	//}
+	//}
+	function print() {
+		Lib.newWindow('@Url.Action("GetGridJSON", "Bill_Lading_Report")' + "?method=print" + "&WarehouseRNo= "+$("#grid").jqGrid('getGridParam', 'postData').WarehouseRNo);
+	}
+</script>
+
+

@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/PickUpArea/';
+    var gridTitle = '調度區域資料';
+    var sortName = 'PickUpAreaNo';
+	var model = [
+		{
+			name: "ID", label: "ID", search: true, hidden: true,
+		},
+        {
+            name: "PickUpAreaNo", label: "調度區域代號", search: true,
+        },
+        {
+            name: "PickUpAreaName", label: "調度區域名稱", search: true,
+        },
+        {
+            name: "StatNo", label: "站點", search: false,
+		},
+        //{
+        //    name: "DateEnd", label: "截止時間", search: false,
+        //    formatoptions: { newformat: "H:m" }
+        //},
+        {
+            name: "CityAreaRoadRow", label: "調度區域地址",
+            search: false, editable: true,
+            formoptions: { label: "調度區域地址", rowpos: 1, colpos: 2 },
+            editrules: { required: true },
+        },
+        {
+            name: "ReMark", label: "備註", search: false,
+        },
+        {
+            name: 'IsServer', label: '是否啟用', search: false,
+            formatter: "select",
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            },
+        }
+    ];
+</script>

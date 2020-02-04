@@ -1,0 +1,123 @@
+﻿<table>
+    <tr>
+        <td>
+            <label>理貨單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="SheetNo" id="dSheetNo" class="easyui-textbox" style="width:auto" readonly>
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>序號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="SNo" id="SNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>主提單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="MasterNo" id="dMasterNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>分提單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="HouseNo" id="HouseNo" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>調派單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="ShdetNo" id="ShdetNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>客戶名稱:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="CustCHName" id="CustCHName" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>調派序號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="SDtlNo" id="SDtlNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>貨物序號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="ProdNo" id="ProdNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>後段核銷:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="WriteOff" id="WriteOff" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>編袋號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="BagNo" id="BagNo" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr class="prodEdit">
+        <td>
+            <label>備註:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="Remark" class="easyui-textbox" style="width:auto" data-options="multiline:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr id="addProdDtl">
+        <td>
+            <label>選取貨物:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForCbjqGrid('subgrid', 'fm2', 'dlg2', '@Url.Action("getMultiCbjqGrid", "Bill_Land_Mas")','@Url.Action("AddDetail", "Bill_Land_Mas")');"></a>
+            </div>
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,283 @@
+﻿@{
+	/**/
+
+	Layout = "~/Views/Shared/_MultiCbjqGrid.cshtml";
+}
+
+<style>
+	.datagrid-mask {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0.3;
+		filter: alpha(opacity=30);
+		display: none;
+	}
+</style>
+<script>
+	var url = '/BL_Report_Mas/';
+	var gridTitle = '提單資料';
+	var funcName = "GetLadingGridJSON";
+	var sortName = 'LadingDate';
+	var list = [];
+	var model = [
+		{
+			name: "RowNumber", label: "編號", key: true, search: false
+		},
+		{
+			name: "WarehouseRNo", label: "倉單號碼", search: true, hidden: true,
+		},
+		{
+			name: "HubNo", label: "路線", hidden: true
+		},
+		{
+			name: "HubName", label: "路線", search: false, hidden: true,
+			//stype: "select",
+			//searchoptions:
+			//{
+			//	dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+			//	buildSelect: function (data) {
+			//		return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+			//	},
+			//	dataEvents: [
+			//		{
+			//			type: 'change',
+			//			fn: function (e) {
+			//				setRpType(this.value)
+			//			}
+			//		}]
+			//},
+		},
+		{
+			name: "SStatName", label: "寄件站點", search: false, hidden: true,
+		},
+		{
+			name: "SStatNo", label: "寄件站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatName", true);
+				},
+				dataEvents: [
+					{
+						type: 'change',
+						fn: function (e) {
+						}
+					}]
+			},
+		},
+		{
+			name: "AStatName", label: "派件站點", search: false, hidden: true
+		},
+		{
+			name: "AStatNo", label: "派件站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatName", true);
+				},
+			},
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: false, hidden: true,
+		},
+		{
+			name: "LadingNo_Type", label: "提單號碼", search: false,
+		},
+		{
+			name: "sNo", label: "提單序號", hidden: true,
+		},
+		{
+			name: "LadingDate", label: "提單日期", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "SendCHName", label: "寄件客戶", search: false,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "SendPhone", label: "寄件人電話", search: false,
+		},
+		{
+			name: "SendCustAddr", label: "寄件地址", search: false,
+		},
+		{
+			name: "RecCompany", label: "收件公司", search: false,
+		},
+		{
+			name: "RecBy", label: "收件人", search: false,
+		},
+		{
+			name: "RecPhone", label: "收件人電話", search: false,
+		},
+		{
+			name: "RecChAddr", label: "收件人地址", search: false,
+		},
+		{
+			name: "DtlProductName", label: "品名", search: false,
+		},
+		{
+			name: "DtlPcs", label: "件數", search: false,
+		},
+		{
+			name: "DtlWeight", label: "實種", search: false,
+		},
+		{
+			name: "DtlLength", label: "長", search: false,
+		},
+		{
+			name: "DtlWidth", label: "寬", search: false,
+		},
+		{
+			name: "DtlHeight", label: "高", search: false,
+		},
+		{
+			name: "DtlGrossWeight", label: "材積重", search: false,
+		},
+		{
+			name: "DtlType", label: "類別", search: false,
+		},
+		{
+			name: "CcNo", label: "付款方式", search: false,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false,
+		},
+		{
+			name: "ToPaymentCurrency", label: "到付款", search: false,
+		},
+		{
+			name: "DtlRemark", label: "備註", search: false,
+		},
+	];
+
+	$("#DataGrid_s").jqGrid("autoWidthColumns").jqGrid({
+		caption: gridTitle,
+		url: (url + (funcName === null ? 'GetGridJSON' : funcName) +
+			"?StatNo=" + ($('.isMas').val() === 'true' ? $("#SStatNo").val() : $("#dSStatNo").val()) +
+			"&HubName=" + ($('.isMas').val() === 'true' ? $("#HubName").val() : $("#dHubName").val()) +
+			"&start_date=" + getToday() + "&end_date=" + getToday()),
+
+		datatype: "json",
+		colModel: model,
+		sortname: sortName,
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager_s",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 200,
+		rowList: [200, 250, 300],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: true,
+		multiselectWidth: 50,
+		multiboxonly: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).jqGrid("navGrid", "#pager_s",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		}).filterToolbar({
+			searchOnEnter: true
+		});
+
+	$(function () {
+		$('#DataGrid_s').jqGrid("setGridParam", {
+			url: (url + (funcName === null ? 'GetGridJSON' : funcName) +
+				"?StatNo=" + ($('.isMas').val() === 'true' ? $("#SStatNo").val() : $("#dSStatNo").val()) +
+				"&HubName=" + ($('.isMas').val() === 'true' ? $("#HubName").val() : $("#dHubName").val()) +
+				"&start_date=" + $('#searchLadingDateStart').datebox('getValue') + "&end_date=" + $('#searchLadingDateEnd').datebox('getValue')),
+			datatype: 'json'
+		});
+	});
+
+	$('#DataGrid_s').setGridParam({ datatype: 'json', url: url + funcName, });
+	$("#toolbar_s")
+		.append(' | <label>提單日期：</label>')
+		.append('<input id="searchLadingDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="調派日期起">')
+		.append(' ~ <input id = "searchLadingDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="調派日期訖">')
+		.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+
+	function doSearchTarget() {
+		$('#DataGrid_s').jqGrid("setGridParam", {
+			url: (url + (funcName === null ? 'GetGridJSON' : funcName) +
+				"?StatNo=" + ($('.isMas').val() === 'true' ? $("#SStatNo").val() : $("#dSStatNo").val()) +
+				"&HubName=" + ($('.isMas').val() === 'true' ? $("#HubName").val() : $("#dHubName").val()) +
+				"&start_date=" + $('#searchLadingDateStart').datebox('getValue') + "&end_date=" + $('#searchLadingDateEnd').datebox('getValue')),
+			datatype: 'json'
+		});
+		$('#DataGrid_s').trigger('reloadGrid');
+	}
+
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function changePage() {
+		var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+		for (var i = 0; i < gsr.length; i++) {
+			var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+			list.push([row.LadingNo, row.sNo, row.RowNumber]);
+		}
+	}
+
+	function pickRowtoForm(gridId, fmId, dlgId, postUrl) {
+		var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+		if (gsr.length <= 0) {
+			$.messager.alert("警告", "未選擇資料!");
+		} else {
+			list = [];
+			Lib.Loading(true);
+			for (var i = 0; i < gsr.length; i++) {
+				var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+				list.push([row.LadingNo, row.sNo, row.RowNumber]);
+			}
+			$('#' + fmId).form('submit', {
+				url: postUrl,
+				onSubmit: function (param) {
+					param.multiList = list.join('|');
+					//return $(this).form('validate');
+				},
+
+				success: function (result) {
+					Lib.Loading(false);
+					var r = eval('(' + result + ')');
+					if (r.ok >= 0) {
+						if (r.ok > 0) {
+							$.messager.alert('成功', '存檔成功!');
+						}
+						else {
+							$.messager.alert('警告', r.message, 'warning');
+						}
+						$('#win').dialog('close');
+						$('#' + dlgId).dialog('close');// close the dialog
+						$('#' + gridId).trigger('reloadGrid');
+						if (gridId === "grid") {
+							$('#sub' + gridId).trigger('reloadGrid');
+						}
+					}
+					else {
+						$.messager.alert('錯誤', r.message, 'error');
+					}
+				}
+			});
+		}
+	}
+</script>

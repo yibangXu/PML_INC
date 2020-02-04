@@ -1,0 +1,317 @@
+﻿@{
+	Layout = "~/Views/Shared/_DoubleGridLayout.cshtml";
+}
+
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+
+<div id="dlgE_Lading" class="easyui-dialog" style="display:none;width:300px;height:140px;padding:10px 20px"
+	 closed="true" buttons="#dlgE_Lading-buttons" data-options="resizable:false,draggable:true">
+	<form id="fmE_Lading" method="post" novalidate>
+		<table>
+			<tr>
+				<td style="padding:2px">
+					<label>聯：　</label>
+				</td>
+				<td style="padding:2px">
+					<div>
+						<select name="E_LadingColor" id="E_LadingColor" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
+							<option value="0">　</option>
+							<option value="1">簽收聯</option>@*靛*@
+							<option value="2">請款聯</option>@*紅*@
+							<option value="3">收件聯</option>@*藍*@
+						</select>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dlgE_Lading-buttons" style="display:none">
+	<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="E_Lading_Print()" style="width:90px">列印</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgE_Lading').dialog('close')" style="width:90px">取消</a>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var subgrid = $("#subgrid");
+	var apiURL = "/Bill_Land_Mas/";
+	var subapiURL = "/Bill_Land_Dtl/";
+
+	var model = [
+		{
+			name: "SheetNo", label: "理貨單號", search: true, key: true,
+		},
+		{
+			name: "MasterNo", label: "主提單號", search: true,
+		},
+		{
+			name: "FlightNo", label: "航班編號", search: true,
+		},
+		{
+			name: "HubNo", label: "路線", hidden: true
+		},
+		{
+			name: "HubName", label: "路線", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+				},
+			},
+		},
+		{
+			name: "StatNo", label: "站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "CreateBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreateTime", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	grid.jqGrid({
+		caption: "理貨單",
+		url: apiURL + "GetGridJSON?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "SheetNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (id, selected) {
+			$("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+			if (selected) {
+				subgrid.jqGrid("setGridParam", {
+					url: subapiURL + "GetGridJSON?SheetNo=" + id,
+				});
+				subgrid[0].clearToolbar();
+			}
+			else
+				subgrid.jqGrid("clearGridData");
+		},
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	//取得今天日期
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function getBeforeSevenDays() {
+		var today = new Date();
+		var sevendays = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+		return sevendays.getFullYear() + '-' + (sevendays.getMonth() + 1) + '-' + sevendays.getDate();
+	}
+</script>
+<script>
+	var subModel = [
+		{
+			name: "SheetNo", label: "理貨單號", hidden: true,
+		},
+		{
+			name: "SNo", label: "序號", key: true, search: false, hidden: true,
+		},
+		{
+			name: "MasterNo", label: "主提單號", hidden: true,
+		},
+		{
+			name: "HouseNo", label: "分提單號", search: true,
+		},
+		{
+			name: "ShdetNo", label: "調派單號", search: true,
+		},
+		{
+			name: "CustomerNo", label: "客戶代號", search: true, hidden: true
+		},
+		{
+			name: "CustCHName", label: "客戶名稱", search: true,
+		},
+		{
+			name: "SDtlNo", label: "調派序號", search: false,
+		},
+		{
+			name: "ProdNo", label: "貨物序號", search: false,
+		},
+		{
+			name: "WriteOff", label: "後段核銷", search: true,
+		},
+		{
+			name: "BagNo", label: "編袋號", search: true,
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "Pcs", label: "件數", search: false,
+		},
+		{
+			name: "IsLading", label: "是否有提單", search: false, hidden: true,
+		},
+	];
+	subgrid.jqGrid({
+		url: subapiURL + "GetGridJSON?SheetNo=★",
+		datatype: "json",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: true,
+		rowNum: 10000,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		beforeSelectRow: function (rowid) {
+			var lastSelect = $('#subgrid').jqGrid("getGridParam", "selrow");
+			if (lastSelect != undefined && lastSelect != rowid) {
+				$("#subgrid").jqGrid('setRowData', lastSelect, false, {
+					opacity: "1",
+					"border-bottom": "1px #d7d7d7d7"
+				});
+			} else if (lastSelect == rowid) {
+				$("#subgrid").jqGrid("resetSelection");
+				$("#subgrid").jqGrid('setRowData', lastSelect, false, {
+					opacity: "1",
+					"border-bottom": "1px #d7d7d7d7"
+				});
+			}
+		},
+		onSelectRow: function (id, selected) {
+			var row = $("#subgrid").jqGrid('getRowData', id);
+			$("#subgrid").jqGrid('setRowData', id, false, {
+				opacity: "0.9",
+				"border-bottom": "1px black"
+			});
+		},
+		gridComplete: function () {
+			var rows = $("#subgrid").getDataIDs();
+			for (var i = 0; i < rows.length; i++) {
+				var IsLading = $("#subgrid").getCell(rows[i], "IsLading");
+				if (IsLading === "true") {
+					$("#subgrid").jqGrid('setRowData', rows[i], false, {
+						background: '#99FF99'
+					});
+					continue;
+				}
+			}
+		}
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#toolbar_grid").append('<a class="easyui-linkbutton" id ="editHouseNo" iconCls="icon-ok" plain="true" onclick="editHouseNo()">分提單號</a>')
+			.append('<a class="easyui-linkbutton" id="printSheetNo" iconCls="icon-print" plain="true" onclick="printSheetNo()">列印</a>')
+			.append('<a class="easyui-linkbutton" id="pdfLading" iconCls="icon-redo" plain="true" onclick="pdfLading()">轉出PML</a>')
+			.append(' | <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("editHouseNo") == false) {
+				$("#editHouseNo").linkbutton('disable');
+			}
+			if (userAct.includes("printSheetNo") == false) {
+				$("#printSheetNo").linkbutton('disable');
+			}
+		}, 300);
+	});
+</script>
+
+<script>
+    function printSheetNo() {
+        var id = $("#grid").jqGrid("getGridParam", "selrow");
+        if (id === "" || id === null) {
+            alert("尚未選擇要列印的資料");
+			return;
+		}
+		else
+			Lib.newWindow('@Url.Action("Report", "Bill_Land_Mas")/' + id);
+	}
+
+	@*function pdfLading() {
+        var id = $("#grid").jqGrid("getGridParam", "selrow");
+        if (id === "" || id === null) {
+            alert("尚未選擇要轉出的資料");
+			return;
+		}
+		else
+			window.open('@Url.Action("Pdf", "Bill_Land_Mas")/' + id);
+    }*@
+	function pdfLading() {
+		var id = $('#grid').jqGrid('getGridParam', 'selrow');
+		if (id === "" || id === null) {
+			alert("尚未選擇要轉出的資料");
+			return;
+		}
+		$('#dlgE_Lading').dialog('open').dialog('setTitle', '轉出PML');
+		$('#fmE_Lading').form('clear');
+		$('#E_LadingColor').combobox('setValue', '1');
+	}
+
+		function E_Lading_Print() {
+		var id = $('#grid').jqGrid('getGridParam', 'selrow');
+		var color = $('#E_LadingColor').val();
+		window.open('@Url.Action("Pdf", "Bill_Land_Mas")/' + id + "|" +"3—" + color);
+		$('#dlgE_Lading').dialog('close')
+	}
+
+    function editHouseNo() {
+        var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+        if (rowid === null)
+            alert("請選擇要修改的資料");
+        else {
+            //var row = $('#grid').jqGrid('getRowData', rowid);
+            ShowWinForCbjqGrid('grid', 'fm2', 'dlg2', '@Url.Action("getMultiCbjqGrid", "Bill_Land_Dtl")', '@Url.Action("EditHouseNo", "Bill_Land_Mas")', rowid);
+        }
+    }
+</script>

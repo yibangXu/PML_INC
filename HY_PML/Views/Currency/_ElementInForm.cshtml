@@ -1,0 +1,36 @@
+﻿<table>
+    <tr>
+        <td>
+            <div class="fitem">
+                <label>幣別代號:</label>
+                <input name="CurrencyNo" id="CurrencyNo" data-options="validType:'maxLength[3]'"
+                       class="easyui-textbox" style="width:auto" required>
+                <input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="fitem">
+                <label>幣別名稱:</label>
+                <input name="CurrencyName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[8]'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="fitem">
+                <label>匯　　率:</label>
+                <input name="Exch" class="easyui-textbox" style="width:auto" required>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="fitem">
+                <label>是否啟用:</label>
+                <input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+            </div>
+        </td>
+    </tr>
+</table>

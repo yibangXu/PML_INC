@@ -1,0 +1,178 @@
+﻿<div id="typeTab7" title="財務資訊" style="padding:2px;display:none;overflow:hidden">
+	<form id="fmTab7" class="fm4" method="post" novalidate onSubmit="return false;">
+		<table class="dataTable">
+			<tr>
+				<td>
+					<label>帳單號碼 </label>
+				</td>
+				<td>
+					<div>
+						<input name="WATERNO" id="WATERNO" class="easyui-textbox" style="width:auto" />
+					</div>
+				</td>
+				<td>
+					<label>發票號碼 </label>
+				</td>
+				<td>
+					<div>
+						<input name="" id="" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'" readonly>
+						<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+							<option value="0">0.未收</option>
+							<option value="1">1.已收</option>
+						</select>
+						<script type="text/javascript">
+							var WeigLevel = [
+								{ val: '0', text: '0.未收' },
+								{ val: '1', text: '1.已收' }
+							];
+						</script>
+					</div>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>
+					<label>負責會計 </label>
+				</td>
+				<td>
+					<div>
+						<input name="" id="" class="easyui-textbox" style="width:auto" readonly>
+					</div>
+				</td>
+				<td>
+					<label>會計電話 </label>
+				</td>
+				<td>
+					<div>
+						<input name="" id="" class="easyui-textbox" style="width:auto" readonly>
+					</div>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>
+					<label>付款方式 </label>
+				</td>
+				<td>
+					<div>
+						<input name="CcNo" id="Tab7_CcNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab7','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+					</div>
+				</td>
+				<td>
+					<label>付款條件 </label>
+				</td>
+				<td>
+					<div>
+						<input name="" id="" class="easyui-textbox" style="width:auto" readonly>
+					</div>
+				</td>
+				<td>
+					<input type="button" value="搜尋" class="btn-sm btn-default" style="background-color: #e1e1e1;float:right" onclick="getAccData()" />
+				</td>
+			</tr>
+		</table>
+		<div class="pull-left">
+			<table id="subgrid7"></table>
+		</div>
+	</form>
+</div>
+
+<script>
+	var subgrid7 = $("#subgrid7");
+	var subModel7 = [
+		{
+			name: "LadingDate", label: "提單時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "WATERNO", label: "帳單號碼", search: false
+		},
+		{
+			name: "PTNO", label: "提單號碼", search: false
+		},
+		{
+			name: "AStatNo", label: "寄件站點", search: false
+		},
+		{
+			name: "StatNo", label: "收款站點", search: false
+		},
+		{
+			name: "IDNO", label: "客戶代號", search: false
+		},
+		{
+			name: "SendCHName", label: "客戶名稱", search: false
+		},
+		{
+			name: "SectorNo", label: "派件員", search: false
+		},
+		{
+			name: "SectorName", label: "派件員名稱", search: false
+		},
+		{
+			name: "OKED", label: "鎖帳", search: false
+		},
+		{
+			name: "CcNo", label: "付款", search: false
+		},
+		{
+			name: "PType", label: "類型", search: false
+		},
+		{
+			name: "PiecesNo", label: "件數", search: false
+		},
+		{
+			name: "Weight", label: "重量", search: false
+		},
+		{
+			name: "DestNo", label: "目的代號", search: false
+		},
+		{
+			name: "CName", label: "目的地", search: false
+		},
+
+	];
+	var lastSel;
+	subgrid7.jqGrid({
+		url: "/New_Bill_Lading/GetTB_temp_Acc1GridJSON?PTNO=★",
+		datatype: "json",
+		colModel: subModel7,
+		sortname: "sNo",
+		sortorder: "asc",
+		shrinkToFit: false,
+		autowidth: true,
+
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 100,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (sNo) {
+			if (sNo && sNo !== lastSel) {
+				jQuery('#subgrid7').restoreRow(lastSel);
+				lastSel = sNo;
+			}
+			jQuery('#subgrid7').editRow(sNo, true);
+		},
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+	$("#t_subgrid7").css("height", "0px");
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function getAccData() {
+		subgrid7.jqGrid("setGridParam", {
+			url: '/New_Bill_Lading/GetTB_temp_Acc1GridJSON?' +
+				'WATERNO=' + $("#WATERNO").textbox('getValue') +
+				'&CcNo= ' + $("#Tab7_CcNo").textbox('getValue'),
+			datatype: 'json'
+		});
+		subgrid7.trigger('reloadGrid');
+	}
+</script>

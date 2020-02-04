@@ -1,0 +1,138 @@
+﻿<div id="typeTab6" title="來往紀錄" style="padding:2px;display:none;overflow:hidden">
+	<form id="fmTab6" class="fm3" method="post" novalidate onSubmit="return false;">
+		<table class="dataTable" style="padding:2px">
+			<tr>
+				<td>
+					<div class="dTab6">
+						<input name="RecordDate" id="RecordDate" class="easyui-datebox" style="width:auto;display:none" required>
+					</div>
+				</td>
+				<td>
+					<div class="dTab6">
+						<select class="easyui-combobox" id="RecordType" name="RecordType" style="width:auto;display:none" required>
+							<option value=1>問題</option>
+							<option value=2>客訴</option>
+							<option value=3>內部說明</option>
+							<option value=4>帳務說明</option>
+							<option value=5>貨物說明</option>
+							<option value=6>其他說明</option>
+						</select>
+						<script type="text/javascript">
+							var Type = [
+								{ val: 1, text: '問題' },
+								{ val: 2, text: '客訴' },
+								{ val: 3, text: '內部說明' },
+								{ val: 4, text: '帳務說明' },
+								{ val: 5, text: '貨物說明' },
+								{ val: 6, text: '其他說明' },
+							];
+						</script>
+					</div>
+				</td>
+				<td style="width:400px;padding-left:350px">
+					<input type="button" value="保存" class=" actionTab6 btn-sm btn-default" style="background-color:	#e1e1e1" onclick="Save('Tab6')" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					貨件紀錄：
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div class="dTab6">
+						<input name="Remark" class="easyui-textbox" style="width:730px;height:100px" data-options="multiline:'true'">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" style="display:none">
+					<input name="LadingNo" id="RLadingNo">
+					<input name="SNo" id="SNo" />
+				</td>
+			</tr>
+		</table>
+		<div class="pull-left">
+			<table id="subgrid6"></table>
+		</div>
+	</form>
+</div>
+<script>
+	var subgrid6 = $("#subgrid6");
+	var subModel6 = [
+		{
+			name: "SNo", label: "序號", key: true, hidden: true,
+		},
+		{
+			name: "CreateTime", label: "建單時間", 
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "RecordType", label: "類型",
+			formatter: "select",
+			editoptions: {
+				value: { 1: '問題', 2: '客訴', 3: '內部說明', 4: '帳務說明', 5: '貨物說明', 6: '其他說明' }
+			},
+			stype: "select",
+			searchoptions: {
+				value: { 1: '問題', 2: '客訴', 3: '內部說明', 4: '帳務說明', 5: '貨物說明', 6: '其他說明' }
+			}
+		},
+		{
+			name: "CreateBy", label: "建單人",
+		},
+		{
+			name: "LadingNo_Type", label: "提單號碼",
+		},
+		{
+			name: "StatNo", label: "站點",
+		},
+		{
+			name: "Remark", label: "備註",
+		},
+	];
+	subgrid6.jqGrid("autoWidthColumns").jqGrid({
+		url: "/New_Bill_Lading/GetRecordJSON?LadingNo=★",
+		datatype: "json",
+		colModel: subModel6,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		//pager: "#subpager6",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 100,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (id) {
+			if (id) {
+				IsLoadData = true;
+				$('#fmTab6').form('clear');
+				lockForm();
+				var subselrow = subgrid6.jqGrid('getRowData', id);
+				if (subselrow.ShdetNo != "") {
+					$.getJSON(apiURL + 'GetRecordJSON/?LadingNo=' + subselrow.LadingNo + '&SNo=' + subselrow.SNo, function (subdata) {
+						if (subdata.records > 0) {
+							var subrow = subdata.rows[0];
+							$('#fmTab6').form('load', subrow);
+						}
+					})
+				}
+			}
+		},
+
+	}).jqGrid('navGrid', '#subpager6',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: true
+		});
+	$("#t_subgrid6").css("height", "30px").append($('#toolbar_subgrid6'));
+
+</script>
+

@@ -1,0 +1,463 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*兩種編輯框 + 編輯框含GRID*@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<title>@ViewBag.Title</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="description" content="The description of my page" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link href="~/Content/easyui/themes/default/easyui.css" rel="stylesheet" />
+	<link href="~/Content/easyui/themes/icon.css" rel="stylesheet" />
+	<style>
+		#gridbtn_caption {
+			opacity: 1;
+		}
+
+			#gridbtn_caption .ui-icon {
+				display: none;
+			}
+
+			#gridbtn_caption .ui-pg-button-text {
+				font-size: 16px;
+				color: black;
+			}
+
+		.warning-dialog {
+			text-align: center;
+			line-height: 90px;
+			font-size: 12px;
+		}
+	</style>
+</head>
+<body>
+	<div style="background-color:#f6f6f6">
+		@RenderBody()
+	</div>
+
+	<!--工具列-->
+	<div id="toolbar_grid">
+		<a id="add1-btn" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add1()">新增</a>
+		<a id="edit1-btn" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="edit1()">修改</a>
+		<a id="add2-btn" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add2()">新增</a>
+		<a id="edit2-btn" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="edit2()">修改</a>
+		<a id="del-btn" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="del()">刪除</a>
+	</div>
+
+	<!--選擇搜尋框-->
+	<div id="win" class="easyui-window" title="My Window" style="width:800px;height:520px;display:none"
+		 data-options="resizable:false,draggable:false,iconCls:'icon-search',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	</div>
+
+	<!--主表編輯框1-->
+	<div id="dlg1" class="easyui-dialog" style="display:none;width:@ViewBag.dlgWidth;height:530px;padding:10px 10px;top:0px"
+		 closed="true" buttons="#dlg1-buttons" data-options="resizable:false,draggable:true">
+		<form id="fm1" method="post" novalidate>
+			@{
+				Html.RenderAction("_ElementInForm1");
+			}
+			<div id="editShowOnly1">
+				<div class="fitem">
+					<label>建立時間:</label>
+					<input name="CreatedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>建立人員:</label>
+					<input name="CreatedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>更新時間:</label>
+					<input name="UpdatedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>更新人員:</label>
+					<input name="UpdatedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>刪除時間:</label>
+					<input name="DeletedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>刪除人員:</label>
+					<input name="DeletedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>作廢:</label>
+					<input name="IsDelete" class="easyui-textbox">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="dlg1-buttons" style="display:none">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="save1()" style="width:90px">存檔</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg1').dialog('close')" style="width:90px">取消</a>
+	</div>
+	<!--主表編輯框2-->
+	<div id="dlg2" class="easyui-dialog" style="display:none;width:@ViewBag.dlgWidth;height:530px;padding:10px 10px;top:0px"
+		 closed="true" buttons="#dlg2-buttons" data-options="resizable:false,draggable:true">
+		<form id="fm2" method="post" novalidate>
+			@{
+				Html.RenderAction("_ElementInForm2");
+			}
+			<div id="editShowOnly2">
+				<div class="fitem">
+					<label>建立時間:</label>
+					<input name="CreatedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>建立人員:</label>
+					<input name="CreatedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>更新時間:</label>
+					<input name="UpdatedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>更新人員:</label>
+					<input name="UpdatedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>刪除時間:</label>
+					<input name="DeletedDate" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>刪除人員:</label>
+					<input name="DeletedBy" class="easyui-textbox">
+				</div>
+				<div class="fitem">
+					<label>作廢:</label>
+					<input name="IsDelete" class="easyui-textbox">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="dlg2-buttons" style="display:none">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="save2()" style="width:90px">存檔</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg2').dialog('close')" style="width:90px">取消</a>
+	</div>
+
+	<script src="~/Content/easyui/jquery.easyui.min.js"></script>
+
+	<script>
+		var grid = $("#grid");
+		var ResizeGrid = ResizeGrid || function () {
+			var w = $(window);
+			grid.jqGrid("setGridWidth", w.innerWidth() - 20);
+			grid.jqGrid("setGridHeight", w.innerHeight() - 115 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+			console.log("Default Resize Mode");
+		};
+
+		$(function () {
+			var userAct = $('#UserAct').val();
+			setTimeout(function () {
+				if (userAct.includes("Add") == false) {
+					$("#add1-btn").linkbutton('disable');
+					$("#add2-btn").linkbutton('disable');
+				}
+				if (userAct.includes("Edit") == false) {
+					$("#edit1-btn").linkbutton('disable');
+					$("#edit2-btn").linkbutton('disable');
+				}
+				if (userAct.includes("Del") == false) {
+					$("#del-btn").linkbutton('disable');
+				}
+		 }, 300);
+
+			$(window).resize(
+				function () {
+					$("body").css("padding-top", $(".navbar").height());
+					ResizeGrid();
+				}).trigger("resize");
+			setTimeout(function () {
+				$(window).trigger("resize");
+			}, 1000);
+
+			if ('@ViewBag.PageParam' == "1") {
+				$('#add1-btn').show();
+				$('#add2-btn').hide();
+				$('#edit1-btn').show();
+				$('#edit2-btn').hide();
+				$('#dlg1-buttons').show();
+				$('#dlg2-buttons').hide();
+			} else if ('@ViewBag.PageParam' == "2") {
+				$('#add1-btn').hide();
+				$('#add2-btn').show();
+				$('#edit1-btn').hide();
+				$('#edit2-btn').show();
+				$('#dlg1-buttons').hide();
+				$('#dlg2-buttons').show();
+			}
+		});
+
+		$("#grid,#dtlgrid1").toArray().forEach(function (g) {
+			(function AddGridComplete(grid) {
+				if (typeof ($(grid).jqGrid) === "undefined")
+					setTimeout(AddGridComplete, 150, grid);
+				else {
+					var fn = $(grid).jqGrid("autoWidthColumns").jqGrid("getGridParam", "gridComplete");
+					$(grid).jqGrid("setGridParam", {
+						gridComplete: function () {
+							var target = $(grid).parents(".ui-jqgrid").find(".ui-paging-info");
+							//fix space at records field
+							var recordsnum = target.text().replace(/ /g, "").replace("r", " r");
+							target.text(recordsnum);
+							//call original function
+							typeof (fn) === "function" && fn();
+						}
+					});
+				}
+			})(g);
+		});
+
+		$("#t_grid").append($('#toolbar_grid'));
+
+		function ShowWinForPickUpjqGrid(formId, inputFields, inputValues, contentUrl) {
+			$('#win').window('open');
+			$('#win').panel('clear');
+			$('#win').window('setTitle', '');
+			$('#win').window('refresh', contentUrl + '?' + 'formId=' + formId + '&inputFields=' + inputFields + '&inputValues=' + inputValues);
+		}
+
+		function ShowWinForPickUpGrid(retID1, retVal1, retType1, retID2, retVal2, retType2, titleString, contentUrl) {
+			$('#win').window('open');
+			$('#win').panel('clear');
+			$('#win').window('setTitle', titleString);
+			$('#win').window('refresh', contentUrl + '?retID1=' + retID1 + '&retVal1=' + retVal1 + '&retType1=' + retType1 + '&retID2=' + retID2 + '&retVal2=' + retVal2 + '&retType2=' + retType2);
+		}
+
+		function ShowWinForPickUpGridMulti(retID1, retVal1, retType1, retID2, retVal2, retType2, titleString, contentUrl) {
+			$('#win').window('open');
+			$('#win').panel('clear');
+			$('#win').window('setTitle', titleString);
+			$('#win').window('refresh', contentUrl + '?retID1=' + retID1 + '&retVal1=' + retVal1 + '&retType1=' + retType1 + '&retID2=' + retID2 + '&retVal2=' + retVal2 + '&retType2=' + retType2 + '&multiCheck=yes');
+
+		}
+	</script>
+
+	<script>
+    function add1() {
+            $('#editShowOnly1').hide();
+            $('#dlg1').dialog('open').dialog('setTitle', '提單資料-新增');
+			$('#fm1').form('clear');
+			$('#isAdd').textbox('setValue', 'true');
+			$("input[name*='ImOrEx'][value='Ex']").prop("checked", true);
+			//$('#dtlgrid1').jqGrid('setGridParam', { postData: { LadingNo: '★' } }).trigger('reloadGrid');
+            @Html.Raw(ViewBag.FormCustomJsNew)
+            $('#IsServer').switchbutton('check');
+            fUrl = '@Url.Action("Add", ViewBag.ControllerName)';
+        }
+
+	function edit1() {
+		document.activeElement.blur();
+        var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+        if (rowid) {
+            var row = $("#grid").jqGrid('getRowData', rowid);
+            $('#editShowOnly1').hide();
+            $('#passPrompt').show();
+            $('#Password').passwordbox({ required: false });
+            $('#dlg1').dialog('open').dialog('setTitle', '提單資料-編輯');
+			$('#isAdd').textbox('setValue', 'false');
+
+            for (var i in row)
+				row[i] = row[i].trim();
+
+			$('#fm1').form('load', row);
+			//$('#dtlgrid1').jqGrid('setGridParam', { postData: { LadingNo: row.LadingNo } }).trigger('reloadGrid');
+			$('#dtlgrid1').jqGrid("setGridParam", {
+				url: "/DeclCust_Sub/GetGridJson?LadingNo=" + row.LadingNo,
+				datatype: 'json',
+			}).trigger('reloadGrid');
+            @Html.Raw(ViewBag.FormCustomJsEdit)
+            fUrl = '@Url.Action("Edit", ViewBag.ControllerName)';
+        } else {
+            $.messager.alert('警告', '尚未選擇資料!', 'warning');
+        }
+		}
+	function add2() {
+            $('#editShowOnly2').hide();
+            $('#dlg2').dialog('open').dialog('setTitle', '提單資料-新增');
+			$('#fm2').form('clear');
+			$('#isAdd').textbox('setValue', 'true');
+			$("input[name*='ImOrEx'][value='Ex']").prop("checked", true);
+			//$('#dtlgrid2').jqGrid('setGridParam', { postData: { LadingNo: '★' } }).trigger('reloadGrid');
+            @Html.Raw(ViewBag.FormCustomJsNew)
+
+            $('#IsServer').switchbutton('check');
+            fUrl = '@Url.Action("Add", ViewBag.ControllerName)';
+        }
+
+	function edit2() {
+		document.activeElement.blur();
+        var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+		if (rowid) {
+			var row = $("#grid").jqGrid('getRowData', rowid);
+            $('#editShowOnly2').hide();
+            $('#passPrompt').show();
+            $('#Password').passwordbox({ required: false });
+			$('#dlg2').dialog('open').dialog('setTitle', '提單資料-編輯');
+			$('#isAdd').textbox('setValue', 'false');
+
+            for (var i in row)
+				row[i] = row[i].trim();
+
+			$('#fm2').form('load', row);
+			//$('#dtlgrid2').jqGrid('setGridParam', { postData: { LadingNo: row.LadingNo } }).trigger('reloadGrid');
+
+			$('#dtlgrid2').jqGrid("setGridParam", {
+				url: "/DeclCust_Main/GetGridJson?LadingNo=" + row.LadingNo ,
+				datatype: 'json',
+			}).trigger('reloadGrid');
+
+            @Html.Raw(ViewBag.FormCustomJsEdit)
+            fUrl = '@Url.Action("Edit", ViewBag.ControllerName)';
+        } else {
+            $.messager.alert('警告', '尚未選擇資料!', 'warning');
+        }
+    }
+    function save1() {
+         @Html.Raw(ViewBag.FormCustomJsSave)
+		var list1 = [];
+		$('#fm1').form('submit', {
+                url: fUrl,
+				onSubmit: function (param) {
+					var data = $("#dtlgrid1").jqGrid("getRowData");
+					if (data.length > 0) {
+						for (var i = 0; i < data.length; i++) {
+							if (data[i].BagNo.includes("<input") != true) {
+								list1.push({
+									"LadingNo": data[i].LadingNo,
+									"sNo": data[i].sNo,
+									"BagNo": data[i].BagNo,
+									"CleCusCode": data[i].CleCusCode,
+									"ProductName": data[i].ProductName,
+									"Type": data[i].Type,
+									"Qty": data[i].Qty,
+									"Weight": data[i].Weight,
+									"GrossWeight": data[i].GrossWeight,
+									"Price": data[i].Price,
+									"Length": data[i].Length,
+									"Width": data[i].Width,
+									"Height": data[i].Height,
+
+								});
+							} else {
+								$.messager.alert('警告', '子表第『' + (i + 1) + '』筆資料仍於【編輯狀態】中！<br>請輸入並確認資料正確後，<br>按下【Enter】存取暫存資料。', 'warning');
+								return false;
+							}
+						}
+						param.dtl1 = JSON.stringify(list1);
+					}
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var r = eval('(' + result + ')');
+                    if (r.ok >= 0) {
+                        if (r.ok > 0) {
+                            $.messager.alert('成功', '存檔成功!');
+                        }
+                        else {
+                            $.messager.alert('警告', r.message, 'warning');
+                        }
+						$('#dlg1').dialog('close'); // close the dialog
+						$('#grid').trigger('reloadGrid');
+                    }
+                    else {
+                        $.messager.alert('錯誤', r.message, 'error');
+                    }
+                }
+            });
+		}
+	function save2() {
+         @Html.Raw(ViewBag.FormCustomJsSave)
+		 var list2 = [];
+         $('#fm2').form('submit', {
+			url: fUrl,
+			 onSubmit: function (param) {
+				 var data = $("#dtlgrid2").jqGrid("getRowData");
+				 if (data.length > 0) {
+					 for (var i = 0; i < data.length; i++) {
+						 if (data[i].BagNo.includes("<input") != true) {
+							 list2.push({
+								 "sNo": data[i].sNo,
+								 "LadingNo": data[i].LadingNo,
+								 "CustType": data[i].CustType,
+								 "Flight": data[i].Flight,
+								 "LadNo": data[i].LadNo,
+								 "BagNo": data[i].BagNo,
+								 "CleCusCode": data[i].CleCusCode,
+								 "CusCoode": data[i].CusCoode,
+								 "ProductNo": data[i].ProductNo,
+								 "ProductName": data[i].ProductName,
+								 "ProductEName": data[i].ProductEName,
+								 "Country": data[i].Country,
+								 "Type": data[i].Type,
+								 "HSNo": data[i].HSNo,
+								 "Qty": data[i].Qty,
+								 "Unit": data[i].Unit,
+								 "GrossWeight": data[i].GrossWeight,
+								 "Weight": data[i].Weight,
+								 "Price": data[i].Price,
+								 "Total": data[i].Total,
+								 "Currency": data[i].Currency,
+								 "Pcs": data[i].Pcs,
+								 "PcsNo": data[i].PcsNo,
+								 "Remark": data[i].Remark,
+								 "Length": data[i].Length,
+								 "Width": data[i].Width,
+								 "Height": data[i].Height,
+							 });
+						 } else {
+							 $.messager.alert('警告', '子表第『' + (i + 1) + '』筆資料仍於【編輯狀態】中！<br>請輸入並確認資料正確後，<br>按下【Enter】存取暫存資料。', 'warning');
+							 return false;
+						 }
+					 }
+					 param.dtl2 = JSON.stringify(list2);
+				 }
+				 return $(this).form('validate');
+			 },
+            success: function (result) {
+				var r = eval('(' + result + ')');
+                if (r.ok >= 0) {
+					if (r.ok > 0) {
+						$.messager.alert('成功', '存檔成功!');
+                    }
+                    else {
+                        $.messager.alert('警告', r.message, 'warning');
+                    }
+						$('#dlg2').dialog('close'); // close the dialog
+						$('#grid').trigger('reloadGrid');
+                  }
+                  else {
+                      $.messager.alert('錯誤', r.message, 'error');
+                }
+              }
+            });
+		}
+
+        function del() {
+            var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+            if (rowid) {
+                var row = $("#grid").jqGrid('getRowData', rowid);
+                $.messager.confirm('Confirm', '確認刪除?', function (r) {
+                    if (r) {
+                        $.post('@Url.Action("Delete", ViewBag.ControllerName)', { data: row }, function (data, textStatus, jqXHR) {
+                            if (data.ok >= 0) {
+                                $('#grid').trigger('reloadGrid');
+                                $.messager.alert('成功', '刪除成功!');
+                            } else {
+                                $.messager.alert('錯誤', data.message, 'error');
+                            }
+                        }, 'json');
+                    }
+                });
+            } else {
+                $.messager.alert('警告', '尚未選擇資料!', 'warning');
+            }
+        }
+	</script>
+</body>
+</html>

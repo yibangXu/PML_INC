@@ -1,0 +1,68 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+    var apiURL = '/Depart/';
+    var model = [
+        {
+            name: "DepartNo", label: "部門代號", search: true, key: true,
+            readonly: "edit", editable: true,
+            formoptions: { label: "*群組代號", rowpos: 1, colpos: 1 },
+            editoptions: { maxLength: 10 },
+            editrules: { required: true },
+        },
+        {
+            name: "DepartName", label: "部門名稱",
+            search: true, editable: true,
+            formoptions: { label: "*群組名稱", rowpos: 1, colpos: 2 },
+            editoptions: { maxLength: 20 },
+            editrules: { required: true },
+        },
+        {
+            name: "IsActive", label: "是否啟用",
+            search: true, editable: true,
+            formoptions: { label: "*是否啟用", rowpos: 2, colpos: 1 },
+            formatter: "select", edittype: "select",
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            }, editrules: { required: true },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: "Remark", label: "備註",
+            search: false, editable: true,
+            formoptions: { rowpos: 2, colpos: 2 },
+            editoptions: { maxLength: 100 },
+        },
+    ];
+    $("#grid").jqGrid({
+        caption: "部門資料",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "DepartNo",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true});
+</script>
+

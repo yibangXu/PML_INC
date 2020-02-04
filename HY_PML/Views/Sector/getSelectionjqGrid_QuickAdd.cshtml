@@ -1,0 +1,48 @@
+﻿@{
+	Layout = "~/Views/Shared/_SelectionjqGrid2.cshtml";
+}
+<script>
+	var url = '/Sector//GetGridJSON3?date=' + $('#RedyDateQuickAdd').val() + "&time=" + $('#RedyTimeQuickAdd').val() + "&IsOff=false";
+	var gridTitle = '外務員資料';
+	var sortName = 'SectorNo';
+	var model = [
+		{
+			name: "SectorNo", label: "代號", search: true,
+		},
+		{
+			name: "SectorName", label: "姓名", search: true,
+		},
+		{
+			name: "CarID", label: "車輛代號", search: true,
+		},
+		{
+			name: "PlateNO", label: "車輛編號", search: true,
+		},
+		{
+			name: "Phone", label: "電話", search: true,
+		},
+		{
+			name: "StatNo", label: "所屬站點", search: true,
+		},
+		{
+			name: "PickUpAreaNo", label: "調度區域", search: true,
+		},
+		{
+			name: "PhonePrivate", label: "私人電話", search: true,
+		},
+		{
+			name: "IsLeave", label: "是否離職", search: false, hidden: true,
+			formatter: "select",
+			editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: "IsServer", label: "是否啟用", search: false, hidden: true,
+			formatter: "select",
+			editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+	];
+</script>

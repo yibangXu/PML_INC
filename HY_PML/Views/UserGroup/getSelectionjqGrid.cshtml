@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/UserGroup/';
+    var gridTitle = '群組資料';
+    var sortName = 'UserGroupNo';
+    var model = [
+        {
+            name: "UserGroupNo", label: "群組代號", search: true, key: true,
+        },
+        {
+            name: "UserGroupName", label: "群組名稱", search: true,
+        },
+        {
+            name: "IsActive", label: "是否啟用",
+            search: true,
+            formatter: "select", edittype: "select",
+            editoptions: {
+                defaultValue: "true",
+                value: { true: "是", false: "否" },
+            },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: "Remark", label: "備註", search: false,
+        },
+    ];
+</script>

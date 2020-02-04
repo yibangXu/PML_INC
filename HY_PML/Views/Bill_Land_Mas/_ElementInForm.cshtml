@@ -1,0 +1,97 @@
+﻿<table>
+    <tr>
+        <td>
+            <label>理貨單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="SheetNo" id="SheetNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true',prompt:'系統自動編號'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>主提單號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="MasterNo" id="MasterNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[22]'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>航班編號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="FlightNo" id="FlightNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[7]'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>路線:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="HubName" id="HubName" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForPickUpjqGrid('fm','HubNo,HubName','HubNo,HubName','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+                <input name="HubNo" class="easyui-textbox" style="width:auto" type="hidden" required>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>站點:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="StatNo" id="StatNo" class="easyui-textbox" style="width:auto" value="@ViewBag.StatNo" required data-options="readonly:'true'">
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForPickUpjqGrid('fm','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>備註:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="Remark" class="easyui-textbox" style="width:auto" data-options="multiline:'true'">
+            </div>
+        </td>
+    </tr>
+    <tr id="addProd">
+        <td>
+            <label>選取貨物:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="checkData()"></a>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<script>
+    function checkData() {
+        if ($("#HubName").val() === "") {
+            alert("路線尚未選擇!");
+            return;
+        }
+        if ($("#StatNo").val() === "") {
+            alert("站點尚未選擇!");
+            return;
+        }
+
+        $.messager.confirm('警告', '確定主檔資料選填完畢?', function (r) {
+            if (r) {
+                ShowWinForCbjqGrid('grid', 'fm', 'dlg', '@Url.Action("getMultiCbjqGrid", "Bill_Land_Mas")','@Url.Action("Add", "Bill_Land_Mas")');
+            }
+        });
+    }
+</script>

@@ -1,0 +1,50 @@
+﻿<table>
+	<tr>
+		<td>
+			<label>報表號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ReportNo" id="dReportNo" class="easyui-textbox" style="width:auto" readonly>
+				<input class="easyui-textbox isMas" type="hidden">
+			</div>
+		</td>
+	</tr>
+	<tr style="display:none">
+		<td>
+			<label>路線:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="HubName" id="dHubName" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','HubNo,HubName,HubCode','HubNo,HubName,HubCode','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+				<input name="HubNo" id="HubNo" class="easyui-textbox" type="hidden" required>
+				<input name="HubCode" id="Code" class="easyui-textbox" type="hidden" required>
+			</div>
+		</td>
+	</tr>
+	<tr style="display:none">
+		<td>
+			<label>出口站點：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SStatNo" id="dSStatNo" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr id="addLadingDtl">
+		<td>
+			<label>選取提單:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForCbjqGrid('subgrid', 'fm2', 'dlg2', '@Url.Action("getMultiCbjqGrid", "BL_Report_Mas")','@Url.Action("AddDetail", "BL_Report_Mas")');"></a>
+			</div>
+		</td>
+	</tr>
+</table>

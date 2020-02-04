@@ -1,0 +1,179 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/CBD/';
+	var model =
+		[
+			{
+				name: "Type", label: "類別", search: true, stype: 'select',
+				searchoptions:
+				{
+					value: { "": "全部" ,收現: "收現", 收票: "收票", 折讓: "折讓", }
+				},
+			},
+			{
+				name: "CRNo", label: "單號", search: true, key: true
+			},
+			{
+				name: "CustNo", label: "客戶", search: false, hidden: true
+			},
+			{
+				name: "CustName", label: "客戶", search: true,
+			},
+			{
+				name: "LadingNo", label: "提單號碼", search: true,
+			},
+			{
+				name: "Total", label: "應收金額", search: false,
+			},
+			{
+				name: "CashRecv", label: "實收金額", search: false,
+			},
+			{
+				name: "RecvTime", label: "收款時間", search: true,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d H:i' },
+				searchoptions: {
+					dataInit: function (e) {
+						$(e).datepicker({
+							dateFormat: 'yy-mm-dd'
+						})
+							.change(function () {
+								$("#grid")[0].triggerToolbar();
+							});
+					}
+				}
+			},
+			{
+				name: "Receiver", label: "收款人", search: true,
+			},
+			{
+				name: "BillBank", label: "票據銀行", search: true,
+			},
+			{
+				name: "BillNo", label: "票據號碼", search: true,
+			},
+			{
+				name: "BillDueDate", label: "票據到期日", search: true,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d' },
+				searchoptions: {
+					dataInit: function (e) {
+						$(e).datepicker({
+							dateFormat: 'yy-mm-dd'
+						})
+							.change(function () {
+								$("#grid")[0].triggerToolbar();
+							});
+					}
+				}
+			},
+			{
+				name: "BillAmount", label: "票面金額", search: false,
+			},
+			{
+				name: "discount", label: "折讓金額", search: false,
+			},
+			{
+				name: "Reason", label: "折讓原因", search: false,
+			},
+			{
+				name: "Remark", label: "備註", search: false,
+			},
+			{
+				name: "IsCheck", label: "檢核", search: false, hidden: true
+			},
+			{
+				name: "CheckBy", label: "檢核人員", search: false, hidden: true
+			},
+			{
+				name: "CheckTime", label: "檢核日期", search: false, hidden: true
+			},
+			{
+				name: "CreateBy", label: "建單人員", search: false
+			},
+			{
+				name: "CreateTime", label: "建單時間", search: false
+			},
+		];
+	$("#grid").jqGrid({
+		caption: "收現、收票、折讓檢核",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+		datatype: "json",
+		colModel: model,
+		sortname: "ReceiveTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: true,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+</script>
+
+<script>
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	function CBDCheck() {
+		var data = $("#grid").jqGrid("getGridParam", "selarrrow");
+		if (data.length > 0) {
+			$.messager.confirm('Confirm', '確定檢核?',
+				function (r) {
+					if (r) {
+						$.post('@Url.Action("CBDCheck", "CBD")', { CRNo: data }, function (data, textStatus, jqXHR) {
+                            if (data.ok >= 0) {
+                                $('#grid').trigger('reloadGrid');
+                                $('#subgrid').trigger('reloadGrid');
+                                $.messager.alert('成功', '檢核成功!');
+                            } else {
+                                $.messager.alert('錯誤', data.message, 'error');
+                            }
+                        }, 'json');
+					}
+				});
+		} else {
+			$.messager.alert('警告', '尚未選擇資料!', 'warning');
+		}
+	}
+
+
+	$(function () {
+		$("#toolbar_grid").html('')
+			.append('<a class="easyui-linkbutton" iconCls="icon-ok" id="CBDCheck" onclick="CBDCheck();">檢核</a>')
+			.append(' ｜ <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("CBDCheck") == false) {
+				$("#CBDCheck").linkbutton('disable');
+			}
+	 }, 300);
+	});
+</script>

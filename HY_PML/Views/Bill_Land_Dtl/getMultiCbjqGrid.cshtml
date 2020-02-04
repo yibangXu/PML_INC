@@ -1,0 +1,107 @@
+﻿@{
+    Layout = "~/Views/Shared/_MultiCbjqGrid.cshtml";
+}
+<script>
+    var url = '/Bill_Land_Dtl/';
+    var gridTitle = '提單明細資料';
+    var funcName = "GetGridJSON?SheetNo=@ViewBag.sheetNo";
+    var sortName = 'sNo';
+    var list = [];
+    var model = [
+        {
+            name: "SheetNo", label: "理貨單號", hidden: true,
+        },
+        {
+            name: "SNo", label: "序號", key: true, search: false, hidden: true,
+        },
+        {
+            name: "MasterNo", label: "主提單號", hidden: true,
+        },
+        {
+            name: "HouseNo", label: "分提單號", search: true,
+        },
+        {
+            name: "ShdetNo", label: "調派單號", search: true,
+        },
+        {
+            name: "CustomerNo", label: "客戶代號", search: true, hidden: true
+        },
+        {
+            name: "CustCHName", label: "客戶名稱", search: true,
+        },
+        {
+            name: "SDtlNo", label: "調派序號", search: false,
+        },
+        {
+            name: "ProdNo", label: "貨物序號", search: false,
+        },
+        {
+            name: "WriteOff", label: "後段核銷", search: true,
+        },
+        {
+            name: "BagNo", label: "編袋號", search: true,
+        },
+        {
+            name: "Remark", label: "備註", search: false,
+        },
+    ];
+
+    function changePage() {
+        var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+        for (var i = 0; i < gsr.length; i++) {
+            var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+            list.push([row.SNo]);
+        }
+    }
+
+    function pickRowtoForm(gridId, fmId, dlgId, postUrl) {
+        var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+        if (gsr.length <= 0) {
+            $.messager.alert("警告", "未選擇資料!");
+        } else {
+            for (var i = 0; i < gsr.length; i++) {
+                var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+                list.push([row.SNo]);
+            }
+            Lib.paramDialog({
+				name: "HouseNo",
+                params: [
+                    {
+                        name: "MasterNo",
+                        title: "主提單號",
+                        type: "info",
+                        defaultValue: row.MasterNo
+                    },
+					{
+						name: "HouseNo",
+                        title:"分提單號",
+						type: "input",
+					},
+                ],
+                width:300,
+				okFunc: function (data, dialog) {
+                    var HouseNo = $("#rpfHouseNo_HouseNo").val();
+
+                    if (HouseNo === "" || HouseNo === null)
+					{
+                        $.messager.alert("警告", "分提單號不能為空!");
+					}
+					else
+					{
+                        $.post('@Url.Action("EditHouseNo", "Bill_Land_Mas")', { HouseNo: HouseNo, SheetNo: '@ViewBag.sheetNo', multiList: list.join(',') }, function (data) {
+                            if (data.ok > 0) {
+                                $("#rpfHouseNo").dialog("close");
+                                $("#win").dialog("close");
+                                $("#grid").trigger('reloadGrid');
+                                $("#subgrid").trigger('reloadGrid');
+                            }
+                            else {
+                                $.messager.alert("錯誤", data.message, 'error');
+                            }
+                        });
+					}
+				}
+			});
+        }
+    }
+</script>

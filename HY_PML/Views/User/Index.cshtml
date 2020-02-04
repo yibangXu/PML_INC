@@ -1,0 +1,202 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+    var apiURL = '/User/';
+    var model = [
+        {
+            name: "ID", label: "ID", search: true, key: true, hidden: true
+        },
+        {
+            name: "Account", label: "帳號",
+            readonly: "edit", search: true, editable: true,
+            formoptions: { label: "*帳號", rowpos: 1, colpos: 1 },
+            editoptions: { maxLength: 100 },
+            editrules: { required: true },
+        },
+        {
+            name: "PasswordStr", label: "密碼", hidden: true,
+            search: false, editable: true,
+            formoptions: { label: "*密碼", rowpos: 1, colpos: 2, },
+            editoptions: { maxLength: 100 },
+            editrules: {
+                edithidden: true,
+            }
+        },
+        {
+            name: "UserName", label: "姓名",
+            search: true, editable: true,
+            formoptions: { label: "*姓名", rowpos: 2, colpos: 1 },
+            editoptions: { maxLength: 50 },
+            editrules: { required: true },
+        },
+        {
+            name: "RegisterDate", label: "註冊日期",
+            search: false, editable: true,
+            formoptions: { label: "*註冊日期", rowpos: 2, colpos: 2 },
+            formatter: "date",
+            editoptions: {
+                dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+                sopt: ["ge", "le", "eq"],
+            },
+            formatoptions: { newformat: "Y-m-d", }
+        },
+        {
+            name: "ActiveDate", label: "啟用日期",
+            search: false, editable: true,
+            formoptions: { rowpos: 3, colpos: 1 },
+            formatter: "date",
+            editoptions: {
+                dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+                sopt: ["ge", "le", "eq"],
+            },
+            formatoptions: { newformat: "Y-m-d", }
+        },
+        {
+            name: "ExpiryDate", label: "到期日期",
+            search: false,
+            formoptions: { rowpos: 3, colpos: 2 },
+            formatter: "date",
+            editoptions: {
+                dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+                sopt: ["ge", "le", "eq"],
+            },
+            formatoptions: {
+                newformat: "Y-m-d",
+            }
+        },
+        {
+            name: "StatName", label: "站點", search: true,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "Stat/GetGridJSON?sidx=StatName&rows=1000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "StatName", "StatNo,StatName", true);
+                },
+            },
+        },
+        {
+            name: "StatNo", label: "站點", editable: true,
+            edittype: "select", hidden: true,
+            formoptions: { rowpos: 5, colpos: 1 },
+            editrules: { edithidden: true },
+            editoptions:
+            {
+                dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "ID", "StatNo,StatName", true);
+                },
+            },
+        },
+
+        {
+            name: "DepartName", label: "部門", search: true,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "Depart/GetGridJSON?sidx=DepartName&rows=1000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "DepartName", "DepartName", true);
+                },
+            },
+        },
+        {
+            name: "DepartNo", label: "部門",
+            search: false, editable: true,
+            edittype: "select", hidden: true,
+            formoptions: { rowpos: 5, colpos: 2 },
+            editrules: { edithidden: true },
+            editoptions:
+            {
+                dataUrl: "Depart/GetGridJSON?sidx=DepartNo&rows=10000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "DepartNo", "DepartNo,DepartName", true);
+                },
+            },
+        },
+
+        {
+            name: 'UserGroupName', label: '群組', search: true,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "UserGroup/GetGridJSON?sidx=UserGroupName&rows=10000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "UserGroupName", "UserGroupName", true);
+                },
+            },
+        },
+        {
+            name: "UserGroupNo", label: "群組",
+            search: true, editable: true,
+            edittype: "select", hidden: true,
+            formoptions: { rowpos: 6, colpos: 1 },
+            editrules: { edithidden: true },
+            editoptions:
+            {
+                dataUrl: "UserGroup/GetGridJSON?sidx=UserGroupNo&rows=10000",
+                buildSelect: function (data) {
+                    return Lib.jqGrid.buildSelect(data, "UserGroupNo", "UserGroupNo,UserGroupName", true);
+                },
+            },
+        },
+        {
+            name: 'IsActive', label: '啟用',
+            search: true, editable: true,
+            formoptions: { label: "*啟用", rowpos: 6, colpos: 2 },
+            formatter: "select", edittype: "select",
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            },
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+        {
+            name: 'Remark', label: '備註', search: false,
+            editable: true,
+            formoptions: { rowpos: 7, colpos: 1 },
+            editrules: { edithidden: true },
+            editoptions: { maxLength: 100 },
+		},
+		{
+			name: 'LastLoginTime', label: '最後登入時間', search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+		{
+			name: 'LoginFrequency', label: '登入次數', search: false,
+		},
+    ];
+
+    $("#grid").jqGrid({
+        caption: "用戶管理",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "ID",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+</script>
+

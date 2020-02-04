@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Dest/';
+    var gridTitle = '目的地資料';
+    var sortName = 'DestNo';
+    var model = [
+        {
+            name: "ID", label: "ID", hidden: true, key: true
+        },
+        {
+            name: "DestNo", label: "目的地代號", width: 120, search: true,
+        },
+        {
+            name: "CName", label: "中文目的地", width: 120, search: true,
+        },
+        {
+            name: "ChName", label: "英文目的地", width: 120, search: true,
+        },
+        {
+            name: "IsServer", label: "是否啟用", width: 120, search: false,
+            formatter: "select",
+            editoptions: {
+                value: { "": "", true: "是", false: "否" },
+            },
+        },
+    ];
+</script>

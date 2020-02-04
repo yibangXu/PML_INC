@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Hub/';
+    var gridTitle = '路線資料';
+    var sortName = 'HubNo';
+    var model = [
+        {
+            name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "HubNo", label: "路線No", search: false, hidden: true,
+		},
+        {
+            name: "HubCode", label: "路線代號", search: true,
+        },
+        {
+            name: "HubName", label: "路線名稱", width: 200, search: true,
+        },
+    ];
+</script>

@@ -1,0 +1,91 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+    var apiURL = '/PostCode/';
+    var model = [
+        {
+            name: "Code5", label: "3+2郵遞區號", editable: true,
+            search: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 5 },
+            formoptions: { label: "*3+2郵遞區號" },
+        },
+        {
+            name: "CityCode", label: "縣市代碼", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 3 },
+            formoptions: { label: "*縣市代碼" },
+        },
+        {
+            name: "CityName", label: "縣市名稱", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 10, },
+            formoptions: { label: "*縣市名稱" },
+        },
+        {
+            name: "AreaName", label: "地區名稱", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 10, },
+            formoptions: { label: "*地區名稱" },
+        },
+        {
+            name: "RoadName", label: "路段名稱", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 30, },
+            formoptions: { label: "*路段名稱" },
+        },
+        {
+            name: "RowName", label: "路號", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 50, },
+            formoptions: { label: "*路號" },
+        },
+        {
+            name: "Code7", label: "郵政7碼", search: true,
+            editable: true,
+            editrules: { required: true, },
+            editoptions: { maxLength: 7, },
+            formoptions: { label: "*郵政7碼" },
+		},
+		{
+			name: "UserName", label: "建立人員", search: false
+		},
+    ];
+    $("#grid").jqGrid({
+        caption: "地址基本檔",
+        url: apiURL + 'GetGridJSON_New',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "Code7",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+    $(function () {
+        $("#toolbar_grid").html('')
+            .append('<a id="add-btn" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add()">新增</a>')
+            .append('<a id = "del-btn" class="easyui-linkbutton" iconCls = "icon-remove" plain = "true" onclick = "del()" > 刪除</a >');
+    });
+</script>

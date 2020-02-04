@@ -1,0 +1,60 @@
+﻿@{
+	Layout = "~/Views/Shared/_SelectionjqGrid2.cshtml";
+}
+<script>
+	var url = '/Consin//GetGridJSON?CustNo=' + $('#SendCustNo').val();
+	var gridTitle = '收件人資料';
+	var sortName = 'Consin';
+	var model = [
+		{
+			name: "ID", label: "ID", key: true, hiedden: true,
+		},
+		{
+			name: "Tel", label: "電話", search: true,
+		},
+		{
+			name: "MPhone", label: "手機", search: false,
+		},
+		{
+			name: "Enconsin1", label: "英文名稱1", search: true,
+		},
+		{
+			name: "Enconsin2", label: "英文名稱2", search: true,
+		},
+		{
+			name: "Consinee", label: "收件人", search: true,
+		},
+		{
+			name: "ConsinComp", label: "收件公司", search: true,
+		},
+		{
+			name: "Enaddr1", label: "英文地址1", search: true,
+		},
+		{
+			name: "Enaddr2", label: "英文地址2", search: true,
+		},
+		{
+			name: "Cnconsin", label: "中文名稱", search: true,
+		},
+		{
+			name: "Cnaddr", label: "中文地址", search: true,
+		},
+		{
+			name: "UnifyNo", label: "簡稱統編", search: true,
+		},
+		{
+			name: "State", label: "省/州", search: true,
+		},
+		{
+			name: "Country", label: "國家", search: true,
+		},
+		{
+			name: "Zip", label: "郵遞區號", search: true,
+		},
+		{
+			name: "City", label: "城市", search: true,
+		},
+	];
+</script>
+
+

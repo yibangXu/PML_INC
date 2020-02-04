@@ -1,0 +1,188 @@
+﻿@{
+	Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+	var url = '/Cust/';
+	var gridTitle = '客戶資料';
+	var sortName = 'CustNo';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "IsFormal", label: "正式客戶", search: true, hidden: true,
+			formatter: "select",
+			editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				defaultValue: "true",
+				value: { true: "正式客戶", false: "不收款客戶", both: "不分" }
+			}
+		},
+		{
+			name: "InvNo", label: "統一編號", search: true,
+		},
+		{
+			name: "IDNo", label: "身分證字號", search: true,
+		},
+		{
+			name: "CustNo", label: "客戶代號", search: true,
+		},
+		{
+			name: "CustCName", label: "客戶簡稱", search: true,
+		},
+		{
+			name: "CustCHName", label: "客戶名稱", search: true,
+		},
+		{
+			name: "CtcSale", label: "業務部聯絡人", search: true,
+		},
+		{
+			name: "CtcSale2", label: "業務部聯絡人2", search: true,
+		},
+		{
+			name: "CtcSale3", label: "業務部聯絡人3", search: true,
+		},
+		{
+			name: "Phone", label: "電話", search: true,
+		},
+		{
+			name: "CustAddr", label: "客戶地址", search: true, hidden: true
+		},
+		{
+			name: "CustEName1", label: "英文名稱1", search: true, hidden: true
+		},
+		{
+			name: "CustEName2", label: "英文名稱2", search: true, hidden: true
+		},
+		{
+			name: "CustENAddr1", label: "英文地址1", search: true, hidden: true
+		},
+		{
+			name: "CustENAddr2", label: "英文地址2", search: true, hidden: true
+		},
+		{
+			name: "InvNo", label: "統一編號", search: true, hidden: true
+		},
+		{
+			name: "State", label: "省/州", search: true, hidden: true
+		},
+		{
+			name: "Country", label: "國家", search: true, hidden: true
+		},
+		{
+			name: "PostDist", label: "國家", search: true, hidden: true
+		},
+		{
+			name: "SuspDate", label: "暫停日期", search: false, hidden: false,
+			formatter: 'date', formatoptions: { newformat: "Y-m-d" },
+		}
+	];
+</script>
+
+<script>
+	$("#DataGrid_s").jqGrid({
+		caption: gridTitle,
+		url: url + 'GetGridJSON',
+
+		datatype: "local",
+		colModel: model,
+		sortname: sortName,
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+		height: 320,
+
+		pager: "#pager_s",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		ondblClickRow: function (rowid) {
+			pickRowtoForm(fmId, inputFields, inputValues, rowid);
+			AfterPick(url);
+		},
+		beforeSelectRow: function (rowid) {
+			var lastSelect = $('#DataGrid_s').jqGrid("getGridParam", "selrow");
+			if (lastSelect != undefined && lastSelect != rowid) {
+				$("#DataGrid_s").jqGrid('setRowData', lastSelect, false, {
+					opacity: "1",
+					"border-bottom": "1px #d7d7d7d7"
+				});
+			} else if (lastSelect == rowid) {
+				$("#DataGrid_s").jqGrid("resetSelection");
+				$("#DataGrid_s").jqGrid('setRowData', lastSelect, false, {
+					opacity: "1",
+					"border-bottom": "1px #d7d7d7d7"
+				});
+			}
+		},
+		onSelectRow: function (id, selected) {
+			var row = $("#DataGrid_s").jqGrid('getRowData', id);
+			$("#DataGrid_s").jqGrid('setRowData', id, false, {
+				opacity: "0.9",
+				"border-bottom": "1px black"
+			});
+		},
+		gridComplete: function () {
+			var rows = $("#DataGrid_s").getDataIDs();
+			for (var i = 0; i < rows.length; i++) {
+				var SuspDate = $("#DataGrid_s").getCell(rows[i], "SuspDate");
+				if (SuspDate < getToday()) {
+					$("#DataGrid_s").jqGrid('setRowData', rows[i], false, {
+						background: '#FF8888'
+					});
+					continue;
+				}
+			}
+		}
+	}).jqGrid("navGrid", "#pager_s",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		},
+		{/*edit*/
+
+		},
+		{/*add*/
+
+		},
+		{/*del*/
+        },
+        {/*search*/
+        },
+        {/*view*/
+        }).filterToolbar({
+			searchOnEnter: true
+        });
+    $('#DataGrid_s').setGridParam({ datatype: 'json', url: url + 'GetGridJSON', });
+    $('#DataGrid_s')[0].triggerToolbar();
+</script>
+
+<script>
+	$(function () {
+		$('#toolbar_s').append('<input type="radio" name="custType" value="true">正式客戶</input> &nbsp');
+		$('#toolbar_s').append('<input type="radio" name="custType" value="false">不收款客戶</input> &nbsp');
+		$('#toolbar_s').append('<input type="radio" name="custType" value="both">不分</input>');
+
+		var $radios = $('input:radio[name=custType]');
+		if ($radios.is(':checked') === false) {
+			$radios.filter('[value=true]').prop('checked', true);
+		}
+
+		$("input[type=radio][name='custType']").on('change', function () {
+			var value = $("input[type=radio][name='custType']:checked").val();
+			$("#gs_DataGrid_s_IsFormal").val(value);
+			$('#gs_DataGrid_s_IsFormal').trigger("change");
+			$("#DataGrid_s")[0].triggerToolbar();
+		});
+	});
+</script>

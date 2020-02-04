@@ -1,0 +1,361 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGrid3Layout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/TransportationA/';
+	var model =
+		[
+			{
+				name: "Index", label: "Index", hidden: true, key: true
+			},
+			{
+				name: "TransportationNo", label: "運務單號", hidden: true,
+			},
+			{
+				name: "LadingNo", label: "提單號碼", search: true, width: 100, hidden: true,
+			},
+			{
+				name: "LadingNo_Type", label: "提單號碼", search: true, width: 100,
+			},
+			{
+				name: "ArrivalTime", label: "掃描時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+			{
+				name: "LastStatNo", label: "上一站代號", search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo", true);
+					},
+				},
+			},
+			{
+				name: "LastStatName", label: "上一站名稱", search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "Stat/GetGridJSON?sidx=StatName&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "StatName", "StatName", true);
+					},
+				},
+			},
+			{
+				name: "ArrivalPcs", label: "到件件數", search: false,
+			},
+			{
+				name: "LadingPcs", label: "明細件數", search: false,
+			},
+			{
+				name: "LadingWeight", label: "明細重量", search: false,
+			},
+			{
+				name: "ReviewWeight", label: "複核重量", search: false,
+			},
+			{
+				name: "ToPayment", label: "到付款", search: false,
+			},
+			{
+				name: "AgentPay", label: "代收款", search: false,
+			},
+			{
+				name: "CreateBy", label: "操作員", search: false, hidden: true,
+			},
+			{
+				name: "IsCheck", label: "檢核", search: false, hidden: true,
+			},
+			{
+				name: "CreateBy", label: "建單人員", search: false
+			},
+			{
+				name: "CreateTime", label: "建單時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+		];
+	$("#grid").jqGrid({
+		caption: "到件",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "ArrivalTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+</script>
+
+<script>
+    function add() {
+            $('#editShowOnly').hide();
+		$('#dlg').dialog('open').dialog('setTitle', '到件-新增');
+			$('#fm').form('clear');
+			$('#ArrivalPcs').numberspinner('setValue', 1);
+			$('#dtlgrid').jqGrid('setGridParam', { postData: { LadingNo: '★' } }).trigger('reloadGrid');
+            @Html.Raw(ViewBag.FormCustomJsNew)
+            $('#IsServer').switchbutton('check');
+            fUrl = '@Url.Action("Add", ViewBag.ControllerName)';
+        }
+
+    function edit() {
+        var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+		if (rowid) {
+            var row = $("#grid").jqGrid('getRowData', rowid);
+            $('#editShowOnly').hide();
+            $('#passPrompt').show();
+            $('#Password').passwordbox({ required: false });
+			$('#dlg').dialog('open').dialog('setTitle', '編輯');
+			var isCheck = $('#grid').jqGrid('getCell', rowid, 'IsCheck');
+            for (var i in row)
+                row[i] = row[i].trim();
+
+            $('#fm').form('load', row);
+			if (isCheck == 'true')
+				$('#IsCheck').prop('checked', true);
+            @Html.Raw(ViewBag.FormCustomJsEdit)
+            fUrl = '@Url.Action("Edit", ViewBag.ControllerName)';
+        } else {
+            $.messager.alert('警告', '尚未選擇資料!', 'warning');
+        }
+    }
+
+	function save() {
+        @Html.Raw(ViewBag.FormCustomJsSave)
+		var list = [];
+		//儲存為新增時
+		if ($('#isAdd').val() == 'true') {
+			var data = $("#dtlgrid").jqGrid("getRowData");
+			if (data.length > 0) {
+				for (var i = 0; i < data.length; i++) {
+					if (data[i].LadingNo.includes("<input") != true) {
+						list.push({
+							"LadingNo": data[i].LadingNo,
+							"ArrivalTime": data[i].ArrivalTime,
+							"LastStatNo": data[i].LastStatNo,
+							"LastStatName": data[i].LastStatName,
+							"ArrivalPcs": data[i].ArrivalPcs,
+							"LadingPcs": data[i].LadingPcs,
+							"LadingWeight": data[i].LadingWeight,
+							"ReviewWeight": data.ReviewWeight,
+							"ToPayment":data[i].ToPayment,
+							"AgentPay":data[i].AgentPay,
+							"isAdd": data[i].isAdd,
+							"IsCheck": data[i].IsCheck,
+						});
+					} else {
+						$.messager.alert('警告', '第' + (i + 1) + '筆資料仍於編輯狀態中！', 'warning');
+						return false;
+					}
+				}
+			} else {
+				$.messager.alert('警告', '尚未新增資料', 'warning');
+				return false;
+			}
+			if ($('#IsCheck').is(":checked")) {
+				NeedCheckSave(list);
+			} else {
+				NoCheckSave(list);
+			}
+		} else {
+			//儲存為編輯時
+			list.push({
+				"LadingNo": $("#LadingNo").val(),
+				"ArrivalTime": $("#ArrivalTime").val(),
+				"LastStatNo": $("#LastStatNo").val(),
+				"LastStatName": $("#LastStatName").val(),
+				"ArrivalPcs": $("#ArrivalPcs").val(),
+				"ReviewWeight": $("#ReviewWeight").val(),
+				"isAdd": $('#isAdd').val(),
+				"IsCheck": $('#IsCheck').is(":checked"),
+			});
+			if ($('#IsCheck').is(":checked")) {
+				NeedCheckSave(list);
+			} else {
+				NoCheckSave(list);
+			}
+		}
+	}
+
+	function del() {
+        var rowid = $('#grid').jqGrid('getGridParam', 'selrow');
+        if (rowid) {
+            var row = $("#grid").jqGrid('getRowData', rowid);
+            $.messager.confirm('Confirm', '確認刪除?', function (r) {
+                if (r) {
+                    $.post('@Url.Action("Delete", ViewBag.ControllerName)', { data: row }, function (data, textStatus, jqXHR) {
+                        if (data.ok >= 0) {
+                            $('#grid').trigger('reloadGrid');
+                            $.messager.alert('成功', '刪除成功!');
+                        } else {
+                            $.messager.alert('錯誤', data.message, 'error');
+                        }
+                    }, 'json');
+                }
+            });
+        } else {
+            $.messager.alert('警告', '尚未選擇資料!', 'warning');
+        }
+	}
+
+	//需帶回後端檢核
+	function NeedCheckSave(saveData) {
+		$.ajax({
+			type: "POST",
+			url: dtlapiURL + "CheckData",
+			data: JSON.stringify(saveData),
+			success: function (result) {
+				if (result.ok >= 0) {
+					if (result.ok > 0) {
+						$('#fm').form('submit', {
+							url: fUrl,
+							onSubmit: function (param) {
+								param.dtl = JSON.stringify(saveData);
+								return $(this).form('validate');
+							},
+							success: function (result) {
+								var r = eval('(' + result + ')');
+								if (r.ok >= 0) {
+									if (r.ok > 0) {
+										$.messager.alert('成功', '存檔成功!');
+									}
+									else {
+										$.messager.alert('警告', r.message, 'warning');
+									}
+									$('#dlg').dialog('close');        // close the dialog
+									$('#grid').trigger('reloadGrid');
+								}
+								else {
+									$.messager.alert('錯誤', r.message, 'warning');
+								}
+							}
+						});
+					}
+					else {
+						$.messager.alert('警告', result.message, 'warning');
+						return false;
+					}
+				}
+				else {
+					$.messager.alert('檢核錯誤', result.message);
+					return false;
+				}
+			},
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+		});
+	}
+
+	//無須帶回後端檢核，直接儲存
+	function NoCheckSave(saveData) {
+		$('#fm').form('submit', {
+			url: fUrl,
+			onSubmit: function (param) {
+				param.dtl = JSON.stringify(saveData);
+				return $(this).form('validate');
+			},
+			success: function (result) {
+				var r = eval('(' + result + ')');
+				if (r.ok >= 0) {
+					if (r.ok > 0) {
+						$.messager.alert('成功', '存檔成功!');
+						console.log('存檔成功');
+					}
+					else {
+						$.messager.alert('警告', r.message, 'warning');
+					}
+					$('#dlg').dialog('close');        // close the dialog
+					$('#grid').trigger('reloadGrid');
+				}
+				else {
+					$.messager.alert('錯誤', r.message, 'error');
+				}
+			}
+		});
+	}
+
+	function CheckData(AllData) {
+		$.ajax({
+			type: "POST",
+			url: dtlapiURL + "CheckData",
+			data: AllData,
+			success: function (result) {
+				if (result.ok >= 0) {
+					if (result.ok > 0) {
+						$.messager.alert('檢核成功', '檢核完畢');
+						return true;
+					}
+					else {
+						$.messager.alert('警告', result.message, 'warning');
+						return false;
+					}
+				}
+				else {
+					$.messager.alert('檢核錯誤', result.message);
+					return false;
+				}
+			},
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+		});
+	}
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#edit-btn").css('display', 'none');
+		$("#del-btn").css('display', 'none');
+		$("#toolbar_grid").append(' | <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>')
+			.append(' | <a class="easyui-linkbutton" id="Excel" iconCls="icon-save" onclick="ExportCSV()" title = "Export CSV file">Excel</a>');
+
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("Excel") == false) {
+				$("#Excel").linkbutton('disable');
+			}
+	 }, 300);
+	});
+	function ExportCSV() {
+		var SearchData = $("#grid").jqGrid('getGridParam', 'postData');
+		Lib.Loading(true);
+		window.open("/TransportationA/GetListCSV?" + String.jsonToParams(SearchData) + "&start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'));
+		Lib.Loading(false);
+	}
+
+	//function ExportCSV() {
+	//	exportData("#grid", "測試");
+	//	jQuery("#grid").jqGrid('jqGridExport', { exptype: "csv" });
+	//}
+</script>

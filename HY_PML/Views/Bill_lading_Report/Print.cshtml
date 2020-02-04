@@ -1,0 +1,27 @@
+﻿@model List<HY_PML.Models.Bill_Land_Report>
+@{
+	Layout = null;
+	const int rpp = 30;
+}
+@Styles.Render("~/Content/report/a4")
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width" charset="UTF-8" />
+	@*<title> 理貨單號：@(Model.Select(x => x.MasterNo).FirstOrDefault())</title>*@
+	<title> 遠達(國際空運快遞)有限公司</title>
+	<style>
+		td, th {
+			padding-left: 1mm;
+		}
+	</style>
+</head>
+
+<body>
+	<script>
+		window.print();
+	</script>
+</body>
+</html>
+
+

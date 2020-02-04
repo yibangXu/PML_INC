@@ -1,0 +1,73 @@
+﻿@media print{
+	.page{
+		border-color:none;
+	}
+}
+
+body {
+	background-color: #AAA;
+	font-size: 4mm;
+	font-family: "微軟正黑體","細明體","新細明體";
+	margin: 0;
+}
+
+div, span, p {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+}
+
+.page {
+	display: block;
+	page-break-before: always;
+	page-break-after: avoid;
+	border: 1px solid #AAA;
+	background-color: #FFF;
+	margin: 0 auto;
+	position: static;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.xy {
+	position: absolute;
+	display: block;
+}
+
+
+.left {
+	text-align: left;
+}
+
+.right {
+	text-align: right;
+}
+
+.center {
+	text-align: center;
+}
+
+.justify {
+	-moz-text-align-last: justify;
+	-ms-text-align-last: justify;
+	text-align-last: justify;
+}
+
+.hr {
+	border-top: 1px solid #aaa;
+	height: 1px;
+}
+
+.pad2 {
+	padding: 2mm;
+}
+
+.pad3 {
+	padding: 3mm;
+}
+
+.pad4 {
+	padding: 4mm;
+}

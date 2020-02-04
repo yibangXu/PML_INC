@@ -1,0 +1,388 @@
+﻿<table>
+	<tr>
+		<td><label>外務員:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="SSectorNo" id="SSectorNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="SSectorName" id="SSectorName" class="easyui-textbox" style="width:130px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SSectorNo,SSectorName,PlateNo','SectorNo,SectorName,PlateNO','@Url.Action("getSelectionjqGrid", "Sector")');"></a>
+			</div>
+		</td>
+		<td><label>車牌號碼:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="PlateNo" id="PlateNo" class="easyui-textbox" style="width:100px" data-options="validType:'maxLength[16]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>件數:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="SendPcs" id="SendPcs" class="easyui-numberspinner" style="width:100px">
+			</div>
+		</td>
+		<td><label>提單號碼:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:100px" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+
+	<tr style="display:none">
+		<td>
+			<div class="fitem">
+				<input name="isAdd" id="isAdd" class="easyui-textbox" style="width:90px">
+			</div>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SendTime" id="SendTime" class="easyui-datetimebox" style="width:90px">
+			</div>
+		</td>
+	</tr>
+</table>
+<div style="padding-top:10px;display:none">
+	<table>
+		<tr>
+			<td>
+				<div class="fitem">
+					<a id="dtlGridAdd" class="easyui-linkbutton" iconCls="icon-add" style="float:left" onclick="AddFormNewData()">增加此筆</a>
+				</div>
+			</td>
+			<td><label id="IsCheckLabel">檢核:</label></td>
+			<td>
+				<input name="IsCheck" id="IsCheck" class="easyui-checkbox" type="checkbox" onclick="SetGridCheck()">
+			</td>
+		</tr>
+	</table>
+</div>
+<div class="pull-left">
+	<table id="dtlgrid"></table>
+</div>
+
+<script>
+	var dtlgrid = $("#dtlgrid");
+	var dtlapiURL = '/TransportationS/';
+	var dtlModel = [
+		{
+			name: 'Action', label: 'Action', width: 60, search: false, title: false
+		},
+		{
+			name: "TransportationNo", label: "運務單號", hidden: true, key: true
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: true, width: 100,
+		},
+		{
+			name: "SendTime", label: "掃描時間", search: false, width: 130,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+		{
+			name: "SSectorNo", label: "外務員代號", search: true, width: 70,
+		},
+		{
+			name: "SSectorName", label: "外務員名稱", search: true, width: 100,
+		},
+		{
+			name: "PlateNo", label: "車牌號碼", search: false, width: 100,
+		},
+		{
+			name: "SendPcs", label: "派件件數", search: false, width: 100,
+		},
+		{
+			name: "LadingPcs", label: "明細件數", search: false, width: 100,
+		},
+		{
+			name: "Remark", label: "備註", search: false, width: 100,
+		},
+		{
+			name: "CreateBy", label: "操作員", search: false, hidden: true,
+		},
+		{
+			name: "IsCheck", label: "檢核", search: false, hidden: true,
+		},
+		{
+			name: "isAdd", label: "是否新增", search: false, hidden: true,
+		},
+	];
+	var lastSel;
+	dtlgrid.jqGrid({
+		url: dtlapiURL + "GetGridJSON?LadingNo=★",
+		datatype: "local",
+		datatype: "json",
+		colModel: dtlModel,
+		sortname: "SendTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		width: '650px',
+		height: '260px',
+
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: true,
+		rowNum: 10000,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+		gridComplete: function () {
+			var ids = jQuery("#dtlgrid").jqGrid('getDataIDs');
+			for (var i = 0; i < ids.length; i++) {
+				var IdKey = ids[i];
+				d = "<input type='button' class='btn btn-danger' value='刪除' onclick=\"jQuery('#dtlgrid').delRowData('" + IdKey + "');\"  />";
+				jQuery("#dtlgrid").jqGrid('setRowData', IdKey, { Action: d });
+			}
+		},
+
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function getTodayTime(date) {
+		var month = parseInt(date.getMonth()) + 1;
+		var hours = date.getHours();
+		var minutes = date.getMinutes();
+		var seconds = date.getSeconds();
+		hours = hours < 10 ? '0' + hours : hours;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		seconds = seconds < 10 ? '0' + seconds : seconds;
+		var strTime = hours + ':' + minutes + ':' + seconds;
+		return date.getFullYear() + "-" + month + "-" + date.getDate() + " " + strTime;
+	}
+
+	//將填寫之資料，寫入暫存GRID
+	function AddFormNewData() {
+		if ($('#SSectorName').val() == "")
+			$.messager.alert('錯誤', '請選取【外務員】。');
+		else if ($('#LadingNo').val() == "")
+			$.messager.alert('錯誤', '請輸入【提單號碼】。');
+		else if ($('#SendPcs').val() == "")
+			$.messager.alert('錯誤', '請輸入【件數】。');
+		else {
+			var isNewData = true;
+			var ids = $("#dtlgrid").jqGrid('getDataIDs');
+			//子表有資料時
+			for (var i = 0; i < ids.length; i++) {
+				var IdKey = ids[i];
+				var row = $("#dtlgrid").jqGrid('getRowData', IdKey);
+				if (row.LadingNo === $("#LadingNo").val()) {
+					var Pcs = parseInt(row.SendPcs) + parseInt($("#SendPcs").val());
+					$("#dtlgrid").jqGrid("setCell", IdKey, "SendPcs", Pcs);
+					$("#dtlgrid").jqGrid("setCell", IdKey, "SendTime", getTodayTime(new Date()));
+					$('#LadingNo').textbox('setValue', '');
+					$('#SendPcs').numberspinner('setValue', 1);
+					$('#Remark').textbox('setValue', '');
+					$('#LadingPcs').textbox('setValue', 0);
+					isNewData = false;
+					break;
+				}
+			}
+			//子表無資料時
+			if (isNewData) {
+				SetGridData();
+			}
+		}
+	};
+
+	function SetGridData() {
+		$.ajax({
+			type: "GET",
+			url: '/Bill_Lading/' + "GetLadingData",
+			data: { "param": $('#LadingNo').val() },
+			success: function (result) {
+				var ladingData = result.rows;
+				var parameters = {
+					LadingNo: $('#LadingNo').val(),
+					SSectorNo: $('#SSectorNo').val(),
+					SSectorName: $('#SSectorName').val(),
+					PlateNo: $('#PlateNo').val(),
+					SendPcs: $('#SendPcs').val(),
+					Remark: $('#Remark').val(),
+					SendTime: getTodayTime(new Date()),
+					LadingPcs: ladingData == null ? 0 : ladingData.PiecesNo,
+					IsCheck: $('#IsCheck').is(":checked"),
+					isAdd: $('#isAdd').val(),
+				};
+				$("#dtlgrid").jqGrid('addRowData', parameters.sNo, parameters, "last");
+				$('#LadingNo').textbox('setValue', '');
+				$('#SendPcs').numberspinner('setValue', 1);
+				$('#Remark').textbox('setValue', '');
+				$('#LadingPcs').textbox('setValue', 0);
+			},
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+		});
+	}
+
+	$(document).ready(function () {
+		//若檢核勾選，填寫之資料及Gird資料，帶回後端檢核
+		$('#SendPcs').numberspinner({
+			onChange: function (value) {
+				if ($('#IsCheck').is(":checked") && $('#LadingNo').val() != "") {
+					var list = [];
+					var data = $("#dtlgrid").jqGrid("getRowData");
+					if ($('#isAdd').val() == 'true') {
+						if (data.length > 0) {
+							for (var i = 0; i < data.length; i++) {
+								if (data[i].LadingNo.includes("<input") != true) {
+									list.push({
+										"LadingNo": data[i].LadingNo,
+										"SSectorNo": data[i].SSectorNo,
+										"SSectorName": data[i].SSectorName,
+										"PlateNo": data[i].PlateNo,
+										"SendPcs": data[i].SendPcs,
+										"Remark": data[i].Remark,
+										"SendTime": data[i].SendTime,
+										"LadingPcs": data[i].LadingPcs,
+										"IsCheck": data[i].IsCheck,
+										"isAdd": data[i].isAdd,
+									});
+								} else {
+									$.messager.alert('警告', '第' + (i + 1) + '筆資料仍於編輯狀態中！', 'warning');
+									return false;
+								}
+							}
+
+						}
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"SSectorNo": $('#SSectorNo').val(),
+							"SSectorName": $('#SSectorName').val(),
+							"PlateNo": $('#PlateNo').val(),
+							"SendPcs": $('#SendPcs').val(),
+							"Remark": $('#Remark').val(),
+							"SendTime": getTodayTime(new Date()),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					} else {
+						var list = [];
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"SSectorNo": $('#SSectorNo').val(),
+							"SSectorName": $('#SSectorName').val(),
+							"PlateNo": $('#PlateNo').val(),
+							"SendPcs": $('#SendPcs').val(),
+							"Remark": $('#Remark').val(),
+							"SendTime": $('#SendTime').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+				}
+			}
+		});
+		$('#LadingNo').textbox({
+			onChange: function (value) {
+				if ($('#IsCheck').is(":checked") && $('#LadingNo').val() != "" && $('#SendPcs').val() != "") {
+					var list = [];
+					var data = $("#dtlgrid").jqGrid("getRowData");
+					if ($('#isAdd').val() == 'true') {
+						if (data.length > 0) {
+							for (var i = 0; i < data.length; i++) {
+								if (data[i].LadingNo.includes("<input") != true) {
+									list.push({
+										"LadingNo": data[i].LadingNo,
+										"SSectorNo": data[i].SSectorNo,
+										"SSectorName": data[i].SSectorName,
+										"PlateNo": data[i].PlateNo,
+										"SendPcs": data[i].SendPcs,
+										"Remark": data[i].Remark,
+										"SendTime": data[i].SendTime,
+										"LadingPcs": data[i].LadingPcs,
+										"IsCheck": data[i].IsCheck,
+										"isAdd": data[i].isAdd,
+									});
+								} else {
+									$.messager.alert('警告', '第' + (i + 1) + '筆資料仍於編輯狀態中！', 'warning');
+									return false;
+								}
+							}
+
+						}
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"SSectorNo": $('#SSectorNo').val(),
+							"SSectorName": $('#SSectorName').val(),
+							"PlateNo": $('#PlateNo').val(),
+							"SendPcs": $('#SendPcs').val(),
+							"Remark": $('#Remark').val(),
+							"SendTime": getTodayTime(new Date()),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					} else {
+						var list = [];
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"SSectorNo": $('#SSectorNo').val(),
+							"SSectorName": $('#SSectorName').val(),
+							"PlateNo": $('#PlateNo').val(),
+							"SendPcs": $('#SendPcs').val(),
+							"Remark": $('#Remark').val(),
+							"SendTime": $('#SendTime').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+				}
+			}
+		});
+	})
+
+	//檢核勾選異動，更新GRID值
+	function SetGridCheck() {
+		var ids = jQuery("#dtlgrid").jqGrid('getDataIDs');
+		for (var i = 0; i < ids.length; i++) {
+			$("#dtlgrid").jqGrid("setCell", ids[i], "IsCheck", $('#IsCheck').is(":checked"));
+		}
+	}
+
+	//Enter觸發新增
+	$('#LadingNo').textbox({
+		inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+			keypress: function (e) {
+				if (e.keyCode == 13) {
+					AddFormNewData();
+				}
+			}
+		}),
+		rules: $.extend($.fn.validatebox.defaults.rules, {
+			maxLength: {
+				validator: function (value, param) {
+					return param[0] >= value.length;
+				},
+				message: '最大長度為{0}位.'
+			}
+		}),
+	});
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

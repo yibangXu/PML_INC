@@ -1,0 +1,154 @@
+﻿<table>
+    <tr>
+        <td>
+            <label class="required">帳號:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="Account" id="Account" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[20]'">
+                <input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="required">密碼:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="PasswordStr" id="Password" class="easyui-passwordbox" required data-options="showEye:false" style="width:auto">
+                <label id="passPrompt">不輸入為不變更</label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>姓名:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="UserName" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="required">註冊日期:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="RegisterDate" class="easyui-datebox" required style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>啟用日期:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="ActiveDate" class="easyui-datebox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>到期日期:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="ExpiryDate" class="easyui-datebox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td>
+            <label>密碼提示:</label>
+        </td>
+        <td>
+            <div class="fitem" style="display:none">
+                <input name="SecurityQuestion" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td>
+            <label>密碼驗證:</label>
+        </td>
+        <td>
+            <div class="fitem" style="display:none">
+                <input name="SecurityAnswer" class="easyui-textbox" style="width:auto">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="required">站點:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input type="hidden" name="StatNo" id="StatNo">
+                <input name="StatName" id="StatName" class="easyui-textbox" style="width:auto" readonly required>
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForPickUpjqGrid('fm','StatNo,StatName','StatNo,StatName','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="required">部門:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input type="hidden" name="DepartNo" id="DepartNo">
+                <input name="DepartName" id="DepartName" class="easyui-textbox" style="width:auto" readonly required>
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForPickUpjqGrid('fm','DepartNo,DepartName','DepartNo,DepartName','@Url.Action("getSelectionjqGrid", "Depart")');"></a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="required">群組:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input type="hidden" name="UserGroupNo" id="UserGroupNo">
+                <input name="UserGroupName" id="UserGroupName" class="easyui-textbox" style="width:auto" readonly required>
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+                   onclick="ShowWinForPickUpjqGrid('fm','UserGroupNo,UserGroupName','UserGroupNo,UserGroupName','@Url.Action("getSelectionjqGrid", "UserGroup")');"></a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>備註:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="Remark" class="easyui-textbox" style="width:auto" data-options="multiline:true">
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label>啟用:</label>
+        </td>
+        <td>
+            <div class="fitem">
+                <input name="IsActive" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked>
+            </div>
+        </td>
+    </tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+

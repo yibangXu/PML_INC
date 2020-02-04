@@ -1,0 +1,116 @@
+﻿<table style="width:100%">
+	<tr>
+		<td>
+			<label>長(CM):</label>
+		</td>
+		<td>
+			<input name="fLen" id="fLen" class="easyui-numberbox" precision="2" min="0" style="display:none;width:auto" data-options="onChange: function() { return calculate();}">
+		</td>
+		<td>
+			<label>寬(CM):</label>
+		</td>
+		<td>
+			<input name="fWidth" id="fWidth" class="easyui-numberbox" precision="2" min="0" style="display:none;width:auto" data-options="onChange: function() { return calculate();}">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>高(CM):</label>
+		</td>
+		<td>
+			<input name="fHeight" id="fHeight" class="easyui-numberbox" precision="2" min="0" style="display:none;width:auto" data-options="onChange: function() { return calculate();}">
+		</td>
+		<td>
+			<label>件數:</label>
+		</td>
+		<td>
+			<input name="Pcs" id="Pcs" class="easyui-numberbox" precision="3" min="0" style="display:none;width:auto" required data-options="onChange: function() { return calculate();}">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>總材數(材):</label>
+		</td>
+		<td>
+			<input name="iTotNum" id="iTotNum" class="easyui-numberbox" precision="3" min="0" style="display:none;width:auto" required>
+		</td>
+		<td>
+			<label>重量(KGS):</label>
+		</td>
+		<td>
+			<input name="Weig" class="easyui-numberbox" precision="2" min="0" style="display:none;width:auto" required>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>內部說明:</label>
+		</td>
+		<td>
+			<input name="Remark1" class="easyui-textbox" style="display:none;width:auto" data-options="multiline:'true'">
+		</td>
+		<td>
+			<label>注意事項:</label>
+		</td>
+		<td>
+			<input name="Remark3" class="easyui-textbox" style="display:none;width:auto" data-options="multiline:'true'">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>調派狀態:</label>
+		</td>
+		<td>
+			<input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp">
+		</td>
+		<td>
+			<label>取消狀態:</label>
+		</td>
+		<td>
+			<input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>回覆狀態:</label>
+		</td>
+		<td>
+			<input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply">
+		</td>
+		<td>
+			<label>完成狀態:</label>
+		</td>
+		<td>
+			<input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>回覆說明:</label>
+		</td>
+		<td>
+			<input name="ReplyComment" class="easyui-textbox" style="display:none;width:auto" data-options="multiline:'true'">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input name="ShdetNo" id="ProdShdetNo" type="hidden">
+			<input name="sDtlNo" id="sDtlNo" type="hidden">
+			<input name="CustNo" id="ProdCustNo" type="hidden">
+			<input name="sNo" id="ProdSNo" type="hidden">
+		</td>
+	</tr>
+</table>
+
+<script>
+	function calculate() {
+		var height = $("#fHeight").val();
+		var width = $("#fWidth").val();
+		var len = $("#fLen").val();
+		var pcs = $("#Pcs").val();
+
+		$("#iTotNum").numberbox('setValue', Math.round((height * width * len) / 28350 * pcs * 1000) / 1000);
+	}
+</script>
+
+
+

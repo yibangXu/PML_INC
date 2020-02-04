@@ -1,0 +1,447 @@
+﻿<div id="typeTab3" title="出口貨物" style="padding:2px;display:none;overflow:hidden">
+	<div id="toolbar" style="height:30px;margin:1px">
+		<input type="button" value="修改" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="	if ($('#grid').jqGrid('getGridParam', 'selrow')===null)
+				$.messager.alert('警告', '尚未選擇【提單資料】!', 'warning'); else unlockForm('Tab3')" />
+		<input type="button" value="保存" class="actionTab3 btn-sm btn-default" style="background-color: #e1e1e1" onclick="Save('Tab3')" />
+	</div>
+	<form id="fmTab3" class="fm" method="post" novalidate onSubmit="return false;">
+		<table class="dataTable">
+			<tr>
+				<td>
+					<label>HS Code </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Hsno" id="Hsno" class="easyui-textbox" style="width:auto" />
+						<a class="Hsno easyui-linkbutton Hsno" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab3','Hsno,ProductNo,ProductName','Hsno,ProductNo,ProductName','@Url.Action("getSelectionjqGrid", "Product")');"></a>
+					</div>
+				</td>
+				<td>
+					<label>品名 </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="ProductNo" id="ProductNo" type="hidden">
+						<input name="ProductName" id="ProductName" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+					</div>
+				</td>
+				<td>
+					<label>件數 </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="PiecesNo" id="PiecesNo" class="easyui-numberspinner" style="width:auto" data-options="min:1">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>數量:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Qty" id="Qty" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2,readonly:'true',prompt:'系統自動計算'">
+					</div>
+				</td>
+				<td>
+					<label>實重:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Weight" id="Weight" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2,readonly:'true',prompt:'系統自動計算'">
+					</div>
+				</td>
+				<td>
+					<label>材積重:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Volume" id="Volume" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2,readonly:'true',prompt:'系統自動計算'">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>貨品價值 </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Cost" id="Cost" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+				<td>
+					<label>印尼專用 </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<select name="ForIndonesian" id="ForIndonesian" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
+							<option value=" ">　</option>
+							<option value="PIBK">PIBK</option>
+							<option value="FTZ">FTZ</option>
+							<option value="DDP">DDP</option>
+						</select>
+						<script type="text/javascript">
+							var CocustomTyp = [
+								{ val: ' ', text: '　' },
+								{ val: 'PIBK', text: 'PIBK' },
+								{ val: 'FTZ', text: 'FTZ' },
+								{ val: 'DDP', text: 'DDP' },
+							];
+						</script>
+					</div>
+				</td>
+				<td>
+					<label>付款方式:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="CcNo" id="tab3CcNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true',onChange:function(newValue,oldValue){ CcNoChange(newValue,'tab3');}">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab3','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>付款客戶:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input type="hidden" name="PayCustNo" id="PayCustNo">
+						<input name="PayCustCHName" id="PayCustName" class="easyui-textbox" style="width:auto">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab3','PayCustNo,PayCustCHName','CustNo,CustCHName','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+					</div>
+				</td>
+				<td>
+					<label>幣別</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Currency" id="Currency" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab3','Currency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+					</div>
+				<td>
+					<label>運費:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="Freight" id="Freight" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:0">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>到付款: </label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="ToPayment" id="ToPayment" class="easyui-numberbox" style="width:auto" data-options="min:0">
+					</div>
+				</td>
+				<td>
+					<label>代收款:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="AgentPay" id="AgentPay" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+
+					</div>
+				</td>
+				<td>
+					<label>其他(有稅):</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="OtherPayTax" id="OtherPayTax" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>其他(無稅):</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="OtherPayNoTax" id="OtherPayNoTax" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+				<td>
+					<label>燃油費:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="FuelCosts" id="FuelCosts" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+				<td>
+					<label>產證費:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="ProdIdPay" id="ProdIdPay" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>報關費:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="CustomsPay" id="CustomsPay" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+				<td>
+					<label>保險費:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="InsurancePay" id="InsurancePay" class="easyui-numberbox" style="width:auto" data-options="min:0,precision:2">
+					</div>
+				</td>
+				<td>
+					<label>派件站點:</label>
+				</td>
+				<td>
+					<div class="dTab3">
+						<input name="AStatNo" id="AStatNo" type="hidden">
+						<input name="AStatName" id="AStatName" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fmTab3','AStatNo,AStatName','StatNo,StatName','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>備註:</label>
+				</td>
+				<td colspan="5">
+					<div class="dTab3">
+						<input name="Remark" class="easyui-textbox" style="width:655px" data-options="multiline:'true'">
+					</div>
+				</td>
+			</tr>
+		</table>
+		<div class="pull-left">
+			<table id="subgrid3"></table>
+			<input type="button" value="新增子表" class="actionTab3 btn-sm btn-default" style="background-color: #e1e1e1" onclick="AddFormNewData()" />
+		</div>
+	</form>
+</div>
+<script>
+	var subgrid3IsView = true;
+	var subgrid3 = $("#subgrid3");
+	var subModel3 = [
+		{
+			name: 'Action', label: 'Action',  search: false, title: false
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: false, hidden: true,
+		},
+		{
+			name: "sNo", label: "序號", search: true, key: true, hidden: true,
+		},
+		{
+			name: "LadingNo_Type", label: "提單號碼", search: false,
+		},
+		{
+			name: "BagNo", label: "袋序號", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "CleCusCode", label: "清關代號", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "ProductNo", label: "品名代號", search: false, editable: true, editoptions: { size: "20", maxlength: "10" }
+		},
+		{
+			name: 'ProductNo_S', label: '', search: false, title: false
+		},
+		{
+			name: "ProductName", label: "中文品名", search: false, editable: true, editoptions: { size: "20", maxlength: "50" }
+		},
+		{
+			name: "Type", label: "類別", search: false, editable: true, editoptions: { size: "20", maxlength: "5" }
+		},
+		{
+			name: "Price", label: "單價", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Pcs", label: "件數", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "GrossWeight", label: "毛重", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Weight", label: "實重", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "CustType", label: "報關類型", search: false, editable: true, edittype: 'select', editoptions: { value: "x1:x1;x2:x2" },
+		},
+		{
+			name: "Flight", label: "航班班次", search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "LadNo", label: "提單主號",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "CusCoode", label: "報關條碼",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "ProductEName", label: "英文品名",  search: false,editable: true, editoptions: { size: "20", maxlength: "50" }
+		},
+		{
+			name: "Country", label: "生產國別",  search: false, editable: true, editoptions: { size: "20", maxlength: "30" }
+		},
+		{
+			name: "HSNo", label: "HS編碼",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" }
+		},
+		{
+			name: "Qty", label: "數量",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Unit", label: "單位",  search: false, editable: true, editoptions: { size: "20", maxlength: "10" },
+		},
+		{
+			name: "Length", label: "長",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Width", label: "寬",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Height", label: "高",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Total", label: "總價值",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Currency", label: "幣別",  search: false, editable: true, editoptions: { size: "20", maxlength: "3" },
+		},
+		{
+			name: 'Currency_S', label: '',  search: false, title: false
+		},
+		{
+			name: "PcsNo", label: "件序號",  search: false, editable: true, editoptions: { size: "20", maxlength: "20" },
+		},
+		{
+			name: "Remark", label: "備註",  search: false, editable: true,
+		},
+	];
+	var lastSel;
+	subgrid3.jqGrid("autoWidthColumns").jqGrid({
+		url: "/DeclCust_Main/GetGridJSON?LadingNo=★",
+		datatype: "json",
+		colModel: subModel3,
+		sortname: "sNo",
+		sortorder: "asc",
+		shrinkToFit: false,
+		autowidth: true,
+		//width: '730px',
+		//height:'100px',
+
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 100,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (sNo) {
+			if (sNo && sNo !== lastSel) {
+				jQuery('#subgrid3').restoreRow(lastSel);
+				lastSel = sNo;
+			}
+			jQuery('#subgrid3').editRow(sNo, true);
+		},
+		gridComplete: function () {
+			var ids = jQuery("#subgrid3").jqGrid('getDataIDs');
+			for (var i = 0; i < ids.length; i++) {
+				var IdKey = ids[i];
+				d = "<input type='button' class='btn btn-danger' value='刪除' onclick=\"jQuery('#subgrid3').delRowData('" + IdKey + "');\"  />";
+				p = "<input type='button' id ='test' class='btn btn-info' value='選' style='width:40px;height:30px' onclick=\"ShowWinForPickUpjqGrid('subgrid3','ProductNo,ProductName,ProductEName,Country,HSNo','ProductNo,ProductName,ProductEName,Country,Hsno','@Url.Action("getSelectionjqGrid", "Product")');\">";
+				c = "<input type='button' class='btn btn-info' value='選' style='width:40px;height:30px'onclick=\"ShowWinForPickUpjqGrid('subgrid3','Currency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');\"></a>";
+
+				jQuery("#subgrid3").jqGrid('setRowData', IdKey, { Action: d, ProductNo_S: p, Currency_S: c,});
+			}
+			jQuery("#subgrid3").closest(".ui-jqgrid-bdiv").scrollLeft(0);
+			Setsubgrid3();
+		},
+
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+	$("#t_subgrid3").css("height", "0px");
+
+	function Setsubgrid3() {
+		var length = $("#subgrid3").jqGrid("getGridParam", "colModel").length;
+		for (i = 0; i < length; i++) {
+			name = $("#subgrid3").jqGrid("getGridParam", "colModel")[i].name;
+			if (name != 'Action' && name != 'LadingNo_Type' && name != 'ProductNo_S' &&name!='Currency_S')
+				$('#subgrid3').jqGrid('setColProp', name, { editable: !subgrid3IsView });
+		}
+		$('#subgrid3>tbody>tr>td>input:button').attr('disabled', subgrid3IsView);
+		$('#subgrid3>tbody>tr>td>select').attr('disabled', subgrid3IsView);
+	}
+
+	function getToday(){
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	$('#ShdetNo2').textbox({
+		onChange: function (value) {
+			if (value!= "")
+				$('input[value=Ex]').prop('checked', true)
+			else {
+				$('input[value=Im]').prop('checked', true)
+			}
+		}
+	});
+
+	function AddFormNewData() {
+		if ($('#LadingNo').val() != "") {
+			var getLastData = $("#subgrid3").jqGrid('getRowData')[$("#subgrid3").jqGrid('getRowData').length - 1];
+			var SNO = '';
+			if (getLastData != undefined)
+				SNO = parseInt(getLastData.sNo) + 1;
+			else
+				SNO = 1;
+
+			var parameters = {
+				LadingNo: $('#LadingNo').val(),
+				LadingNo_Type: $('#LadingNo_Type').val(),
+				sNo: SNO,
+				CustType: "",
+				Flight: "",
+				LadNo: "",
+				BagNo: "",
+				CleCusCode: "",
+				CusCoode: "",
+				ProductNo: "",
+				ProductName: "",
+				ProductEName: "",
+				Country: "",
+				Type: "",
+				HSNo:"",
+				Qty: '0',
+				Weight: '0',
+				GrossWeight: '0',
+				Price: '0',
+				Length: '0',
+				Width: '0',
+				Height:'0',
+				Total: '0',
+				Currency: "",
+				Pcs: '0',
+				PcsNo: '0',
+				Remark:'0',
+
+			};
+			$("#subgrid3").jqGrid('addRowData', parameters.sNo, parameters, "last");
+			jQuery("#subgrid3").setSelection(parameters.sNo);
+		} else {
+			$.messager.alert('錯誤', '請選擇提單！', 'error');
+		}
+	};
+</script>

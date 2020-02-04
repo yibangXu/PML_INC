@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Stat/';
+    var gridTitle = '站點資料';
+    var sortName = 'StatNo';
+    var model = [
+        {
+            name: "ID", label: "ID", search: true, hidden: true
+        },
+        {
+            name: "StatNo", label: "站點代號", search: true,
+        },
+        {
+            name: "StatName", label: "站點名稱", search: true,
+        },
+        {
+            name: "Stattype", label: "站點類型", search: true,
+		},
+		{
+			name: "AreaID", label: "AreaID", hidden: true,
+		},
+        {
+            name: 'Isnetwork', label: '網路站點', search: false,
+            formatter: "select",
+            editoptions: {
+                value: { "": "", true: "是", false: "否" },
+            },
+        },
+        {
+            name: 'IsServer', label: '是否啟用', search: false,
+            formatter: "select",
+            editoptions: {
+                value: { "": "", true: "是", false: "否" },
+            },
+        }
+    ];
+</script>

@@ -1,0 +1,26 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+    var url = '/Cc/';
+    var gridTitle = '付款方式';
+    var sortName = 'CcNo';
+    var model = [
+        {
+            name: "ID", label: "ID", search: true,
+        },
+        {
+            name: "CcNo", label: "付款方式代碼", search: true,
+        },
+        {
+            name: "CcName", label: "付款方式名稱", search: true,
+        },
+        {
+            name: "IsServer", label: "是否啟用", search: false,
+            formatter: "select",
+            editoptions: {
+                value: { "": "", true: "是", false: "否" },
+            },
+        },
+    ];
+</script>

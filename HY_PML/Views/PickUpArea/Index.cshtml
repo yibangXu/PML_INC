@@ -1,0 +1,183 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/PickUpArea/';
+	var model = [
+		{
+			name: "ID", label: "ID", search: true, key: true, hidden: true
+		},
+		{
+			name: "PickUpAreaNo", label: "調度區域代號", search: true,
+			readonly: "edit", editable: true,
+			formoptions: { label: "*調度區域代號", rowpos: 1, colpos: 1 },
+			editoptions: { maxLength: 20 },
+			editrules: { required: true },
+		},
+		{
+			name: "PickUpAreaName", label: "調度區域名稱",
+			search: true, editable: true,
+			formoptions: { label: "*調度區域名稱", rowpos: 1, colpos: 2 },
+			editoptions: { maxLength: 30 },
+			editrules: { required: true },
+		},
+		{
+			name: "DateEnd", label: "截止時間",
+			search: false, editable: true,
+			formoptions: { rowpos: 2, colpos: 1 },
+			editoptions: {
+				dataInit: function (elm) {
+					$(elm).timepicker({
+						timeFormat: "HH:mm"
+					});
+				},
+			},
+			formatoptions: { newformat: "H:m", }
+		},
+		{
+			name: "StatNo", label: "站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "StatID", label: "站點", editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 2, colpos: 2 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "SectorNo", label: "外務員",hidden: true,
+		},
+		{
+			name: "SectorName", label: "外務員", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "/PickUpArea/GetGridJSON_Sector?rows=1000",
+				buildSelect: function (data) {
+					return $(Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true));
+				}
+			},
+		},
+		{
+			name: "CityAreaRoadRow", label: "調度區域地址",
+			search: true, editable: true,
+			formoptions: { label: "調度區域地址", rowpos: 1, colpos: 2 },
+			editrules: { required: true, },
+
+		},
+		{
+			name: "ReMark", label: "備註",
+			search: false, editable: true, edittype: "textarea",
+			formoptions: { rowpos: 3, colpos: 1 },
+			editoptions: { maxLength: 100 },
+		},
+		{
+			name: 'IsServer', label: '是否啟用', search: true, editable: true,
+			formatter: "select", edittype: "select",
+			formoptions: { rowpos: 3, colpos: 2 },
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "調度區域資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "PickUpAreaNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	@*function savefun() {
+			$('#fm').form('submit', {
+				url: '/PickUpArea/CheckExisted',
+				success: function (result) {
+					debugger;
+					var r = eval('(' + result + ')');
+					if (r.ok >= 0) {
+
+					}
+					else {
+						$.messager.confirm('下列地址已存在於其他調度區域，是否確定變更？', r.message, callback);
+						function callback(btn) {
+							if (btn) {
+
+							} else {
+
+							}
+						}
+					}
+				}
+			});
+
+		@Html.Raw(ViewBag.FormCustomJsSave)
+			$('#fm').form('submit', {
+				url: fUrl,
+				onSubmit: function () {
+					return $(this).form('validate');
+				},
+				success: function (result) {
+					var r = eval('(' + result + ')');
+					if (r.ok >= 0) {
+						if (r.ok > 0) {
+							$.messager.alert('@ViewBag.Title-成功', '存檔成功!');
+						}
+						else {
+							$.messager.alert('@ViewBag.Title-警告', r.message, 'warning');
+						}
+						$('#dlg').dialog('close');        // close the dialog
+						$('#grid').trigger('reloadGrid');
+					}
+					else {
+						$.messager.alert('@ViewBag.Title-錯誤', r.message, 'error');
+					}
+				}
+			});
+	}*@
+</script>
+

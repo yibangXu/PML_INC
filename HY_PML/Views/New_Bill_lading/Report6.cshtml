@@ -1,0 +1,74 @@
+﻿@model HY_PML.Models.BillLadingReport
+@{
+	Layout = null;
+	@Styles.Render("~/Content/report/e-report.css");
+}
+<style>
+	page[size="E-Report6"] {
+		margin: 0;
+		padding: 0 0 0 8mm;
+		width: 215mm;
+		height: 126mm;
+		background-size: cover;
+		/*background-image: url('../../Content/images/E-Report6.jpg');*/
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 12px !important;
+		word-break: break-all;
+		zoom: 1;
+	}
+</style>
+<body>
+	<page size="E-Report6">
+		<div style="position:absolute;padding-top:37mm;width:94mm;">
+			<span style="padding-left:48mm;display:inline-block;width:38mm">
+				@Model.SendCustNo
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:45mm;width:94mm;">
+			<span style="padding-left:9mm;display:inline-block;width:80mm">
+				@Model.SendBy
+				<br />
+				@Model.SendCustAddr
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:76mm;width:94mm;">
+			<span style="padding-left:28mm;display:inline-block;width:24mm">
+				@Model.SendInvNo
+			</span>
+			<span style="padding-left:13mm;display:inline-block;width:23mm">
+				@Model.SendPhone
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:40.5mm;padding-left:105mm;width:94mm;">
+			<span style="padding-left:4mm;display:inline-block;width:80mm">
+				@Model.RecBy
+				<br />
+				@Model.RecChAddr
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:70mm;padding-left:105mm;width:94mm;">
+			<span style= "padding-left: 27mm;display:inline-block;width:54mm">
+				@Model.RecCountry
+			</span>
+		</div>
+		<div style="position:absolute;padding-top:76mm;padding-left:105mm;width:94mm;">
+			<span style="padding-left:22mm;display:inline-block;width:21mm">
+				@Model.RecPostDist
+			</span>
+			<span style="padding-left:11mm;display:inline-block;width:27mm">
+				@Model.RecPhone
+			</span>
+		</div>
+	</page>
+</body>
+
+<script>
+			//window.onload = function () {
+			//    window.print();
+			//};
+</script>
+
+
+

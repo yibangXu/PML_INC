@@ -1,0 +1,135 @@
+﻿<table>
+	<tr>
+		<td>
+			<label class="required">外務代號:</label>
+		</td>
+		<td>
+			<input name="SectorNo" id="SectorNo" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[8]'">
+			<label id="SectorNoDisplay"></label>
+		</td>
+		<td>
+			<label>經度:</label>
+		</td>
+		<td>
+			<input name="Latitude" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label class="required">姓名:</label>
+		</td>
+		<td>
+			<input name="SectorName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[16]'">
+		</td>
+		<td>
+			<label>緯度:</label>
+		</td>
+		<td>
+			<input name="Longitude" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>電話:</label>
+		</td>
+		<td>
+			<input name="Phone" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+		</td>
+		<td>
+			<label class="required">是否離職:</label>
+		</td>
+		<td>
+			<input name="IsLeave" id="IsLeave" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>私人電話:</label>
+		</td>
+		<td>
+			<input name="PhonePrivate" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+		</td>
+		<td>
+			<label class="required">是否啟用:</label>
+		</td>
+		<td>
+			<input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" checked required>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>車輛編號:</label>
+		</td>
+		<td>
+			<input name="PlateNO" class="easyui-textbox" style="width:auto" readonly>
+			<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+			   onclick="ShowWinForPickUpjqGrid('fm','PlateNO','CarNO','@Url.Action("getSelectionjqGrid", "Vehicle")');"></a>
+		</td>
+		<td>
+			<label>所屬站點:</label>
+		</td>
+		<td>
+			<input name="StatNo" id="StatNo" class="easyui-textbox" style="width:auto" readonly>
+			<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+			   onclick="ShowWinForPickUpjqGrid('fm','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+		</td>
+	</tr>
+	<tr>
+		@*<td>
+			<label>調度區域:</label>
+		</td>
+		<td>
+			<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" style="width:auto" readonly>
+			<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+			   onclick="ShowWinForPickUpjqGrid('fm','PickUpAreaNo','PickUpAreaNo','@Url.Action("getSelectionjqGrid", "PickUpArea")');"></a>
+		</td>*@
+		<td>
+			<label>收送範圍:</label>
+		</td>
+		<td>
+			<input name="RecRange" class="easyui-textbox" style="width:auto">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>開始時間:</label>
+		</td>
+		<td>
+			<input name="RecTime" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false">
+		</td>
+		<td>
+			<label>目標里程:</label>
+		</td>
+		<td>
+
+			<input name="TargetKM" class="easyui-textbox" style="width:auto">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>結件時間:</label>
+		</td>
+		<td>
+			<input name="EndTime" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false">
+		</td>
+		<td>
+			<label>目標件數:</label>
+		</td>
+		<td>
+			<input name="TargetNum" class="easyui-textbox" style="width:auto">
+		</td>
+	</tr>
+	<tr></tr>
+</table>
+<script type="text/javascript">
+	$(function () {
+		// 2019-4-22 離職自動不啟用
+		$('#IsLeave').switchbutton({
+			onChange: function (checked) {
+				if (checked == true) {
+					$('#IsServer').switchbutton('clear');
+				}
+			}
+		})
+	})
+</script>

@@ -1,0 +1,854 @@
+﻿@{
+	/**/
+
+	Layout = "~/Views/Shared/_TripleGridLayout.cshtml";
+}
+
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid2"></table>
+	<div id="subpager2"></div>
+</div>
+
+<script>
+        var grid = $("#grid");
+        var subgrid = $("#subgrid");
+        var subgrid2 = $("#subgrid2");
+        var apiURL = "/ShdetL/";
+    var model = [
+            {
+                name: 'RowNumber', label: 'RowNumber', search: false, key: true, hidden: true
+			},
+			{
+				name: 'LadingNo_Type', label: '調派編號', search: true,
+			},
+            {
+				name: 'ShdetNo', label: '調派編號', search: true, hidden: true,
+            },
+            {
+                name: 'CustNo', label: '客戶代號', search: true, hidden: true
+            },
+            {
+                name: 'CustCHName', label: '客戶名稱',  search: true,
+            },
+            {
+                name: 'HubNo', label: '路線代號', search: false, hidden: true,
+            },
+            {
+                name: 'HubName', label: '路線', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+                    },
+                },
+            },
+            {
+                name: 'Dest', label: '目的地', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Dest/GetGridJSON?sidx=DestNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "CName", "CName", true);
+                    },
+                },
+            },
+            {
+                name: 'CarryName', label: '取件名稱',search: true,
+            },
+            {
+                name: 'RedyDate', label: '可收件日期', search: false,
+                formatter: 'date', formatoptions: { newformat: "Y-m-d" },
+            },
+            {
+                name: 'RedyTime', label: '可收件時間', search: false,
+            },
+			{
+				name: 'IsRedy', label: '準時取件', edittype: "select",
+				editoptions: {
+					defaultValue: "true",
+					value: { "": "", true: "是", false: "否" },
+				}, editrules: { required: true, },
+				formatter: "select",
+				stype: "select", searchoptions: {
+					value: { "": "", true: "是", false: "否" }
+				},
+			},
+            {
+                name: 'OverTime', label: '超過時間未完成', search: false, hidden: true,
+            },
+            {
+                name: 'CustAddrFull', label: '地址', search: true,
+            },
+            {
+                name: 'CtcSale', label: '聯絡人', search: true,
+
+            },
+            {
+                name: 'Tel', label: '電話', search: true,
+
+            },
+            {
+                name: 'PickUpAreaNo', label: '調度區域', search: false, hidden:true
+            },
+            {
+				name: 'PickUpAreaName', label: '調度區域', search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "PickUpArea/GetGridJSON?sidx=PickUpAreaNo&rows=1000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "PickUpAreaName", "PickUpAreaName", true);
+					},
+				},
+            },
+            {
+                name: 'SectorName', label: '外務員', search: true,
+                stype: "select",
+                searchoptions:
+                {
+					dataUrl: "/ShdetL/GetGridJSON_Sector?start_date=" + getToday() + "&end_date=" + getToday() + "&rows=1000",
+					buildSelect: function (data) {
+						return $(Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true));
+					}
+                },
+            },
+            {
+                name: 'SectorPhone', label: '外務員電話', search: true,
+            },
+            {
+				name: 'WeigLevel', label: '貨物類型', editable: true, width: 80,
+				formatter: "select",
+				editoptions: {
+					value: { '0': "0.文件", '1': '1.包裹5KG以下', '2': '2.箱貨5KG以上', '3': '3.木箱', '4': '4.棧板' }
+				},
+				stype: "select",
+				searchoptions: {
+					value: { '0': "0.文件", '1': '1.包裹5KG以下', '2': '2.箱貨5KG以上', '3': '3.木箱', '4': '4.棧板' }
+				}
+			},
+			{
+				name: 'CocustomTyp', label: '報關類型', search: false, width: 70, hidden: true
+			},
+			{
+				name: 'CocustomTypStr', label: '報關類型', search: true, width: 70,
+				formatter: "select",
+				editoptions: {
+					value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '正式報關+後段核銷': '正式報關+後段核銷', '簡易報關+後段核銷': '簡易報關+後段核銷', '不報關+後段核銷': '不報關+後段核銷', '其他': '其他' }
+				},
+				stype: "select",
+				searchoptions: {
+					value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '正式報關+後段核銷': '正式報關+後段核銷', '簡易報關+後段核銷': '簡易報關+後段核銷', '不報關+後段核銷': '不報關+後段核銷', '其他': '其他' }
+				}
+			},
+            {
+                name: 'StatNo', label: '叫件站點', search: true,hidden:true,
+            },
+            {
+                name: 'CallStatNo', label: '取件站點', search: true, hidden: true,
+            },
+            {
+                name: 'CallStatName', label: '取件站點', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "StatName", "StatName", true);
+                    },
+                },
+            },
+            {
+                name: 'CreatedBy', label: '建單人', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "ShdetL/GetCreateBy?start_date=" + getToday() + "&end_date=" + getToday()+"&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "CreatedBy", "CreatedBy", true);
+                    },
+                },
+            },
+            {
+                name: 'CreatedDate', label: '建單時間', search: false,
+                formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+			{
+				name: 'UpdatedBy', label: '修改人', search: true,
+				 stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "ShdetL/GetUpdatedBy?start_date=" + getToday() + "&end_date=" + getToday()+"&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "UpdatedBy", "UpdatedBy", true);
+                    },
+                },
+			},
+			{
+				name: 'UpdatedDate', label: '修改時間', search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+            {
+                name: 'ShdetDate', label: '調派時間', search: false,
+                formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+            },
+            {
+                name: 'IsFinish', label: '完成狀態', search: true,
+                edittype: "select",
+                editoptions: {
+                    defaultValue: "true",
+                    value: { null: "", true: "是", false: "否" },
+                }, editrules: { required: true, },
+                formatter: "select",
+                stype: "select", searchoptions: {
+                    value: { null: "", true: "是", false: "否" }
+                },
+            },
+            {
+                name: 'FinishDate', label: '完成時間', search: false,
+                formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+			{
+			name: 'FinishBy', label: '完成人', search: false,
+			},
+			{
+				name: "PhoneCheckTime", label: "手機查看時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			},
+			{
+				name: 'Status', label: '貨件狀態', width: 80,
+			},
+			{
+				name: "StatusTime", label: "貨件狀態時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			},
+			{
+				name: 'IsReply', label: '回覆狀態', search: true,
+				edittype: "select",
+				editoptions: {
+					defaultValue: "true",
+					value: { "": "", true: "是", false: "否" },
+				}, editrules: { required: true, },
+				formatter: "select",
+				stype: "select", searchoptions: {
+					value: { "": "", true: "是", false: "否" }
+				},
+			},
+			{
+				name: 'ReplyBy', label: '回覆人', search: false, width: 70,
+			},
+			{
+				name: 'ReplyDate', label: '回覆時間', search: false, width: 80,
+				formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+			{
+				name: 'ReplyComment', label: '回覆說明', search: false, width: 70,hidden:true,
+			},
+            {
+                name: 'IsCancel', label: '取消狀態', search: true,
+                edittype: "select",
+                editoptions: {
+                    defaultValue: "true",
+                    value: { "": "", true: "是", false: "否" },
+                }, editrules: { required: true, },
+                formatter: "select",
+                stype: "select", searchoptions: {
+                    value: { "": "", true: "是", false: "否" }
+                },
+            },
+            {
+                name: 'CancelDate', label: '取消時間', search: false,
+                formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+            },
+            {
+                name: 'CancelBy', label: '取消人', search: false,
+            },
+            {
+                name: 'sNo', label: '序號', search: false,  hidden: true,
+            },
+            {
+                name: 'CarID', label: '車輛代號', search: false, hidden: true,
+            },
+            {
+                name: 'OverWeig', label: '是否超重', search: false, hidden: true,
+            },
+            {
+                name: 'OveriTotNum', label: '是否超材積', search: false, hidden: true,
+            },
+            {
+                name: 'Clerk', label: '業務專員', search: false, hidden: true,
+            },
+            { name: 'CustAddr', label: '完整地址', editable: true, hidden: true },
+            { name: 'CustENAddr1', label: '英文地址', editable: true, hidden: true },
+            { name: 'Add_1', label: 'add1', hidden: true, },
+            { name: 'Add_2', label: 'add2', hidden: true, },
+            { name: 'Add_3', label: 'add3', hidden: true, },
+            { name: 'Add_4', label: 'add4', hidden: true, },
+            { name: 'Add_5', label: 'add5', hidden: true, },
+            { name: 'Add_6', label: 'add6', hidden: true, },
+            { name: 'Country', label: '國家', hidden: true, },
+            { name: 'CcNo', label: '付款方式', hidden: true, },
+			{ name: 'Code5', label: '郵政5碼', hidden: true, },
+			{ name: 'Code7', label: '郵政7碼', hidden: true, },
+			{ name: 'ReserveDate', label: '預約日期', hidden: true, },
+			{ name: 'SDate', label: '出貨日期', hidden: true, },
+            { name: 'EndDate', label: '截止日期', hidden: true, },
+            { name: 'SectorNo', label: '外務員代號', hidden: true, },
+            {
+                name: 'IsDesp', label: '調派狀態', search: true, hidden: true,
+            },
+            {
+                name: 'RejectDate', label: '退單時間', search: false, hidden: true,
+                formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+            },
+            {
+                name: 'RejectBy', label: '退單人', search: false, hidden: true,
+			 },
+        ];
+        grid.jqGrid("autoWidthColumns").jqGrid({
+            caption: "@ViewBag.Title",
+            url: apiURL + "GetGridJSON1?start_date=" + getToday() + "&end_date=" + getToday(),
+
+            datatype: "json",
+            colModel: model,
+            sortname: "ShdetNo",
+            sortorder: "asc",
+
+            shrinkToFit: false,
+            autowidth: true,
+            pager: "#pager",
+            toppager: false,
+            pgbuttons: true,
+            pginput: true,
+            viewrecords: true,
+            rowNum: 40,
+            rowList: [40, 80, 120, 160],
+
+            altRows: true,
+            altclass: "ui-jz-altRow",
+
+            hidegrid: false,
+			toolbar: [true, "top"],
+			beforeSelectRow: function (rowid) {
+				var lastSelect = $(this).jqGrid("getGridParam", "selrow");
+				if (lastSelect != undefined && lastSelect != rowid) {
+					$("#grid").jqGrid('setRowData', lastSelect, false, {
+						opacity: "1",
+						"border-bottom": "1px #d7d7d7d7"
+					});
+				} else if (lastSelect == rowid) {
+					$("#grid").jqGrid("resetSelection");
+					$("#grid").jqGrid('setRowData', lastSelect, false, {
+						opacity: "1",
+						"border-bottom": "1px #d7d7d7d7"
+					});
+				}
+			},
+			onSelectRow: function (id, selected) {
+				$("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+				var row = $("#grid").jqGrid('getRowData', id);
+				$("#grid").jqGrid('setRowData', id, false, {
+					opacity: "0.9",
+					"border-bottom": "1px black"
+				});
+                //$('#showSelectContent').text('');
+                //clearLevel23();
+
+				if (selected) {
+					$('#showSel').text("｜調派編號："+row.LadingNo_Type + "｜取件名稱：" + row.CarryName);
+                    subgrid.jqGrid("setGridParam", {
+                        url: subapiURL + "GetGridJson2?ShdetNo=" + row.ShdetNo + "&CustNo=" + row.CustNo + "&sDtlNo=" + row.sNo,
+                        datatype: 'json',
+                    });
+                    subgrid.trigger('reloadGrid');
+
+                    subgrid2.jqGrid("setGridParam", {
+                        url: subapiURL2 + "GetGridJson3?ShdetNo=" + row.ShdetNo + "&CustNo=" + row.CustNo + "&sDtlNo=" + row.sNo + "&CarID=" + row.CarID,
+                        datatype: 'json',
+                    });
+                    subgrid.trigger('reloadGrid');
+                    subgrid2.trigger('reloadGrid');
+                    // $('#showSelectContent').text(row.ShdetNo);
+                } else {
+                    subgrid.jqGrid("clearGridData");
+                    subgrid2.jqGrid("clearGridData");
+                }
+            },
+            gridComplete: function () {
+               // $('#showSelectContent').text('');
+				//clearLevel23();
+                var rows = $("#grid").getDataIDs();
+                for (var i = 0; i < rows.length; i++) {
+                    var isCancel = $("#grid").getCell(rows[i], "IsCancel");
+                    if (isCancel === "true") {
+                        $("#grid").jqGrid('setRowData', rows[i], false, {
+                            background: '#D9D9D9'
+                        });
+                        continue;
+                    }
+
+                    var sector = $("#grid").getCell(rows[i], "SectorName");
+                    if (sector === null || sector === "") {
+                        $("#grid").jqGrid('setRowData', rows[i], false, {
+                            background: '#FFFF00'
+                        });
+                        continue;
+                    }
+
+                    var overitotnum = $("#grid").getCell(rows[i], "OveriTotNum");
+                    if (overitotnum === "true") {
+                        $("#grid").jqGrid('setRowData', rows[i], false, {
+                            background: '#548DD4'
+                        });
+                        continue;
+                    }
+
+                    var overweig = $("#grid").getCell(rows[i], "OverWeig");
+                    if (overweig === "true") {
+                        $("#grid").jqGrid('setRowData', rows[i], false, {
+                            background: '#E36C0A'
+                        });
+                        continue;
+                    }
+
+                    var isOverTime = $("#grid").getCell(rows[i], "OverTime");
+                    var isfinish = $("#grid").getCell(rows[i], "IsFinish");
+                    if (isOverTime === "true" && isfinish !== "true") {
+                        $("#grid").jqGrid('setRowData', rows[i], false, {
+                            background: '#FF8B8B'
+                        });
+                        continue;
+                    }
+                }
+            }
+        }).jqGrid('navGrid', '#pager',
+            {
+                del: false, add: false,
+                edit: false, search: false, view: false,
+            }).filterToolbar({
+				searchOnEnter: true
+            });
+
+    //取得今天日期
+    function getToday() {
+        var today = new Date();
+        return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    }
+</script>
+
+<script>
+	var subapiURL = "/ShdetL/";
+	var subModel = [
+		{
+			name: 'ShdetNo', label: '調派編號', hidden: true,
+		},
+		{
+			name: 'CustNo', label: '客戶代號', hidden: true,
+		},
+		{
+			name: 'sDtlNo', label: '明細序號', hidden: true,
+		},
+		{
+			name: 'sNo', label: '序號', key: true,
+		},
+		{
+			name: 'Pcs', label: '件數', align: 'right',
+		},
+		{
+			name: 'fLen', label: '長(CM)', align: 'right',
+		},
+		{
+			name: 'fWidth', label: '寬(CM)', align: 'right',
+		},
+		{
+			name: 'fHeight', label: '高(CM)', align: 'right',
+		},
+		{
+			name: 'iTotNum', label: '總材數(材)', align: 'right',
+			formatter: 'number', formatoptions: { decimalPlaces: 3 },
+		},
+		{
+			name: 'Weig', label: '重量(KGS)', align: 'right',
+			formatter: 'number', formatoptions: { decimalPlaces: 1 },
+		},
+		{
+			name: 'Remark3', label: '注意事項',
+		},
+		//{
+		//	name: 'ReplyComment', label: '回覆說明',
+		//},
+		{
+			name: 'Remark1', label: '內部說明',
+		},
+		{
+			name: 'SheetNo', label: '理貨單號',
+		},
+		//{
+		//	name: 'IsFinish', label: '完成狀態', search: true, hidden: true,
+		//	edittype: "select",
+		//	editoptions: {
+		//		value: { null: "", true: "是", false: "否" },
+		//	}, editrules: { required: true, },
+		//	formatter: "select",
+		//	stype: "select", searchoptions: {
+		//		value: { null: "", true: "是", false: "否" }
+		//	},
+		//},
+		//{
+		//	name: 'IsCancel', label: '取消狀態', search: true, hidden: true,
+		//	edittype: "select",
+		//	editoptions: {
+		//		value: { "": "", true: "是", false: "否" },
+		//	}, editrules: { required: true, },
+		//	formatter: "select",
+		//	stype: "select", searchoptions: {
+		//		value: { "": "", true: "是", false: "否" }
+		//	},
+		//},
+		//{
+		//	name: 'IsDesp', label: '調派狀態', search: true, hidden: true,
+		//},
+		//{
+		//	name: 'IsReply', label: '回覆狀態', search: true, hidden: true,
+		//},
+		//{
+		//	name: "PhoneCheckTime", label: "手機查看時間", search: false,
+		//	formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		//},
+		//{
+		//	name: 'Status', label: '貨件狀態', width: 80,
+		//},
+		//{
+		//	name: "StatusTime", label: "貨件狀態時間", search: false,
+		//	formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		//},
+	];
+	subgrid.jqGrid("autoWidthColumns").jqGrid({
+		url: subapiURL + "GetGridJSON2?ShdetNo=★",
+		datatype: "local",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		toppager: false,
+		//pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 1000,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		toolbar: [true, "top"],
+		hidegrid: false,
+
+		//onSelectRow: function (id, selected) {
+		//    //var row = $("#subgrid").jqGrid('getRowData', id);
+		//    //// $('#showSelectContent3').text('');
+		//    ////clearLevel3();
+		//    //if (selected) {
+		//    //    // $('#showSelectContent3').text(row.sNo);
+		//    //}
+
+		//},
+		//gridComplete: function () {
+		//    //alert('grid complete');
+		//    // $('#showSelectContent3').text('');
+
+		//},
+
+	}).jqGrid('navGrid', '#subpager',
+		{
+			del: false, add: false,
+			edit: false, search: false,
+		});
+</script>
+
+<script>
+	var subapiURL2 = '/ShdetL/';
+	var submodel2 = [
+		{
+			name: "CarID", label: "車輛編號", key: true, search: true, hidden: true,
+		},
+		{
+			name: "Phone", label: "電話", search: false,
+		},
+		{
+			name: "CarKind", label: "車型", search: true,
+		},
+		{
+			name: "CarNo", label: "車牌號碼", search: true,
+		},
+		{
+			name: "LoadSafety", label: "載重安全值", search: false,
+		},
+		{
+			name: "WeigTotal", label: "重量統計", search: false,
+			formatter: 'number', formatoptions: { decimalPlaces: 1 },
+		},
+		{
+			name: "ValueSafe", label: "材積重安全值", search: false,
+		},
+		{
+			name: "ValueTotal", label: "材積統計", search: false,
+			formatter: 'number', formatoptions: { decimalPlaces: 3 },
+		},
+		{
+			name: "Count", label: "件數統計", search: false,
+		},
+		{
+			name: "TotalSheetNo", label: "單數統計", search: false,
+		},
+		{
+			name: 'OverWeig', label: '是否超重', search: false, hidden: true,
+		},
+		{
+			name: 'OveriTotNum', label: '是否超材積', search: false, hidden: true,
+		},
+
+	];
+	$("#subgrid2").jqGrid({
+		url: subapiURL2 + 'GetGridJSON3?CarID=★',
+
+		datatype: "local",
+		colModel: submodel2,
+		sortname: "CarID",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		//pager: "#subpager2",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+		gridComplete: function () {
+			var rows = $("#subgrid2").getDataIDs();
+			for (var i = 0; i < rows.length; i++) {
+				var overitotnum = $("#subgrid2").getCell(rows[i], "OveriTotNum");
+				if (overitotnum === "true") {
+					$("#subgrid2").jqGrid('setRowData', rows[i], false, {
+						background: '#548DD4'
+					});
+					continue;
+				}
+
+				var overweig = $("#subgrid2").getCell(rows[i], "OverWeig");
+				if (overweig === "true") {
+					$("#subgrid2").jqGrid('setRowData', rows[i], false, {
+						background: '#E36C0A'
+					});
+					continue;
+				}
+			}
+		}
+	}).jqGrid('navGrid', '#subpager2',
+		{
+			del: false, add: false,
+			edit: false, search: false,
+		});
+</script>
+
+<script>
+	$(function () {
+		$("#toolbar_grid").html('')
+			.append('<a id="editMaster" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editMaster()">編輯</a>')
+			.append('<a id ="delMaster" class="easyui-linkbutton" iconCls = "icon-remove" plain = "true" onclick = "delMaster()" > 刪除</a >')
+			.append('<a class="easyui-linkbutton" id="Reject" iconCls="icon-large-smartart" plain="true" onclick="Reject();">退單</a>')
+			.append(' <label>收件日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="收件時間起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="收件時間訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget(); "></a>')
+			.append('<a class="easyui-linkbutton"  onclick="ShdetLMsg();">取件任務</a>');
+
+		$("#toolbar_subgrid").html('')
+			.append('<a id="editDetail" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editDetail()">編輯</a>')
+			.append('<a id ="delDetail" class="easyui-linkbutton" iconCls = "icon-remove" plain = "true" onclick = "delDetail()" > 刪除</a >')
+			.append('<label style="margin:0px"><span id="showSel"></span></label>');
+
+		$("#toolbar_subgrid2").remove();
+
+		$('#Code5').textbox("textbox").parent("span.textbox").hide();
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("Reject") == false) {
+				$("#Reject").linkbutton('disable');
+			}
+		}, 300);
+	});
+
+	function doSearchTarget() {
+		var postData = grid.jqGrid("getGridParam", "postData");
+		let promise1 = new Promise((resolve, reject) => {
+			$.ajax({
+				url: "ShdetL/GetCreateBy?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue') + "&rows=1000",
+				success: function (result) {
+					if (result.ok > 0) {
+						resolve({
+							status: 'success',
+						});
+						var data = JSON.stringify(result)
+						var str = Lib.jqGrid.buildSelect(data, "CreatedBy", "CreatedBy", true);
+						$('#gs_grid_CreatedBy').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+						if (postData.CreatedBy !== undefined) {
+							if ($('#gs_grid_CreatedBy  option[value=' + postData.CreatedBy + ']')[0] === undefined) {
+								postData.CreatedBy = '';
+							} else {
+								$('#gs_grid_CreatedBy  option[value=' + postData.CreatedBy + ']').attr('selected', 'selected');
+							}
+						}
+					}
+				},
+			});
+		});
+
+		let promise2 = new Promise((resolve, reject) => {
+			$.ajax({
+				url: "ShdetL/GetUpdatedBy?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue') + "&rows=1000",
+				success: function (result) {
+					if (result.ok > 0) {
+						resolve({
+							status: 'success',
+						});
+						var data = JSON.stringify(result)
+						var str = Lib.jqGrid.buildSelect(data, "UpdatedBy", "UpdatedBy", true);
+						$('#gs_grid_UpdatedBy').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+						if (postData.UpdatedBy !== undefined) {
+							if ($('#gs_grid_UpdatedBy  option[value=' + postData.UpdatedBy + ']')[0] === undefined) {
+								postData.UpdatedBy = '';
+							} else {
+								$('#gs_grid_UpdatedBy  option[value=' + postData.UpdatedBy + ']').attr('selected', 'selected');
+							}
+						}
+					}
+				},
+			});
+		});
+
+		let promise3 = new Promise((resolve, reject) => {
+			$.ajax({
+				url: "ShdetL/GetGridJSON_Sector?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue') + "&rows=1000",
+				success: function (result) {
+					if (result.ok > 0) {
+						resolve({
+							status: 'success',
+						});
+						var data = JSON.stringify(result)
+						var str = Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true);
+						$('#gs_grid_SectorName').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+						if (postData.SectorName !== undefined) {
+							if ($('#gs_grid_SectorName  option[value=' + postData.SectorName + ']')[0] === undefined) {
+								postData.SectorName = '';
+							} else {
+								$('#gs_grid_SectorName  option[value=' + postData.SectorName + ']').attr('selected', 'selected');
+							}
+						}
+					}
+				},
+			});
+		});
+
+		Promise.all([promise1, promise2, promise3]).then(function (results) {
+			grid.jqGrid("setGridParam", {
+				url: apiURL + "GetGridJson1?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+				datatype: 'json'
+			});
+			grid.trigger('reloadGrid');
+		});
+	};
+
+	function Reject() {
+		var id = grid.jqGrid("getGridParam", "selrow");
+		if (id === null)
+			$.messager.alert('警告', '尚未選擇資料!', 'warning');
+		else {
+			var row = grid.jqGrid('getRowData', id);
+
+			if (row.IsFinish == 'true')
+				$.messager.alert('錯誤', '已完成取件，無法退單！', 'error');
+			else
+				$.messager.confirm({
+					title: '退單',
+					msg: '單號:' + row.ShdetNo + ',確定要退單嗎?',
+					ok: '是',
+					cancel: '否',
+					fn: function (r) {
+						if (r) {
+							$.ajax({
+								url: apiURL + "Reject",
+								dataType: 'json',
+								async: true,
+								data: {
+									ShdetNo: row.ShdetNo
+								}, success: function (data) {
+									if (data.ok < 0) {
+										$.messager.alert('錯誤', data.message, 'error');
+									}
+									else if (data.ok === 0) {
+										$.messager.alert('警告', data.message, 'warning');
+									} else {
+										$.messager.alert('成功', '退單成功');
+										grid.trigger('reloadGrid');
+
+										subgrid.jqGrid("clearGridData");
+										subgrid2.jqGrid("clearGridData");
+									}
+								}
+							});
+						}
+					}
+				});
+		}
+	}
+
+	function ShdetLMsg() {
+		var id = grid.jqGrid("getGridParam", "selrow");
+		if (id === null)
+			$.messager.alert('警告', '尚未選擇資料!', 'warning');
+		else {
+			var row = grid.jqGrid('getRowData', id);
+			var subrow = $("#subgrid").jqGrid('getRowData');
+			var records = subrow.length;
+			var Pcs = 0; var iTotNum = 0; var Weig = 0; var LWH = ""; var Remark3 = "";
+			for (i = 0; i < records; i++) {
+				var subData = subrow[i];
+				Pcs = Pcs + parseFloat(subData.Pcs);
+				iTotNum = iTotNum + parseFloat(subData.iTotNum);
+				Weig = Weig + parseFloat(subData.Weig);
+				LWH = LWH + (i == records-1 ? subData.fLen + "*" + subData.fWidth + "*" + subData.fHeight + "cm、" : subData.fLen + "*" + subData.fWidth + "*" + subData.fHeight + "cm+");
+				Remark3 = Remark3 + (i == records-1 ? subData.Remark3 : subData.Remark3 + "/");
+			}
+			var msg = row.CarryName + "／" + row.CustAddrFull + "／" + row.CtcSale + "／" + row.Tel + "／" + row.HubName + "／" + Pcs + "件／" + LWH + iTotNum + "材／" + Weig + "kg／" + Remark3 + "／" + row.RedyTime + "／" + row.LadingNo_Type
+			$.messager.alert('取件任務', msg);
+
+			var el = document.createElement('textarea');
+			el.value = msg;
+			el.setAttribute('readonly', '');
+			el.style = { position: 'absolute', left: '-9999px' };
+			document.body.appendChild(el);
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+		}
+	}
+
+</script>

@@ -1,0 +1,42 @@
+﻿@media print {
+    @page {
+        size: landscape;
+        margin: 0;
+    }
+
+    .portrait {
+        margin: 1.5in;
+        transform: rotate(90deg);
+        margin-top: -1.5in;
+    }
+}
+
+.portrait {
+    width: 5.5in;
+    height: 8.5in;
+}
+
+.landscape {
+    width: 8.5in;
+    height: 5.4in;
+}
+
+.portrait .page-center {
+    width: 5.5in;
+    text-align: center;
+}
+
+.landscape .page-center {
+    width: 8.5in;
+    text-align: center;
+}
+
+.portrait .hr {
+    width: 5in;
+    margin-left: 0.25in;
+}
+
+.landscape .hr {
+    width: 7.5in;
+    margin-left: 0.5in;
+}

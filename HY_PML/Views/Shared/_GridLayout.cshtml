@@ -1,0 +1,183 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="The description of my page" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        #gridbtn_caption {
+            opacity: 1;
+        }
+
+            #gridbtn_caption .ui-icon {
+                display: none;
+            }
+
+            #gridbtn_caption .ui-pg-button-text {
+                font-size: 16px;
+                color: black;
+            }
+
+        .warning-dialog {
+            text-align: center;
+            line-height: 90px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div style="background-color:#f6f6f6">
+        @RenderBody()
+        <div class="warning-dialog"></div>
+    </div>
+    <script>
+        var grid = $("#grid");
+        var ResizeGrid = ResizeGrid || function () {
+            var w = $(window);
+            grid.jqGrid("setGridWidth", w.innerWidth() - 20);
+            grid.jqGrid("setGridHeight", w.innerHeight() - 115 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+            console.log("Default Resize Mode");
+        };
+
+        $(function () {
+            $(window).resize(
+                function () {
+                    $("body").css("padding-top", $(".navbar").height());
+                    ResizeGrid();
+                }).trigger("resize");
+            setTimeout(function () {
+                $(window).trigger("resize");
+            }, 1000);
+        });
+
+        $("#grid,#subgrid,#subgrid2").toArray().forEach(function (g) {
+            (function AddGridComplete(grid) {
+                if (typeof ($(grid).jqGrid) === "undefined")
+                    setTimeout(AddGridComplete, 150, grid);
+                else {
+                    var fn = $(grid).jqGrid("autoWidthColumns").jqGrid("getGridParam", "gridComplete");
+                    $(grid).jqGrid("setGridParam", {
+                        gridComplete: function () {
+                            var target = $(grid).parents(".ui-jqgrid").find(".ui-paging-info");
+                            //fix space at records field
+                            var recordsnum = target.text().replace(/ /g, "").replace("r", " r");
+                            target.text(recordsnum);
+                            //call original function
+                            typeof (fn) === "function" && fn();
+                        }
+                    });
+                }
+            })(g);
+        });
+
+        function ShowWinForPickUpjqGrid(formId, inputFields, inputValues, contentUrl) {
+            $('#win').window('open');
+            $('#win').panel('clear');
+            $('#win').window('setTitle', '');
+            $('#win').window('refresh', contentUrl + '?' + 'formId=' + formId + '&inputFields=' + inputFields + '&inputValues=' + inputValues);
+        }
+
+        function ShowWinForPickUpGrid(retID1, retVal1, retType1, retID2, retVal2, retType2, titleString, contentUrl) {
+            $('#win').window('open');
+            $('#win').panel('clear');
+            $('#win').window('setTitle', titleString);
+            $('#win').window('refresh', contentUrl + '?retID1=' + retID1 + '&retVal1=' + retVal1 + '&retType1=' + retType1 + '&retID2=' + retID2 + '&retVal2=' + retVal2 + '&retType2=' + retType2);
+        }
+
+        function add() {
+            $("#grid").jqGrid("editGridRow", "new", {
+                url: "@Url.Action("Add", ViewBag.ControllerName)"
+            });
+        }
+
+        function edit() {
+            var rowid = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (rowid === null)
+            {
+                $(".warning-dialog").text("尚未選擇資料!");
+                $(".warning-dialog").dialog({
+                    title: "警告",
+                    width: 200,
+                    height: 135,
+                    autoOpen: false,
+                });
+            } else
+                $("#grid").jqGrid('editGridRow', rowid, {
+                    url: "@Url.Action("Edit", ViewBag.ControllerName)"
+                });
+        }
+
+        function del() {
+            var rowid = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (rowid === null) {
+                $(".warning-dialog").text("尚未選擇資料!");
+                $(".warning-dialog").dialog({
+                    title: "警告",
+                    width: 200,
+                    height: 135,
+                    autoOpen: false,
+                });
+            } else
+                $("#grid").jqGrid('delGridRow', rowid, {
+                    url:"@Url.Action("Delete", ViewBag.ControllerName)"
+                });
+        }
+
+        function addSub() {
+            var rowid = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (rowid === null) {
+                $(".warning-dialog").text("主表尚未選擇!");
+                $(".warning-dialog").dialog({
+                    title: "警告",
+                    width: 200,
+                    height: 135,
+                    autoOpen: false,
+                });
+            } else
+                $("#subgrid").jqGrid("editGridRow", "new", {
+                    url: "@Url.Action("Add", ViewBag.ControllerName)"
+                });
+        }
+
+        function editSub() {
+            var rowid = $("#subgrid").jqGrid('getGridParam', 'selrow');
+            if (rowid === null)
+            {
+                $(".warning-dialog").text("尚未選擇資料!");
+                $(".warning-dialog").dialog({
+                    title: "警告",
+                    width: 200,
+                    height: 135,
+                    autoOpen: false,
+                });
+            } else
+                $("#subgrid").jqGrid('editGridRow', rowid, {
+                    url: "@Url.Action("Edit", ViewBag.ControllerName)"
+                });
+        }
+
+        function delSub() {
+            var rowid = $("#subgrid").jqGrid('getGridParam', 'selrow');
+            if (rowid === null) {
+                $(".warning-dialog").text("尚未選擇資料!");
+                $(".warning-dialog").dialog({
+                    title: "警告",
+                    width: 200,
+                    height: 135,
+                    autoOpen: false,
+                });
+            } else
+                $("#subgrid").jqGrid('delGridRow', rowid, {
+                    url:"@Url.Action("Delete", ViewBag.ControllerName)"
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+﻿<div id="typeTab4" title="報關資料" style="padding:2px;display:none;overflow:hidden">
+	<table class="dataTable" style="padding:2px">
+		<tr>
+			<td>
+				<form id="uploadForm" enctype="multipart/form-data">
+					@Html.AntiForgeryToken()
+					@Html.ValidationSummary()
+					<input id="file" type="file" name="file" style="width:450px;border:2px #95B8E7 solid; float:left;" />
+					<input id="fileLadingNo" name="fileLadingNo" hidden>
+					<input id="upload" type="button" value="上傳檔案" class="btn-sm btn-default" style="background-color: #e1e1e1 ;" />
+					<input id="download" type="button" value="下載檔案" class="btn-sm btn-default" style="background-color: #e1e1e1 ;" />
+					<input id="deleteFile" type="button" value="刪除檔案" class="btn-sm btn-default" style="background-color: #e1e1e1 ;" />
+				</form>
+			</td>
+		</tr>
+	</table>
+	<div class="pull-right">
+		<table id="subgrid4"></table>
+	</div>
+</div>
+<script>
+	var subgrid4 = $("#subgrid4");
+	var subModel4 = [
+		{
+			name: "Index", label: "Index", key: true, hidden: true,
+		},
+		{
+			name: "LadingNo", label: "提單號碼", hidden: true,
+		},
+		{
+			name: "SNo", label: "序號", 
+		},
+		{
+			name: "FileName", label: "檔案名稱", 
+		},
+		{
+			name: "UploadTime", label: "上傳時間", 
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "UploadBy", label: "上傳人員", 
+		}
+	];
+	subgrid4.jqGrid("autoWidthColumns").jqGrid({
+		url: "/New_Bill_Lading/GetFileTableJSON?LadingNo=★",
+		datatype: "json",
+		colModel: subModel4,
+		sortname: "SNo",
+		sortorder: "asc",
+		shrinkToFit: false,
+		autowidth: true,
+
+		toppager: false,
+		// pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: false,
+		rowNum: 100,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		toolbar: [true, "top"],
+		hidegrid: false,
+		onSelectRow: function (id) {
+		}
+
+	}).jqGrid('navGrid', '#subpager4',
+		{
+			del: false, add: false,
+			edit: false, search: false, refresh: false
+		});
+	$("#gridbtn_caption").addClass("ui-state-disabled");
+	$("#t_subgrid4").css("height", "0px").append($('#toolbar_subgrid4'));
+	$("#subpager4").find(".ui-pg-button").hide();
+</script>
+
+<script>
+	$('#upload').click(function (e) {
+		if ($("#fileLadingNo").val() != "") {
+			if ($("#file").val() != "") {
+				$('#filePath').val(document.getElementById("file").value);
+				e.preventDefault();
+				var form = $('#uploadForm')[0];
+				var formData = new FormData(form);
+				$.ajax({
+					url: '/New_Bill_Lading/Upload/',
+					type: "POST",
+					data: formData,
+					contentType: false,
+					cache: false,
+					processData: false,
+					beforeSend: function () {
+						ajaxLoading('上傳中…');
+					},
+					success: function (r) {
+						if (r.ok >= 0) {
+							if (r.ok > 0) {
+								$.messager.alert('成功', r.message);
+								$('#file').val('');
+								$('#subgrid4').trigger('reloadGrid');
+							}
+							else {
+								$.messager.alert('警告', r.message, 'warning');
+							}
+						}
+						else {
+							$.messager.alert('錯誤', r.message, 'error');
+						}
+						ajaxLoadEnd();
+					},
+				})
+			}
+			else
+				$.messager.alert('錯誤', '尚未選擇上傳檔案', 'error');
+		}
+		else
+			$.messager.alert('錯誤', '尚未選擇【提單資料】！', 'error');
+	});
+
+	$('#download').click(function (e) {
+		var selID = $('#subgrid4').jqGrid('getGridParam', 'selrow');
+		var selrow = $("#subgrid4").jqGrid('getRowData', selID);
+		if (selID === null)
+			$.messager.alert('錯誤', '尚未選擇欲下載的檔案！', 'error');
+		else {
+			e.preventDefault();
+			Lib.Loading(true);
+			window.open("/New_Bill_Lading/Download?fileLadingNo=" + selrow.LadingNo + "&FileName=" + selrow.FileName);
+			Lib.Loading(false);
+		}
+	});
+
+	$('#deleteFile').click(function (e) {
+		var selID = $('#subgrid4').jqGrid('getGridParam', 'selrow');
+		var selrow = $("#subgrid4").jqGrid('getRowData', selID);
+		if (selID === null)
+			$.messager.alert('錯誤', '尚未選擇欲刪除的檔案！', 'error');
+		else {
+			e.preventDefault();
+			$.ajax({
+				url: '/New_Bill_Lading/DeleteFile?fileLadingNo=' + selrow.LadingNo + '&FileName=' + selrow.FileName + '&SNo=' + selrow.SNo,
+				type: "POST",
+				contentType: false,
+				cache: false,
+				processData: false,
+				beforeSend: function () {
+					ajaxLoading('刪除中…');
+				},
+				success: function (r) {
+					if (r.ok >= 0) {
+						if (r.ok > 0) {
+							$.messager.alert('成功', r.message);
+							$('#subgrid4').trigger('reloadGrid');
+						}
+						else {
+							$.messager.alert('警告', r.message, 'warning');
+						}
+					}
+					else {
+						$.messager.alert('錯誤', r.message, 'error');
+					}
+					ajaxLoadEnd();
+				},
+			})
+		}
+	});
+</script>

@@ -1,0 +1,50 @@
+﻿@media print {
+
+	body, page {
+		-webkit-print-color-adjust: exact;
+		margin: 0;
+		box-shadow: 0;
+	}
+
+	div.pageBlock {
+		page-break-before: always;
+	}
+}
+
+body {
+	background: white;
+}
+
+page {
+	background: white;
+	display: block;
+	margin: 0 auto;
+	box-shadow: 0;
+}
+
+	page[size="E-Report"] {
+		margin:0;
+		padding:0;
+		width: 76mm;
+		height: 180mm;
+		background-size: cover;
+		background-image: url(../images/E-Report1.jpg);
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 6px !important;
+		word-break: break-all;
+	}
+	page[size="E-Report2"] {
+		margin: 0;
+		padding: 0;
+		width: 152mm;
+		height: 180mm;
+		background-size: cover;
+		background-image: url(../images/E-Report2.jpg);
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 6px !important;
+		word-break: break-all;
+	}

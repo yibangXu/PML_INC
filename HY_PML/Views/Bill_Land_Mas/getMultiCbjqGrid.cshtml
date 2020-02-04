@@ -1,0 +1,276 @@
+﻿@{
+	Layout = "~/Views/Shared/_MultiCbjqGrid.cshtml";
+}
+
+<style>
+	.datagrid-mask {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0.3;
+		filter: alpha(opacity=30);
+		display: none;
+	}
+</style>
+
+<script>
+	var id = $("#grid").jqGrid('getGridParam', 'selrow');
+	var selrow = $("#grid").jqGrid('getRowData', id);
+	var url = '/Bill_Land_Mas/';
+	var gridTitle = '貨物資料';
+	var funcName = "GetProdGridJSON";
+	var sortName = 'sNo';
+	var list = [];
+	var model = [
+		{
+			name: 'index', label: "index", hidden: true, key: true
+		},
+		{
+			name: 'ShdetNo', label: '調派編號',
+		},
+		{
+			name: 'CustNo', label: '客戶代號', hidden: true,
+		},
+		{
+			name: 'CustCHName', label: '客戶名稱',
+		},
+		{
+			name: 'CarryName', label: '取件名稱',
+		},
+		{
+			name: 'ShdetDate', label: '調派時間', search: false,
+			formatter: 'date', formatoptions: { newformat: "Y-m-d" },
+		},
+		{
+			name: 'RedyDate', label: '收件時間', search: false,
+			formatter: 'date', formatoptions: { newformat: "Y-m-d" },
+		},
+		{
+			name: 'CocustomTypStr', label: '報關類型', search: true, width: 70,
+			formatter: "select",
+			editoptions: {
+				value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '其他': '其他' }
+			},
+			stype: "select",
+			searchoptions: {
+				value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '其他': '其他' }
+			}
+		},
+		{
+			name: 'HubNo', label: '路線', search: false, hidden: true,
+		},
+		{
+			name: "HubName", label: "路線", search: false,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+				},
+				//defaultValue: $("#HubName").val()
+			},
+		},
+		{
+			name: "StatNo", label: "叫件站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetDropdownList?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo,StatName", true);
+				},
+				//defaultValue: $("#StatNo").val()
+			},
+		},
+		{
+			name: 'CallStatNo', label: '取件站點', search: false,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetDropdownList?sidx=StatNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: 'sDtlNo', label: '明細序號', hidden: true,
+		},
+		{
+			name: 'sNo', label: '序號', search: false
+		},
+		{
+			name: 'Pcs', label: '件數', align: 'right', search: false
+		},
+		{
+			name: 'fLen', label: '長(CM)', align: 'right', search: false
+		},
+		{
+			name: 'fWidth', label: '寬(CM)', align: 'right', search: false
+		},
+		{
+			name: 'fHeight', label: '高(CM)', align: 'right', search: false
+		},
+		{
+			name: 'iTotNum', label: '總材數(材)', align: 'right', search: false
+		},
+		{
+			name: 'Weig', label: '重量(KGS)', align: 'right', search: false,
+			formatter: 'number', formatoptions: { decimalPlaces: 1 },
+		},
+		{
+			name: 'Remark3', label: '注意事項', search: false
+		},
+		//{
+		//    name: 'ReplyComment', label: '回覆說明', search: false
+		//},
+		//{
+		//    name: 'Remark1', label: '內部說明', search: false
+		//},
+	];
+
+	$("#DataGrid_s").jqGrid("autoWidthColumns").jqGrid({
+		caption: gridTitle,
+		url: ($("#StatNo").val() != "" && $("#HubName").val() != "") ?
+			url + (funcName === null ? 'GetGridJSON' : funcName) + "?CallStatNo=" + $("#StatNo").val() + "&HubName=" + $("#HubName").val() + "&start_date=" + getToday() + "&end_date=" + getToday() + "&searchType=3" :
+			url + (funcName === null ? 'GetGridJSON' : funcName) + "?CallStatNo=" + selrow.StatNo + "&HubName=" + selrow.HubName + "&start_date=" + getToday() + "&end_date=" + getToday() + "&searchType=3",
+
+		datatype: "json",
+		colModel: model,
+		sortname: sortName,
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager_s",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: true,
+		multiselectWidth: 50,
+		multiboxonly: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).jqGrid("navGrid", "#pager_s",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		}).filterToolbar({
+			searchOnEnter: true
+		});
+
+	$("#toolbar_s").append(' |  <input type="radio" name="searchType" value="1"/>調派')
+		.append('<input type = "radio" name = "searchType" value = "2" /> 收件')
+		.append('<input type = "radio" name = "searchType" value = "3" checked /> 出貨')
+		.append('<input id="searchProdDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" >')
+		.append(' ~ <input id = "searchProdDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" >')
+		.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+
+	$('#searchProdDateEnd').datebox({
+		onShowPanel: function () {
+			var now = new Date();
+			var Y = now.getFullYear();
+			var M = now.getMonth();
+			var D = now.getDate();
+			var start = new Date(Y - 1, M, D);
+			var end = new Date(Y, M, D);
+			var opts = $(this).datebox('options');
+			$(this).datebox('calendar').calendar({
+				validator: function (date) {
+					var min = opts.parser(start);
+					var max = opts.parser(end);
+					if (min <= date && date <= max) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			});
+		}
+	})
+
+	function doSearchTarget() {
+		var id = $("#grid").jqGrid('getGridParam', 'selrow');
+		var selrow = $("#grid").jqGrid('getRowData', id);
+		$('#DataGrid_s').jqGrid("setGridParam", {
+			url: ($("#StatNo").val() != "" && $("#HubName").val() != "") ?
+				url + (funcName === null ? 'GetGridJSON' : funcName) + "?CallStatNo=" + $("#StatNo").val() + "&HubName=" + $("#HubName").val() + "&start_date=" + $('#searchProdDateStart').datebox('getValue') + "&end_date=" + $('#searchProdDateEnd').datebox('getValue') + "&searchType=" + $('input[name=searchType]:checked').val() :
+				url + (funcName === null ? 'GetGridJSON' : funcName) + "?CallStatNo=" + selrow.StatNo + "&HubName=" + selrow.HubName + "&start_date=" + $('#searchProdDateStart').datebox('getValue') + "&end_date=" + $('#searchProdDateEnd').datebox('getValue') + "&searchType=" + $('input[name=searchType]:checked').val(),
+			datatype: 'json'
+		});
+		$('#DataGrid_s').trigger('reloadGrid');
+	}
+
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function changePage() {
+		var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+		for (var i = 0; i < gsr.length; i++) {
+			var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+			list.push([row.ShdetNo, row.CustNo, row.sDtlNo, row.sNo]);
+		}
+	}
+
+	function pickRowtoForm(gridId, fmId, dlgId, postUrl) {
+		var gsr = $("#DataGrid_s").jqGrid("getGridParam", "selarrrow");
+		if (gsr.length <= 0) {
+			$.messager.alert("警告", "未選擇資料!");
+		} else {
+			Lib.Loading(true);
+			for (var i = 0; i < gsr.length; i++) {
+				var row = $('#DataGrid_s').jqGrid('getRowData', gsr[i]);
+				list.push([row.ShdetNo, row.CustNo, row.sDtlNo, row.sNo, row.Remark3]);
+			}
+			$('#' + fmId).form('submit', {
+				url: postUrl,
+				onSubmit: function (param) {
+					param.multiList = list.join('|');
+					return $(this).form('validate');
+				},
+
+				success: function (result) {
+					Lib.Loading(false);
+					var r = eval('(' + result + ')');
+					if (r.ok >= 0) {
+						if (r.ok > 0) {
+							$.messager.alert('成功', '存檔成功!');
+						}
+						else {
+							$.messager.alert('警告', r.message, 'warning');
+						}
+						$('#win').dialog('close');
+						$('#' + dlgId).dialog('close');// close the dialog
+						$('#' + gridId).trigger('reloadGrid');
+						if (gridId === "grid") {
+							$('#sub' + gridId).trigger('reloadGrid');
+						}
+					}
+					else {
+						$.messager.alert('錯誤', r.message, 'error');
+					}
+				}
+			});
+		}
+	}
+</script>
+<script>
+	$(function () {
+		$('#gs_DataGrid_s_HubName').val($("#HubName").val());
+		$('#gs_DataGrid_s_StatNo').val($("#StatNo").val());
+		// $("#refresh_DataGrid_s").click();
+		//$("#DataGrid_s")[0].triggerToolbar();
+	});
+</script>

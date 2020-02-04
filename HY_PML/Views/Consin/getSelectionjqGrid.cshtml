@@ -1,0 +1,130 @@
+﻿@{
+	Layout = "~/Views/Shared/_SelectionjqGrid.cshtml";
+}
+<script>
+	var url = '/Consin/';
+	var gridTitle = '收件人資料';
+	var sortName = 'Consin';
+	var model = [
+		{
+			name: "ID", label: "ID", key: true, hiedden: true,
+		},
+		{
+			name: "Tel", label: "電話", search: true,
+		},
+		{
+			name: "Enconsin1", label: "英文名稱1", search: true,
+		},
+		{
+			name: "Enconsin2", label: "英文名稱2", search: true,
+		},
+		{
+			name: "Consinee", label: "收件人", search: true,
+		},
+		{
+			name: "ConsinComp", label: "收件公司", search: true,
+		},
+		{
+			name: "Enaddr1", label: "英文地址1", search: true,
+		},
+		{
+			name: "Enaddr2", label: "英文地址2", search: true,
+		},
+		{
+			name: "Cnconsin", label: "中文名稱", search: true,
+		},
+		{
+			name: "Cnaddr", label: "中文地址", search: true,
+		},
+		{
+			name: "UnifyNo", label: "簡稱統編", search: true,
+		},
+		{
+			name: "State", label: "省/州", search: true,
+		},
+		{
+			name: "Country", label: "國家", search: true,
+		},
+		{
+			name: "Zip", label: "郵遞區號", search: true,
+		},
+		{
+			name: "City", label: "城市", search: true,
+		},
+	];
+</script>
+
+<script>
+	$("#DataGrid_s").jqGrid({
+		caption: gridTitle,
+		url: url + 'GetGridJSON',
+
+		datatype: "local",
+		colModel: model,
+		sortname: sortName,
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+		height: 320,
+
+		pager: "#pager_s",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		ondblClickRow: function (rowid) {
+			pickRowtoForm(fmId, inputFields, inputValues, rowid);
+			if (typeof AfterPick === "function") {
+				AfterPick(url);
+			}
+		},
+	}).jqGrid("navGrid", "#pager_s",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		},
+		{/*edit*/
+
+		},
+		{/*add*/
+
+		},
+		{/*del*/
+
+		},
+		{/*search*/
+		},
+		{/*view*/
+		}).filterToolbar({
+			searchOnEnter: true
+		});
+	$('#DataGrid_s').setGridParam({ datatype: 'json', url: url + 'GetGridJSON', });
+	$('#DataGrid_s')[0].triggerToolbar();
+</script>
+
+<script>
+	$(function () {
+		$('#toolbar_s').append('<input type="radio" name="custType" value="true">正式客戶</input> &nbsp');
+		$('#toolbar_s').append('<input type="radio" name="custType" value="false">不收款客戶</input> &nbsp');
+		$('#toolbar_s').append('<input type="radio" name="custType" value="both">不分</input>');
+
+		var $radios = $('input:radio[name=custType]');
+		if ($radios.is(':checked') === false) {
+			$radios.filter('[value=true]').prop('checked', true);
+		}
+
+		$("input[type=radio][name='custType']").on('change', function () {
+			var value = $("input[type=radio][name='custType']:checked").val();
+			$("#gs_DataGrid_s_IsFormal").val(value);
+			$('#gs_DataGrid_s_IsFormal').trigger("change");
+			$("#DataGrid_s")[0].triggerToolbar();
+		});
+	});
+</script>

@@ -1,0 +1,78 @@
+﻿<table>
+	<tr style="display:none">
+		<td><label>單號:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="CRNo" id="CRNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>客戶:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="CustNo" id="CustNo" class="easyui-textbox" style="width:100px" data-options="readonly:'true'">
+				<input name="CustName" id="CustName" class="easyui-textbox" style="width:200px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CustNo,CustName','CustNo,CustCHName','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+		<td><label>提單號碼:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:100px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>應收金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Total" id="Total" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>折讓金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="discount" id="discount" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>折讓原因:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Reason" id="Reason" class="easyui-textbox" data-options="multiline:true" style="height:50px;width:280px">
+			</div>
+		</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

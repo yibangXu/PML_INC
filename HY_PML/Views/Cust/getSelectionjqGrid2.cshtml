@@ -1,0 +1,178 @@
+﻿@{
+	Layout = "~/Views/Shared/_SelectionjqGrid2.cshtml";
+}
+<script>
+	var url = '/Cust//GetGridJSON2' + ($('#SendCustNo').val() != '' ? '?CustNo=' + $('#SendCustNo').val() : '');
+	var gridTitle = '客戶資料';
+	var sortName = 'CustNo';
+	var model = [
+		{
+			name: "Index", label: "Index", key: true, hidden: true,
+		},
+		{
+			name: "sNo", label: "序號", hidden: true,
+		},
+		{
+			name: "IsFormal", label: "正式客戶", search: true, editable: true,
+			formoptions: { rowpos: 10, colpos: 2 },
+			edittype: "select", formatter: "select",
+			editoptions: {
+				defaultValue: true,
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "CustNo", label: "客戶代號", search: true,
+		},
+		{
+			name: "CustCHName", label: "中文全稱", search: true,
+		},
+		{
+			name: "CustCName", label: "中文簡稱", search: false, hidden: true,
+		},
+		{
+			name: "CustEName", label: "英文簡稱", search: false, hidden: true,
+		},
+		{
+			name: "CustLevel", label: "客戶等級", search: false, hidden: true,
+		},
+		{
+			name: "Phone", label: "電話", search: true,
+		},
+		{
+			name: "FaxNo", label: "傳真", search: false,
+		},
+		{
+			name: "CarryName", label: "取件名稱", search: true,
+		},
+		{
+			name: "InvNo", label: "統一編號", search: true,
+		},
+		{
+			name: "Code5", label: "郵政5碼", search: true,
+		},
+		{
+			name: "Code7", label: "郵政7碼", search: true, hidden: true,
+		},
+		{
+			name: "CustAddr", label: "完整地址", search: true, hidden: true,
+		},
+		{
+			name: "CustAddrFull", label: "完整地址", search: true,
+		},
+		{
+			name: "CustENAddr1", label: "英文地址1", search: true,
+		},
+		{
+			name: "CustENAddr2", label: "英文地址2", search: true,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "PostDist", label: "郵政專號", search: false,
+		},
+		{
+			name: "City", label: "城市", search: true,
+		},
+		{
+			name: "State", label: "省/州", search: true,
+		},
+		{
+			name: "Country", label: "國家", search: true,
+		},
+		{
+			name: "ESendBy", label: "寄件人", search: false, hidden: true,
+		},
+		{
+			name: "EInvNo", label: "統一編號", search: true, hidden: true,
+		},
+		{
+			name: "EPostDist", label: "郵政專號", search: false, hidden: true,
+		},
+		{
+			name: "ECity", label: "城市", search: true, hidden: true,
+		},
+		{
+			name: "EState", label: "省/州", search: true, hidden: true,
+		},
+		{
+			name: "ECountry", label: "國家", search: true, hidden: true,
+		},
+		{
+			name: "CtcAcc", label: "會計聯絡人", search: true,
+		},
+		{
+			name: "CtcSale", label: "業務部聯絡人", search: true,
+		},
+		{
+			name: "Account", label: "業務代表", search: true,
+		},
+		{
+			name: "RedyDayWeekly", label: "取件週期", search: true,
+		},
+		{
+			name: "RedyTime", label: "取件時間", search: true,
+			editable: true,
+			formoptions: { rowpos: 7, colpos: 1 },
+			editoptions: {
+				dataInit: function (elm) {
+					$(elm).timepicker({
+						timeFormat: "HH:mm"
+					});
+				},
+			},
+			formatoptions: { newformat: "H:m", }
+		},
+
+		{
+			name: "InvTitle", label: "發票抬頭", search: true,
+		},
+		{
+			name: "InvAddr", label: "發票地址", search: true,
+		},
+		{
+			name: "Remark", label: "備註", search: true,
+
+		},
+		{
+			name: 'IsServer', label: '是否啟用', search: false,
+			editable: true,
+			formatter: "select", edittype: "select",
+			formoptions: { rowpos: 9, colpos: 2 },
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true },
+		},
+		{ name: 'Add_1', label: 'add1', hidden: true, },
+		{ name: 'Add_2', label: 'add2', hidden: true, },
+		{ name: 'Add_3', label: 'add3', hidden: true, },
+		{ name: 'Add_4', label: 'add4', hidden: true, },
+		{ name: 'Add_5', label: 'add5', hidden: true, },
+		{ name: 'Add_6', label: 'add6', hidden: true, },
+		{
+			name: "Code5_C", label: "郵政5碼", search: true, hidden: true,
+		},
+		{
+			name: "Code7_C", label: "郵政7碼", search: true, hidden: true,
+		},
+		{
+			name: "CustAddr_C", label: "取件地址", search: true, hidden: true,
+		},
+		{
+			name: "CustAddrFull_C", label: "取件地址", search: true, hidden: true,
+		},
+		{ name: 'Add_1_C', label: 'add1_C', hidden: true, },
+		{ name: 'Add_2_C', label: 'add2_C', hidden: true, },
+		{ name: 'Add_3_C', label: 'add3_C', hidden: true, },
+		{ name: 'Add_4_C', label: 'add4_C', hidden: true, },
+		{ name: 'Add_5_C', label: 'add5_C', hidden: true, },
+		{ name: 'Add_6_C', label: 'add6_C', hidden: true, },
+	];
+</script>
+

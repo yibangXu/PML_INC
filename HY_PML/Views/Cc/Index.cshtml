@@ -1,0 +1,67 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Cc/';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "CcNo", label: "付款方式代碼", search: true,
+			readonly: "edit", editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 10 },
+		},
+		{
+			name: "CcName", label: "付款方式名稱", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 20, },
+		},
+		{
+			name: "IsServer", label: "是否啟用",
+			search: true, editable: true,
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			formoptions: { label: "*是否啟用" },
+			stype: "select", searchoptions: { value: { "": "", true: "是", false: "否" } },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "付款方式",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "CcNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

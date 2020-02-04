@@ -1,0 +1,588 @@
+﻿<table>
+	<tr>
+		<td><label>件數:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="ArrivalPcs" id="ArrivalPcs" class="easyui-numberspinner" style="width:90px">
+			</div>
+		</td>
+		<td><label>提單號碼:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:130px" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="display:none">
+		<td><label>上一站:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LastStatNo" id="LastStatNo" class="easyui-textbox" style="width:90px" data-options="readonly:'true'">
+				<input name="LastStatName" id="LastStatName" class="easyui-textbox" style="width:130px" data-options="readonly:'true'">
+				@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="ShowWinForPickUpjqGrid('fm','LastStatNo,LastStatName','StatNo,StatName','@Url.Action("getSelectionGrid", "Stat")');"></a>*@
+			</div>
+		</td>
+	</tr>
+	<tr style="display:none">
+		<td>
+			<div class="fitem">
+				<input name="isAdd" id="isAdd" class="easyui-textbox" style="width:90px">
+			</div>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ArrivalTime" id="ArrivalTime" class="easyui-datetimebox" style="width:90px">
+			</div>
+		</td>
+	</tr>
+</table>
+<div style="padding-top:10px;display:none">
+	<table>
+		<tr>
+			<td>
+				<div class="fitem">
+					<a id="dtlGridAdd" class="easyui-linkbutton" iconCls="icon-add" style="float:left" onclick="AddFormNewData()">增加此筆</a>
+				</div>
+			</td>
+			<td><label id="IsCheckLabel">檢核:</label></td>
+			<td>
+				<input name="IsCheck" id="IsCheck" class="easyui-checkbox" type="checkbox" onclick="SetGridCheck()">
+			</td>
+		</tr>
+	</table>
+</div>
+<div class="pull-left">
+	<table id="dtlgrid"></table>
+</div>
+
+<script>
+	var dtlgrid = $("#dtlgrid");
+	var dtlapiURL = '/TransportationA/';
+	var dtlModel = [
+		{
+			name: 'Action', label: 'Action', width: 60, search: false, title: false,
+		},
+		{
+			name: "TransportationNo", label: "運務單號", hidden: true, key: true,
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: true, width: 100,
+		},
+		{
+			name: "ArrivalTime", label: "掃描時間", search: false, width: 130,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+		{
+			name: "LastStatNo", label: "上一站代號", search: false, width: 70,
+		},
+		{
+			name: "LastStatName", label: "上一站名稱", search: false, width: 100,
+		},
+		{
+			name: "ArrivalPcs", label: "到件件數", search: false, width: 100,
+		},
+		{
+			name: "LadingPcs", label: "明細件數", search: false, width: 100,
+		},
+		{
+			name: "LadingWeight", label: "明細重量", search: false, width: 100,
+		},
+		{
+			name: "ReviewWeight", label: "複核重量", search: false, width: 100,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false, width: 100,
+		},
+		{
+			name: "AgentPay", label: "代收款", search: false, width: 100,
+		},
+		{
+			name: "CreateBy", label: "操作員", search: false, hidden: true,
+		},
+		{
+			name: "IsCheck", label: "檢核", search: false, hidden: true,
+		},
+		{
+			name: "isAdd", label: "是否新增", search: false, hidden: true,
+		},
+	];
+	var lastSel;
+	dtlgrid.jqGrid({
+		url: dtlapiURL + "GetGridJSON?LadingNo=★",
+		datatype: "local",
+		datatype: "json",
+		colModel: dtlModel,
+		sortname: "ReceiveTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		width: '650px',
+		height: '315px',
+
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: true,
+		rowNum: 10000,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+		gridComplete: function () {
+			var ids = jQuery("#dtlgrid").jqGrid('getDataIDs');
+			for (var i = 0; i < ids.length; i++) {
+				var IdKey = ids[i];
+				d = "<input type='button' class='btn btn-danger' value='刪除' onclick=\"jQuery('#dtlgrid').delRowData('" + IdKey + "');\"  />";
+				jQuery("#dtlgrid").jqGrid('setRowData', IdKey, { Action: d });
+			}
+		},
+
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function getTodayTime(date) {
+		var month = parseInt(date.getMonth()) + 1;
+		var hours = date.getHours();
+		var minutes = date.getMinutes();
+		var seconds = date.getSeconds();
+		hours = hours < 10 ? '0' + hours : hours;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		seconds = seconds < 10 ? '0' + seconds : seconds;
+		var strTime = hours + ':' + minutes + ':' + seconds;
+		return date.getFullYear() + "-" + month + "-" + date.getDate() + " " + strTime;
+	}
+
+	//將填寫之資料，寫入暫存GRID
+	function AddFormNewData() {
+		if ($('#LadingNo').val() == "")
+			$.messager.alert('錯誤', '請輸入【提單號碼】。');
+		else if ($('#ArrivalPcs').val() == "")
+			$.messager.alert('錯誤', '請輸入【件數】。');
+		else {
+			var isNewData = true;
+			var ids = $("#dtlgrid").jqGrid('getDataIDs');
+			//子表有資料時
+			for (var i = 0; i < ids.length; i++) {
+				var IdKey = ids[i];
+				var row = $("#dtlgrid").jqGrid('getRowData', IdKey);
+				if (row.LadingNo === $("#LadingNo").val()) {
+					var Pcs = parseInt(row.ArrivalPcs) + parseInt($("#ArrivalPcs").val());
+					$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalPcs", Pcs);
+					$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalTime", getTodayTime(new Date()));
+					$('#LadingNo').textbox('setValue', '');
+					$('#ArrivalPcs').numberspinner('setValue', 1);
+					$('#ReviewWeight').numberbox('setValue', '');
+					$('#LadingPcs').textbox('setValue', 0);
+					isNewData = false;
+					break;
+				}
+			}
+			//子表無資料時
+			if (isNewData) {
+				$.ajax({
+					type: "GET",
+					url: '/TransportationA/' + "GetTransportationAData",
+					data: { "LadingNo": $('#LadingNo').val() },
+					success: function (result) {
+						if (result.ok === 1) {
+							var AData = result.rows;
+							if (AData.LadingNo_Type === $('#LadingNo').val()) {
+								$('#LastStatNo').textbox('setValue', AData.LastStatNo);
+								$('#LastStatName').textbox('setValue', AData.LastStatName);
+								SetGridData();
+							}
+						} else {
+							$.ajax({
+								type: "GET",
+								url: '/TransportationD/' + "GetTransportationDData2",
+								data: { "LadingNo": $('#LadingNo').val() },
+								success: function (result) {
+									if (result.ok === 1) {
+										var data = result.rows;
+										//出貨有此筆提單帶入站點
+										$('#LastStatNo').textbox('setValue', data.DStatNo);
+										$('#LastStatName').textbox('setValue', data.DStatName);
+										SetGridData();
+									} else {
+										$.messager.confirm('請確認', '出貨無此提單號號，是否新增此筆到件資料?', callback);
+										function callback(btn) {
+											if (btn) {
+												$('#LastStatNo').textbox('setValue', '');
+												$('#LastStatName').textbox('setValue', '');
+												SetGridData();
+											} else {
+												$('#LadingNo').textbox('setValue', '');
+												$('#LastStatNo').textbox('setValue', '');
+												$('#LastStatName').textbox('setValue', '');
+												$('#ArrivalPcs').numberspinner('setValue', 1);
+												$('#ReviewWeight').numberbox('setValue', '');
+												$('#LadingPcs').textbox('setValue', 0);
+											}
+										}
+									}
+								}
+							});
+						}
+
+					},
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+				});
+			}
+		}
+	}
+
+	//帶入提單相關資料
+	function SetGridData() {
+		$.ajax({
+			type: "GET",
+			url: '/Bill_Lading/' + "GetLadingData",
+			data: { "param": $('#LadingNo').val() },
+			success: function (result) {
+				var ladingData = result.rows;
+				var parameters = {
+					LadingNo: $('#LadingNo').val(),
+					ArrivalTime: getTodayTime(new Date()),
+					LastStatNo: $('#LastStatNo').val(),
+					LastStatName: $('#LastStatName').val(),
+					ArrivalPcs: $('#ArrivalPcs').val(),
+					LadingPcs: ladingData == null ? 0 : ladingData.PiecesNo == null ? 0 : ladingData.PiecesNo,
+					LadingWeight: ladingData == null ? 0 : ladingData.Weight == null ? 0 : ladingData.Weight,
+					ReviewWeight: 0,
+					ToPayment: ladingData == null ? 0 : ladingData.ToPayment == null ? 0 : ladingData.ToPayment,
+					AgentPay: ladingData == null ? 0 : ladingData.AgentPay == null ? 0 : ladingData.AgentPay,
+					IsCheck: $('#IsCheck').is(":checked"),
+					isAdd: $('#isAdd').val(),
+				};
+				$("#dtlgrid").jqGrid('addRowData', parameters.sNo, parameters, "last");
+				$('#LadingNo').textbox('setValue', '');
+				$('#LastStatNo').textbox('setValue', '');
+				$('#LastStatName').textbox('setValue', '');
+				$('#ArrivalPcs').numberspinner('setValue', 1);
+				
+			},
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+		});
+	}
+
+	$(document).ready(function () {
+		//若檢核勾選，填寫之資料及Gird資料，帶回後端檢核
+		$('#ArrivalPcs').numberspinner({
+			onChange: function (value) {
+				if ($('#IsCheck').is(":checked") && $('#LadingNo').val() != "") {
+					var list = [];
+					var data = $("#dtlgrid").jqGrid("getRowData");
+					if ($('#isAdd').val() == 'true') {
+						if (data.length > 0) {
+							for (var i = 0; i < data.length; i++) {
+								if (data[i].LadingNo.includes("<input") != true) {
+									list.push({
+										"LadingNo": data[i].LadingNo,
+										"ArrivalTime": data[i].ArrivalTime,
+										"LastStatNo": data[i].LastStatNo,
+										"LastStatName": data[i].LastStatName,
+										"ArrivalPcs": data[i].ArrivalPcs,
+										"LadingPcs": data[i].LadingPcs,
+										"LadingWeight": data[i].LadingWeight,
+										"ReviewWeight": data[i].ReviewWeight,
+										"ToPayment": data[i].ToPayment,
+										"AgentPay": data[i].AgentPay,
+										"IsCheck": data[i].IsCheck,
+										"isAdd": data[i].isAdd,
+									});
+								} else {
+									$.messager.alert('警告', '第' + (i + 1) + '筆資料仍於編輯狀態中！', 'warning');
+									return false;
+								}
+							}
+
+						}
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"ArrivalTime": getTodayTime(new Date()),
+							"LastStatNo": $('#LastStatNo').val(),
+							"LastStatName": $('#LastStatName').val(),
+							"ArrivalPcs": $('#ArrivalPcs').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+					else {
+						var list = [];
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"ArrivalTime": getTodayTime(new Date()),
+							"LastStatNo": $('#LastStatNo').val(),
+							"LastStatName": $('#LastStatName').val(),
+							"ArrivalPcs": $('#ArrivalPcs').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+				}
+			}
+		});
+		$('#LadingNo').textbox({
+			onChange: function (value) {
+				if ($('#IsCheck').is(":checked") && $('#LadingNo').val() != "" && $('#DeliveryPcs').val() != "") {
+					var list = [];
+					var data = $("#dtlgrid").jqGrid("getRowData");
+					if ($('#isAdd').val() == 'true') {
+						if (data.length > 0) {
+							for (var i = 0; i < data.length; i++) {
+								if (data[i].LadingNo.includes("<input") != true) {
+									list.push({
+										"LadingNo": data[i].LadingNo,
+										"ArrivalTime": data[i].ArrivalTime,
+										"LastStatNo": data[i].LastStatNo,
+										"LastStatName": data[i].LastStatName,
+										"ArrivalPcs": data[i].ArrivalPcs,
+										"LadingPcs": data[i].LadingPcs,
+										"LadingWeight": data[i].LadingWeight,
+										"ReviewWeight": data[i].ReviewWeight,
+										"ToPayment": data[i].ToPayment,
+										"AgentPay": data[i].AgentPay,
+										"IsCheck": data[i].IsCheck,
+										"isAdd": data[i].isAdd,
+									});
+								} else {
+									$.messager.alert('警告', '第' + (i + 1) + '筆資料仍於編輯狀態中！', 'warning');
+									return false;
+								}
+							}
+
+						}
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"ArrivalTime": getTodayTime(new Date()),
+							"LastStatNo": $('#LastStatNo').val(),
+							"LastStatName": $('#LastStatName').val(),
+							"ArrivalPcs": $('#ArrivalPcs').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+					else {
+						var list = [];
+						list.push({
+							"LadingNo": $('#LadingNo').val(),
+							"ArrivalTime": $('#ArrivalTime').val(),
+							"LastStatNo": $('#LastStatNo').val(),
+							"LastStatName": $('#LastStatName').val(),
+							"ArrivalPcs": $('#ArrivalPcs').val(),
+							"IsCheck": $('#IsCheck').is(":checked"),
+							"isAdd": $('#isAdd').val(),
+						});
+						CheckData(JSON.stringify(list));
+					}
+				}
+			}
+		});
+	})
+
+	//檢核勾選異動，更新GRID值
+	function SetGridCheck() {
+		var ids = jQuery("#dtlgrid").jqGrid('getDataIDs');
+		for (var i = 0; i < ids.length; i++) {
+			$("#dtlgrid").jqGrid("setCell", ids[i], "IsCheck", $('#IsCheck').is(":checked"));
+		}
+	}
+
+	//Enter觸發新增
+	$('#LadingNo').textbox({
+		inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+			keypress: function (e) {
+				if (e.keyCode == 13) {
+					AddFormNewData();
+				}
+			}
+		}),
+		rules: $.extend($.fn.validatebox.defaults.rules, {
+			maxLength: {
+				validator: function (value, param) {
+					return param[0] >= value.length;
+				},
+				message: '最大長度為{0}位.'
+			}
+		}),
+	});
+
+
+
+	//function AddFormNewData() {
+	//	if ($('#LadingNo').val() == "")
+	//		$.messager.alert('錯誤', '請輸入【提單號碼】。');
+	//	else if ($('#ArrivalPcs').val() == "")
+	//		$.messager.alert('錯誤', '請輸入【件數】。');
+	//	else {
+	//		$.ajax({
+	//			type: "GET",
+	//			url: '/TransportationD/' + "GetTransportationDData",
+	//			data: { "LadingNo": $('#LadingNo').val() },
+	//			success: function (result) {
+	//				if (result.ok === 1) {
+	//					var data = result.rows;
+	//					//出貨有此筆提單帶入站點
+	//					$('#LastStatNo').textbox('setValue', data.NextStatNo);
+	//					$('#LastStatName').textbox('setValue', data.NextStatName);
+	//					//子表有資料時之檢核
+	//					var isNewData = true;
+	//					var ids = $("#dtlgrid").jqGrid('getDataIDs');
+	//					for (var i = 0; i < ids.length; i++) {
+	//						var IdKey = ids[i];
+	//						var row = $("#dtlgrid").jqGrid('getRowData', IdKey);
+	//						if (row.LadingNo === $("#LadingNo").val() && row.LastStatName === $("#LastStatName").val()) {
+	//							var Pcs = parseInt(row.ArrivalPcs) + parseInt($("#ArrivalPcs").val());
+	//							$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalPcs", Pcs);
+	//							$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalTime", getTodayTime(new Date()));
+	//							$('#LadingNo').textbox('setValue', '');
+	//							$('#LastStatNo').textbox('setValue', '');
+	//							$('#LastStatName').textbox('setValue', '');
+	//							$('#ArrivalPcs').numberspinner('setValue', 1);
+	//							$('#ReviewWeight').numberbox('setValue', '');
+	//							$('#LadingPcs').textbox('setValue', 0);
+	//							isNewData = false;
+	//							break;
+	//						}
+	//						if (row.LadingNo === $("#LadingNo").val() && row.NextStatName !== $("#NextStatName").val()) {
+	//							$.messager.alert('錯誤', '已有此提單號碼，但站點不一致。');
+	//							$('#LadingNo').textbox('setValue', '');
+	//							$('#DeliveryPcs').numberspinner('setValue', 1);
+	//							isNewData = false;
+	//							break;
+	//						}
+	//					}
+	//					//子表無資料時之檢核
+	//					if (isNewData) {
+	//						$.ajax({
+	//							type: "GET",
+	//							url: '/TransportationA/' + "GetTransportationAData",
+	//							data: { "LadingNo": $('#LadingNo').val() },
+	//							success: function (result) {
+	//								if (result.ok === 1) {
+	//									var RData = result.rows;
+	//									if (RData.LadingNo === $('#LadingNo').val() && RData.NextStatName === $('#LastStatName').val()) {
+	//										SetGridData();
+	//									} else {
+	//										$.messager.alert('錯誤', '已有此提單號碼，但站點不一致。');
+	//										$('#LadingNo').textbox('setValue', '');
+	//										$('#LastStatNo').textbox('setValue', '');
+	//										$('#LastStatName').textbox('setValue', '');
+	//										$('#ArrivalPcs').numberspinner('setValue', 1);
+	//										$('#ReviewWeight').numberbox('setValue', '');
+	//									}
+	//								} else {
+	//									SetGridData();
+	//								}
+
+	//							},
+	//							contentType: "application/json; charset=utf-8",
+	//							dataType: "json",
+	//						});
+	//					}
+	//				} else {
+	//					$.messager.confirm('請確認', '出貨無此筆單號，是否新增此筆到件資料?', callback);
+	//					function callback(btn) {
+	//						if (btn) {
+	//							//子表有資料時之檢核
+	//							var isNewData = true;
+	//							var ids = $("#dtlgrid").jqGrid('getDataIDs');
+	//							for (var i = 0; i < ids.length; i++) {
+	//								var IdKey = ids[i];
+	//								var row = $("#dtlgrid").jqGrid('getRowData', IdKey);
+	//								if (row.LadingNo === $("#LadingNo").val() && row.LastStatName === $("#LastStatName").val()) {
+	//									var Pcs = parseInt(row.ArrivalPcs) + parseInt($("#ArrivalPcs").val());
+	//									$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalPcs", Pcs);
+	//									$("#dtlgrid").jqGrid("setCell", IdKey, "ArrivalTime", getTodayTime(new Date()));
+	//									$('#LadingNo').textbox('setValue', '');
+	//									$('#LastStatNo').textbox('setValue', '');
+	//									$('#LastStatName').textbox('setValue', '');
+	//									$('#ArrivalPcs').numberspinner('setValue', 1);
+	//									$('#ReviewWeight').numberbox('setValue', '');
+	//									$('#LadingPcs').textbox('setValue', 0);
+	//									isNewData = false;
+	//									break;
+	//								}
+	//								if (row.LadingNo === $("#LadingNo").val() && row.NextStatName !== $("#NextStatName").val()) {
+	//									$.messager.alert('錯誤', '已有此提單號碼，但站點不一致。');
+	//									$('#LadingNo').textbox('setValue', '');
+	//									$('#DeliveryPcs').numberspinner('setValue', 1);
+	//									isNewData = false;
+	//									break;
+	//								}
+	//							}
+	//							//子表無資料時之檢核
+	//							if (isNewData) {
+	//								$.ajax({
+	//									type: "GET",
+	//									url: '/TransportationA/' + "GetTransportationAData",
+	//									data: { "LadingNo": $('#LadingNo').val() },
+	//									success: function (result) {
+	//										if (result.ok === 1) {
+	//											var RData = result.rows;
+	//											if (RData.LadingNo === $('#LadingNo').val() && RData.NextStatName === $('#LastStatName').val()) {
+	//												SetGridData();
+	//											} else {
+	//												$.messager.alert('錯誤', '已有此提單號碼，但站點不一致。');
+	//												$('#LadingNo').textbox('setValue', '');
+	//												$('#LastStatNo').textbox('setValue', '');
+	//												$('#LastStatName').textbox('setValue', '');
+	//												$('#ArrivalPcs').numberspinner('setValue', 1);
+	//												$('#ReviewWeight').numberbox('setValue', '');
+	//											}
+	//										} else {
+	//											SetGridData();
+	//										}
+
+	//									},
+	//									contentType: "application/json; charset=utf-8",
+	//									dataType: "json",
+	//								});
+	//							}
+	//						}
+	//						else {
+	//							$('#LadingNo').textbox('setValue', '');
+	//							$('#LastStatNo').textbox('setValue', '');
+	//							$('#LastStatName').textbox('setValue', '');
+	//							$('#ArrivalPcs').numberspinner('setValue', 1);
+	//							$('#ReviewWeight').numberbox('setValue', '');
+	//							$('#LadingPcs').textbox('setValue', 0);
+	//						}
+	//					}
+	//					console.log(callback);
+	//				}
+
+	//			},
+	//			contentType: "application/json; charset=utf-8",
+	//			dataType: "json",
+	//		});
+
+
+	//	}
+	//};
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,255 @@
+﻿<div>
+	@RenderBody()
+	<div id="toolbar_s" style="display:none">
+		<table width="100%">
+			<tr><td style="background-color:burlywood"><span id="showSelectContent_s">　</span></td></tr>
+			<tr>
+				<td>
+					<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick='@if (ViewBag.UsePickDetail20 == "yes"){ @Html.Raw("pickDetail20()") } else { @Html.Raw("pickDetail()");}'>挑選</a>
+					<span>@ViewBag.GridSearchPromptText</span>
+					<input id="search_target_s" style="line-height:26px;border:1px solid #ccc">
+					@RenderSection("additionalSearch", required: false)
+					<a class="easyui-linkbutton" plain="true" onclick="doSearchTarget_s()">搜尋</a>
+				</td>
+			</tr>
+		</table>
+
+	</div>
+	<table id="DataGrid_s"></table>
+
+
+</div>
+
+@*<script src="~/Content/easyui/jquery.easyui.min.js"></script>*@
+<script type="text/javascript">
+        $(function () {
+
+            @RenderSection("initJS", required: false)
+            $('#DataGrid_s').datagrid({
+                title: '@ViewBag.Title',
+                url: '@Html.Raw(Url.Action(ViewBag.GridShowGridActionName, ViewBag.ThisControllerName))@Html.Raw(ViewBag.GridParaMeter)',
+                width: 'auto',
+                height: 450,
+                rownumbers: true,
+                toolbar: "#toolbar_s",
+                @if (ViewBag.MultiCheck != "yes") {@Html.Raw("singleSelect:true,")} else {@Html.Raw("singleSelect:false,") }
+                columns: [[
+                    @Html.Raw(ViewBag.GridColumnDefinition)
+
+                ]],
+                pagination: true,
+                pagePosition: 'bottom',
+                pageSize: 40,
+				onClickRow: function (index, row) {
+                    var row = $('#DataGrid_s').datagrid('getSelected');
+                    if (row) {
+                        $('#showSelectContent_s').text(@Html.Raw(ViewBag.GridShowSelectContentJs));
+                    } else {
+                        $('#showSelectContent_s').text('　');
+					}
+                },
+                onBeforeLoad: function (param) {
+                    var pageSize = $(this).datagrid('getPager').pagination('options').pageSize;
+                    if (param.rows !== pageSize) {
+                        param.rows = pageSize;
+                        $(this).datagrid('options').pageSize = pageSize;
+                    }
+                    return param;
+				},
+				onDblClickRow: function (index, row) {
+					var multiRow = '@Html.Raw(ViewBag.MultiCheck)';
+					if (multiRow == 'yes') {
+					} else {
+						@if (ViewBag.UsePickDetail20 == "yes"){ @Html.Raw("pickDetail20()") } else { @Html.Raw("pickDetail()");}
+					}
+				}
+            });
+            var pager_s = $('#DataGrid_s').datagrid('getPager');
+            $(pager_s).pagination({
+                pageSize: 40,
+                showPageList: true,
+                pageList: [40, 80, 120],
+                beforePageText: '第',
+                afterPageText: '頁，共{pages}頁',
+                displayMsg: '顯示{from}到{to}筆資料，共{total}筆資料',
+                onSelectPage: function (pageNumber, pageSize) {
+                    $('#DataGrid_s').datagrid('gotoPage', pageNumber);
+                }
+            });
+        });
+
+
+        @if (ViewBag.UsePickDetail20 == "yes")
+        {
+            @RenderSection("PickDetail20", required: false)
+        }
+        else
+        {
+
+        }
+    function pickDetail() {
+        var multiRow = '@Html.Raw(ViewBag.MultiCheck)';
+        if (multiRow == 'yes') {
+            var checkedRows = $('#DataGrid_s').datagrid('getChecked');
+
+            $.each(checkedRows, function (index, row) {
+
+                switch ('@ViewBag.retType1')
+                {
+                    case 'hidden':
+                        $('#@ViewBag.retID1').val(row.@ViewBag.retVal1);
+                        break;
+                    case 'textbox':
+
+                        $('#@ViewBag.retID1').textbox('setValue', row.@ViewBag.retVal1);
+                        break;
+                    case 'timespinner':
+                        $('#@ViewBag.retID1').timespinner('setValue', row.@ViewBag.retVal1);
+                        break;
+                    case 'label':
+                        $('#@ViewBag.retID1').text(row.@ViewBag.retVal1);
+                        break;
+                    case 'tagbox':
+                        var values = $('#@ViewBag.retID1').tagbox('getValues');
+                        if (values)
+                        {
+                            if (!values.includes(row.@ViewBag.retVal1)) {
+                                values.push(row.@ViewBag.retVal1);
+                                $('#@ViewBag.retID1').tagbox('setValues', values);
+                                $('#@ViewBag.retID1').val(values);
+                            }
+                        }
+                        else
+                        {
+                            $('#@ViewBag.retID1').tagbox('setValue', row.@ViewBag.retVal1);
+                             $('#@ViewBag.retID1').val(row.@ViewBag.retVal1);
+                        }
+                        break;
+                    default:
+                        break;
+                };
+                switch ('@ViewBag.retType2')
+                {
+                    case 'hidden':
+                        $('#@ViewBag.retID2').val(row.@ViewBag.retVal2);
+                        break;
+                    case 'textbox':
+                        $('#@ViewBag.retID2').textbox('setValue', row.@ViewBag.retVal2);
+                        break;
+                    case 'timespinner':
+                        $('#@ViewBag.retID2').timespinner('setValue', row.@ViewBag.retVal2);
+                        break;
+                    case 'label':
+                        $('#@ViewBag.retID2').text(row.@ViewBag.retVal2);
+                        break;
+                    case 'tagbox':
+                        var values = $('#@ViewBag.retID2').tagbox('getValues');
+                        if (values)
+                        {
+                            values.push(row.@ViewBag.retVal2);
+                            $('#@ViewBag.retID2').tagbox('setValues', values);
+                        }
+                        else
+                        {
+                            $('#@ViewBag.retID2').tagbox('setValue', row.@ViewBag.retVal2);
+                        }
+                        break;
+                    default:
+                        break;
+                };
+
+                //$('#@ViewBag.retID').textbox('setValue', row.ID);
+
+            });
+            $('#win').window('close');
+        } else{
+            var row = $('#DataGrid_s').datagrid('getSelected');
+            if (row) {
+                switch ('@ViewBag.retType1')
+                {
+                    case 'hidden':
+                        $('#@ViewBag.retID1').val(row.@ViewBag.retVal1);
+                        break;
+                    case 'textbox':
+                        $('#@ViewBag.retID1').textbox('setValue', row.@ViewBag.retVal1);
+                        break;
+                    case 'timespinner':
+                        $('#@ViewBag.retID1').timespinner('setValue', row.@ViewBag.retVal1);
+                        break;
+                    case 'label':
+                        $('#@ViewBag.retID1').text(row.@ViewBag.retVal1);
+                        break;
+                    case 'tagbox':
+                        var values = $('#@ViewBag.retID1').tagbox('getValues');
+                        if (values)
+                        {
+                            values.push(row.@ViewBag.retVal1);
+                            $('#@ViewBag.retID1').tagbox('setValues', values);
+                        }
+                        else
+                        {
+                            $('#@ViewBag.retID1').tagbox('setValue', row.@ViewBag.retVal1);
+                        }
+                        break;
+                    default:
+                        break;
+                };
+                switch ('@ViewBag.retType2')
+                {
+                    case 'hidden':
+                        $('#@ViewBag.retID2').val(row.@ViewBag.retVal2);
+                        break;
+                    case 'textbox':
+                        $('#@ViewBag.retID2').textbox('setValue', row.@ViewBag.retVal2);
+                        break;
+                    case 'timespinner':
+                        $('#@ViewBag.retID2').timespinner('setValue', row.@ViewBag.retVal2);
+                        break;
+                    case 'label':
+                        $('#@ViewBag.retID2').text(row.@ViewBag.retVal2);
+                        break;
+                    case 'tagbox':
+                        var values = $('#@ViewBag.retID2').tagbox('getValues');
+                        if (values)
+                        {
+                            values.push(row.@ViewBag.retVal2);
+                            $('#@ViewBag.retID2').tagbox('setValues', values);
+                        }
+                        else
+                        {
+                            $('#@ViewBag.retID2').tagbox('setValue', row.@ViewBag.retVal2);
+                        }
+                        break;
+                    default:
+                        break;
+                };
+
+
+                //$('#@ViewBag.retID').textbox('setValue', row.ID);
+                $('#win').window('close');
+            } else {
+
+            }
+        }
+
+
+
+
+    }
+
+
+
+
+
+        function doSearchTarget_s() {
+            //alert('search1');
+            $('#DataGrid_s').datagrid('load', {
+                target: $('#search_target_s').val()
+            });
+            //alert('search2');
+        }
+
+
+
+        @RenderSection("innerJS", required: false)
+</script>

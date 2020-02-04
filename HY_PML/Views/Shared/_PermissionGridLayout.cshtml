@@ -1,0 +1,147 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<title>@ViewBag.Title</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="description" content="The description of my page" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style>
+		#gridbtn_caption {
+			opacity: 1;
+		}
+
+			#gridbtn_caption .ui-icon {
+				display: none;
+			}
+
+			#gridbtn_caption .ui-pg-button-text {
+				font-size: 16px;
+				color: black;
+			}
+
+		.warning-dialog {
+			text-align: center;
+			line-height: 90px;
+			font-size: 12px;
+		}
+	</style>
+</head>
+<body>
+	<div style="background-color:#f6f6f6">
+		@RenderBody()
+		<div class="warning-dialog"></div>
+	</div>
+	<script>
+        var grid = $("#grid");
+        var ResizeGrid = ResizeGrid || function () {
+            var w = $(window);
+            grid.jqGrid("setGridWidth", w.innerWidth() - 20);
+            grid.jqGrid("setGridHeight", w.innerHeight() - 115 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+            console.log("Default Resize Mode");
+        };
+
+        $(function () {
+            $(window).resize(
+                function () {
+                    $("body").css("padding-top", $(".navbar").height());
+                    ResizeGrid();
+                }).trigger("resize");
+            setTimeout(function () {
+                $(window).trigger("resize");
+            }, 1000);
+        });
+
+        $("#grid,#subgrid,#subgrid2").toArray().forEach(function (g) {
+            (function AddGridComplete(grid) {
+                if (typeof ($(grid).jqGrid) === "undefined")
+                    setTimeout(AddGridComplete, 150, grid);
+                else {
+                    var fn = $(grid).jqGrid("autoWidthColumns").jqGrid("getGridParam", "gridComplete");
+                    $(grid).jqGrid("setGridParam", {
+                        gridComplete: function () {
+                            var target = $(grid).parents(".ui-jqgrid").find(".ui-paging-info");
+                            //fix space at records field
+                            var recordsnum = target.text().replace(/ /g, "").replace("r", " r");
+                            target.text(recordsnum);
+                            //call original function
+                            typeof (fn) === "function" && fn();
+                        }
+                    });
+                }
+            })(g);
+        });
+
+
+
+		$(function () {
+			$('#permissionTree').jstree({
+				'core': {
+					'data': {
+						'url': '@Url.Action("getPermissionTree", "Permission")',
+						'data': function (node) {
+							return {
+								'id': node.id,
+								'text': node.text,
+								'parent': node.parent,
+								//'children': node.children,
+								'icon': node.icon,
+							};
+						},
+						'themes': {
+							'theme': "default",
+							'dots': false,
+							'icons': true
+						},
+						'types': {
+							'default': {
+								'icon': 'jstree-folder'
+							},
+							'file': {
+								'icon': 'jstree-file'
+							}
+						}
+					}
+				},
+				'checkbox': {
+					"keep_selected_style": false,
+					tie_selection: false
+				},
+				'plugins': ['checkbox'],
+			}).on('loaded.jstree', function (data) {
+				//$('#permissionTree').jstree('open_all');
+				$("#permissionTree").jstree("open_node", [128, 153, 188, 196, 202, 127, 125])
+			}).on("check_node.jstree uncheck_node.jstree", function (e, data) {
+				if (data.node.state.checked == false) {
+					var uncheckNode = {
+						'id': data.node.parent,
+						'icon': data.node.icon
+					};
+					if (data.node.text.indexOf('View') != -1) {
+						$("#permissionTree").jstree().check_node(uncheckNode);
+						$("#permissionTree").jstree().uncheck_node(uncheckNode);
+					}
+				} else {
+					if (data.node.text.indexOf('View') == -1) {
+						var parentNode = $('#permissionTree').jstree().get_node(data.node.parent);
+						if (parentNode.children.length > 0) {
+							parentNode.children.forEach(function (element) {
+								var childrenNode = $('#permissionTree').jstree().get_node(element);
+								if (childrenNode.text.indexOf('View') != -1)
+									$("#permissionTree").jstree().check_node(element);
+							});
+						}
+
+					}
+				}
+			})
+		});
+
+	</script>
+</body>
+</html>

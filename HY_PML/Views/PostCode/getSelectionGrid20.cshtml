@@ -1,0 +1,675 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionGrid.cshtml";
+}
+
+
+
+@section additionalSearch{
+<input id="CityName" class="easyui-combobox" name="CityName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctCityName", ViewBag.ThisControllerName))'">
+<input id="AreaName" class="easyui-combobox" name="AreaName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctAreaName", ViewBag.ThisControllerName))'">
+<input id="RoadName" class="easyui-combobox" name="RoadName" style="width:auto"
+       data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetRoadName", ViewBag.ThisControllerName))'">
+
+
+}
+
+@section initJS{
+
+$('#CityName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        //alert ('on click event trigger....');
+        $('#AreaName').combobox('clear');
+        $('#RoadName').combobox('clear');
+        //alert ('two combo clear....');
+        var newValue = record.id;
+        //alert ('new value = '+ newValue);
+        $('#AreaName').combobox('reload', '@Html.Raw(Url.Action("GetDistinctAreaName", ViewBag.ThisControllerName))'+'?cityName='+encodeURIComponent(newValue));
+        //alert ('reload Area...');
+        $('#DataGrid_s').datagrid('load', {
+            roadName: '',
+            cityName: newValue,
+            areaName: ''
+        });
+        
+    }
+});
+$('#AreaName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert ('on click event trigger....');
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        $('#RoadName').combobox('clear');
+        var newValue = record.id;
+        $('#RoadName').combobox('reload', '@Html.Raw(Url.Action("GetRoadName", ViewBag.ThisControllerName))' + '?areaName=' + encodeURIComponent(newValue) + '&cityName=' + encodeURIComponent($('#CityName').combobox('getValue')));
+
+        $('#DataGrid_s').datagrid('load', {
+            roadName: '',
+            cityName: $('#CityName').combobox('getValue'),
+            areaName: newValue
+        });
+    }
+});
+$('#RoadName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        var newValue = record.id;
+        if (newValue == '' || newValue == null)
+            return false;
+
+        $('#DataGrid_s').datagrid('load', {
+            roadName: newValue,
+            cityName: $('#CityName').combobox('getValue'),
+            areaName: $('#AreaName').combobox('getValue')
+        });
+    }
+});
+
+
+
+}
+
+
+
+@section PickDetail20
+{
+    function pickDetail20() {
+            var row = $('#DataGrid_s').datagrid('getSelected');
+                if (row) {
+
+                    switch ('@ViewBag.retType1')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID1').val(row.@ViewBag.retVal1);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID1').textbox('setValue', row.@ViewBag.retVal1);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID1').timespinner('setValue', row.@ViewBag.retVal1);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID1').text(row.@ViewBag.retVal1);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID1').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal1);
+                                $('#@ViewBag.retID1').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID1').tagbox('setValue', row.@ViewBag.retVal1);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType2')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID2').val(row.@ViewBag.retVal2);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID2').textbox('setValue', row.@ViewBag.retVal2);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID2').timespinner('setValue', row.@ViewBag.retVal2);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID2').text(row.@ViewBag.retVal2);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID2').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal2);
+                                $('#@ViewBag.retID2').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID2').tagbox('setValue', row.@ViewBag.retVal2);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType3')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID3').val(row.@ViewBag.retVal3);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID3').textbox('setValue', row.@ViewBag.retVal3);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID3').timespinner('setValue', row.@ViewBag.retVal3);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID3').text(row.@ViewBag.retVal3);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID3').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal3);
+                                $('#@ViewBag.retID3').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID3').tagbox('setValue', row.@ViewBag.retVal3);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType4')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID4').val(row.@ViewBag.retVal4);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID4').textbox('setValue', row.@ViewBag.retVal4);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID4').timespinner('setValue', row.@ViewBag.retVal4);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID4').text(row.@ViewBag.retVal4);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID4').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal4);
+                                $('#@ViewBag.retID4').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID4').tagbox('setValue', row.@ViewBag.retVal4);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType5')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID5').val(row.@ViewBag.retVal5);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID5').textbox('setValue', row.@ViewBag.retVal5);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID5').timespinner('setValue', row.@ViewBag.retVal5);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID5').text(row.@ViewBag.retVal5);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID5').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal5);
+                                $('#@ViewBag.retID5').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID5').tagbox('setValue', row.@ViewBag.retVal5);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType6')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID6').val(row.@ViewBag.retVal6);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID6').textbox('setValue', row.@ViewBag.retVal6);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID6').timespinner('setValue', row.@ViewBag.retVal6);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID6').text(row.@ViewBag.retVal6);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID6').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal6);
+                                $('#@ViewBag.retID6').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID6').tagbox('setValue', row.@ViewBag.retVal6);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType7')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID7').val(row.@ViewBag.retVal7);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID7').textbox('setValue', row.@ViewBag.retVal7);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID7').timespinner('setValue', row.@ViewBag.retVal7);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID7').text(row.@ViewBag.retVal7);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID7').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal7);
+                                $('#@ViewBag.retID7').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID7').tagbox('setValue', row.@ViewBag.retVal7);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType8')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID8').val(row.@ViewBag.retVal8);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID8').textbox('setValue', row.@ViewBag.retVal8);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID8').timespinner('setValue', row.@ViewBag.retVal8);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID8').text(row.@ViewBag.retVal8);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID8').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal8);
+                                $('#@ViewBag.retID8').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID8').tagbox('setValue', row.@ViewBag.retVal8);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType9')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID9').val(row.@ViewBag.retVal9);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID9').textbox('setValue', row.@ViewBag.retVal9);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID9').timespinner('setValue', row.@ViewBag.retVal9);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID9').text(row.@ViewBag.retVal9);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID9').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal9);
+                                $('#@ViewBag.retID9').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID9').tagbox('setValue', row.@ViewBag.retVal9);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType10')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID10').val(row.@ViewBag.retVal10);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID10').textbox('setValue', row.@ViewBag.retVal10);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID10').timespinner('setValue', row.@ViewBag.retVal10);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID10').text(row.@ViewBag.retVal10);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID10').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal10);
+                                $('#@ViewBag.retID10').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID10').tagbox('setValue', row.@ViewBag.retVal10);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType11')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID11').val(row.@ViewBag.retVal11);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID11').textbox('setValue', row.@ViewBag.retVal11);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID11').timespinner('setValue', row.@ViewBag.retVal11);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID11').text(row.@ViewBag.retVal11);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID11').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal11);
+                                $('#@ViewBag.retID11').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID11').tagbox('setValue', row.@ViewBag.retVal11);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType12')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID12').val(row.@ViewBag.retVal12);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID12').textbox('setValue', row.@ViewBag.retVal12);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID12').timespinner('setValue', row.@ViewBag.retVal12);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID12').text(row.@ViewBag.retVal12);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID12').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal12);
+                                $('#@ViewBag.retID12').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID12').tagbox('setValue', row.@ViewBag.retVal12);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType13')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID13').val(row.@ViewBag.retVal13);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID13').textbox('setValue', row.@ViewBag.retVal13);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID13').timespinner('setValue', row.@ViewBag.retVal13);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID13').text(row.@ViewBag.retVal13);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID13').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal13);
+                                $('#@ViewBag.retID13').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID13').tagbox('setValue', row.@ViewBag.retVal13);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType14')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID14').val(row.@ViewBag.retVal14);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID14').textbox('setValue', row.@ViewBag.retVal14);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID14').timespinner('setValue', row.@ViewBag.retVal14);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID14').text(row.@ViewBag.retVal14);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID14').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal14);
+                                $('#@ViewBag.retID14').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID14').tagbox('setValue', row.@ViewBag.retVal14);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType15')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID15').val(row.@ViewBag.retVal15);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID15').textbox('setValue', row.@ViewBag.retVal15);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID15').timespinner('setValue', row.@ViewBag.retVal15);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID15').text(row.@ViewBag.retVal15);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID15').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal15);
+                                $('#@ViewBag.retID15').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID15').tagbox('setValue', row.@ViewBag.retVal15);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType16')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID16').val(row.@ViewBag.retVal16);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID16').textbox('setValue', row.@ViewBag.retVal16);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID16').timespinner('setValue', row.@ViewBag.retVal16);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID16').text(row.@ViewBag.retVal16);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID16').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal16);
+                                $('#@ViewBag.retID16').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID16').tagbox('setValue', row.@ViewBag.retVal16);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType17')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID17').val(row.@ViewBag.retVal17);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID17').textbox('setValue', row.@ViewBag.retVal17);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID17').timespinner('setValue', row.@ViewBag.retVal17);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID17').text(row.@ViewBag.retVal17);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID17').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal17);
+                                $('#@ViewBag.retID17').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID17').tagbox('setValue', row.@ViewBag.retVal17);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType18')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID18').val(row.@ViewBag.retVal18);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID18').textbox('setValue', row.@ViewBag.retVal18);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID18').timespinner('setValue', row.@ViewBag.retVal18);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID18').text(row.@ViewBag.retVal18);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID18').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal18);
+                                $('#@ViewBag.retID18').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID18').tagbox('setValue', row.@ViewBag.retVal18);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType19')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID19').val(row.@ViewBag.retVal19);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID19').textbox('setValue', row.@ViewBag.retVal19);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID19').timespinner('setValue', row.@ViewBag.retVal19);
+                            break;                        
+                        case 'label':
+                            $('#@ViewBag.retID19').text(row.@ViewBag.retVal19);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID19').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal19);
+                                $('#@ViewBag.retID19').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID19').tagbox('setValue', row.@ViewBag.retVal19);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+                    switch ('@ViewBag.retType20')
+                    {
+                        case 'hidden':
+                            $('#@ViewBag.retID20').val(row.@ViewBag.retVal20);
+                            break;
+                        case 'textbox':
+                            $('#@ViewBag.retID20').textbox('setValue', row.@ViewBag.retVal20);
+                            break;
+                        case 'timespinner':
+                            $('#@ViewBag.retID20').timespinner('setValue', row.@ViewBag.retVal20);
+                            break;
+                        case 'label':
+                            $('#@ViewBag.retID20').text(row.@ViewBag.retVal20);
+                            break;
+                        case 'tagbox':
+                            var values = $('#@ViewBag.retID20').tagbox('getValues');
+                            if (values)
+                            {
+                                values.push(row.@ViewBag.retVal20);
+                                $('#@ViewBag.retID20').tagbox('setValues', values);
+                            }
+                            else
+                            {
+                                $('#@ViewBag.retID20').tagbox('setValue', row.@ViewBag.retVal20);
+                            }
+                            break;
+                        default:
+                            break;
+                    };
+
+                    //$('#@ViewBag.retID').textbox('setValue', row.ID);
+                    $('#win').window('close');
+                } else {
+
+                }
+
+        }
+}

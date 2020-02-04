@@ -1,0 +1,79 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Feelist/';
+	var model = [
+		{ name: "ID", label: "ID", hidden: true, key: true },
+
+		{
+			name: "FeeNo", label: "費用代號", search: true,
+			readonly: "edit", editable: true,
+			formoptions: { label: "*費用代號", rowpos: 1, colpos: 1 },
+			editoptions: { maxLength: 20 },
+			editrules: { required: true },
+		},
+		{
+			name: "FeeName", label: "費用列表名稱",
+			search: true, editable: true,
+			formoptions: { label: "*費用列表名稱", rowpos: 1, colpos: 2 },
+			editoptions: { maxLength: 30 },
+			editrules: { required: true },
+		},
+		{
+			name: "Way", label: "借貸",
+			search: true, editable: true,
+			formoptions: { label: "*借貸", rowpos: 2, colpos: 1 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true },
+			formatter: "select",
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "Remark", label: "備註",
+			search: false, editable: true,
+			formoptions: { rowpos: 2, colpos: 2 },
+			editoptions: { maxLength: 50 },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "費用列表",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "FeeNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>
+

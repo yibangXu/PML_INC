@@ -1,0 +1,247 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/Consin/';
+	var model =
+		[
+			{
+				name: "ID", label: "ID", hidden: true, key: true
+			},
+			{
+				name: "ConsinNo", label: "收件編號", search: true,hidden:true,
+				readonly: "edit", editable: true,
+				editoptions: { maxLength: 10 },
+				formoptions: { label: "*收件編號", rowpos: 1, colpos: 1 }
+			},
+			{
+				name: "CustCName", label: "客戶簡稱", search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "Cust/GetGridJSON?sidx=CustCName&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "CustCName", "CustCName", true);
+					},
+				},
+			},
+			{
+				name: "CustNo", label: "客戶代號", search: true,
+				editable: true, edittype: "select",
+				editoptions:
+				{
+					dataUrl: "Cust/GetGridJSON?sidx=CustNo&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "CustNo", "CustNo,CustCName", true);
+					},
+				},
+				formoptions: { label: "客戶", rowpos: 1, colpos: 2 },
+			},
+			{
+				name: "ConsinComp", label: "收件公司", width: 200, search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 60,
+				},
+				formoptions: { rowpos: 2, colpos: 1 }
+			},
+			{
+				name: "Cnaddr", label: "地址", search: true,
+			},
+			{
+				name: "Enconsin1", label: "英文名稱1", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 60
+				},
+				formoptions: { rowpos: 2, colpos: 2 }
+			},
+			{
+				name: "Enconsin2", label: "英文名稱2", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 3, colpos: 1 }
+			},
+			{
+				name: "Enaddr1", label: "英文地址1", width: 250, search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 3, colpos: 2 }
+			},
+			{
+				name: "Enaddr2", label: "英文地址2", width: 250, search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 4, colpos: 1 }
+			},
+			{
+				name: "Enaddr3", label: "英文地址3", width: 250, search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 100
+				},
+				formoptions: { rowpos: 4, colpos: 2 }
+			},
+			{
+				name: "City", label: "城市", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 5, colpos: 1 }
+			},
+			{
+				name: "State", label: "省/州", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 5, colpos: 2 }
+			},
+			{
+				name: "Country", label: "國家", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 6, colpos: 1 }
+			},
+			{
+				name: "Zip", label: "郵遞區號", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 6, colpos: 2 }
+			},
+			{
+				name: "Tel", label: "電話", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 7, colpos: 1 }
+			},
+			{
+				name: "Consinee", label: "收件人", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 7, colpos: 2 }
+			},
+			{
+				name: "UnifyNo", label: "簡稱統編", search: true,
+				editable: true,
+				editoptions: {
+					maxLength: 30
+				},
+				formoptions: { rowpos: 8, colpos: 1 }
+			},
+			//{
+			//	name: "Code5", label: "地址代碼", search: true, editable: true,
+			//	stype: "select",
+			//	searchoptions:
+			//	{
+			//		dataUrl: "PostCode/GetGridJSON?sidx=Code5",
+			//		buildSelect: function (data) {
+			//			return Lib.jqGrid.buildSelect(data, "Code5", "Code5", true);
+			//		},
+			//	},
+			//	edittype: "select",
+			//	editoptions:
+			//	{
+			//		dataUrl: "PostCode/GetGridJSON?sidx=Code5",
+			//		buildSelect: function (data) {
+			//			return Lib.jqGrid.buildSelect(data, "Code5", "Code5", true);
+			//		},
+			//	},
+			//	formoptions: { rowpos: 8, colpos: 2 }
+			//},
+			//{
+			//	name: "Add_1", label: "段", search: false,
+			//	editable: true,
+			//	editrules: {
+			//		integer: true,
+			//	},
+			//	formoptions: { rowpos: 9, colpos: 1 }
+			//},
+			//{
+			//	name: "Add_2", label: "巷", search: false,
+			//	editable: true,
+			//	editrules: {
+			//		integer: true,
+			//	},
+			//	formoptions: { rowpos: 9, colpos: 2 }
+			//},
+			//{
+			//	name: "Add_3", label: "弄", search: false,
+			//	editable: true,
+			//	editrules: {
+			//		integer: true,
+			//	},
+			//	formoptions: { rowpos: 10, colpos: 1 }
+			//},
+			//{
+			//	name: "Add_4", label: "號", search: false,
+			//	editable: true,
+			//	editrules: {
+			//		integer: true,
+			//	},
+			//	formoptions: { rowpos: 10, colpos: 2 }
+			//},
+			//{
+			//	name: "Add_5", label: "樓", search: false,
+			//	editable: true,
+			//	editrules: {
+			//		integer: true,
+			//	},
+			//	formoptions: { rowpos: 11, colpos: 1 }
+			//},
+			//{
+			//	name: "Add_6", label: "其他", search: false,
+			//	editable: true,
+			//	formoptions: { rowpos: 11, colpos: 2 }
+			//},
+			{
+				name: "CreatedBy", label: "建立人員", search: false
+			},
+			{
+				name: "CreatedDate", label: "建立時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+		];
+	$("#grid").jqGrid({
+		caption: "收件人資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "ConsinNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

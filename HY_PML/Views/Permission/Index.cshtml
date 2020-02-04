@@ -1,0 +1,205 @@
+﻿@{
+    Layout = "~/Views/Shared/_PermissionGridLayout.cshtml";
+}
+
+<div class="pull-left">
+    <table id="grid"></table>
+    <div id="pager"></div>
+</div>
+
+<div id="toolbar_grid">
+    <a class="easyui-linkbutton" id="edit-btn" iconCls="icon-ok" plain="true" onclick="savePermission()">儲存權限</a>
+</div>
+
+<div class="pull-left">
+    <div id="permissionTree"></div>
+</div>
+
+<script>
+    var apiURL = '/Permission/';
+    var model = [
+        {
+            name: "ID", label: "ID", hidden: true, key: true
+        },
+        {
+            name: "UserGroupName", label: "群組", search: true, width:100,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/UserGroup/GetGridJSON?IsDelete=false&rows=1000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "UserGroupName", "UserGroupName", true));
+                }
+            },
+        },
+        {
+            name: "Account", label: "帳號", search: true, width: 100,
+        },
+        {
+            name: "UserName", label: "姓名", search: true, width: 100,
+        },
+        {
+            name: "RegisterDate", label: "註冊日期", search: false, width: 100,
+            formatter: "date", formatoptions: { newformat: "Y-m-d" },
+            searchoptions: {
+                dataInit: function (el) {
+                    $(el).daterangepicker({
+                        locale: {
+                            format: 'YYYY-M-DD'
+                        }
+                    });
+                }
+            },
+        },
+        {
+            name: "ActiveDate", label: "啟用日期", search: false, width: 100,
+            formatter: "date", formatoptions: { newformat: "Y-m-d" },
+            searchoptions: {
+                dataInit: function (el) {
+                    $(el).daterangepicker({
+                        locale: {
+                            format: 'YYYY-M-DD'
+                        }
+                    });
+                }
+            },
+        },
+        {
+            name: "ExpiryDate", label: "到期日期", search: false, width: 100,
+            formatter: "date", formatoptions: { newformat: "Y-m-d" },
+            searchoptions: {
+                dataInit: function (el) {
+                    $(el).daterangepicker({
+                        locale: {
+                            format: 'YYYY-M-DD'
+                        }
+                    });
+                }
+            },
+        },
+        {
+            name: "StatName", label: "站點", search: true, width: 100,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/Stat/GetGridJSON?IsDelete=false&rows=100000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "StatName", "StatName", true));
+                }
+            },
+        },
+        {
+            name: "DepartName", label: "部門", search: true, width: 100,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/Depart/GetGridJSON?IsDelete=false&rows=100000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "DepartName", "DepartName", true));
+                }
+            },
+        },
+        {
+            name: "IsActive", label: "是否啟用", search: true, width: 100,
+            editoptions: {
+                defaultValue: "true",
+                value: { "": "", true: "是", false: "否" },
+            },
+            formatter: "select",
+            stype: "select", searchoptions: {
+                value: { "": "", true: "是", false: "否" }
+            },
+        },
+    ];
+    $("#grid").jqGrid({
+        caption: "權限維護",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "UserGroupName",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+
+        onSelectRow: function (id, selected) {
+            if (selected) {
+                return setCheckNodeId(id);
+            }
+        },
+
+    }).jqGrid("navGrid", "#pager",
+        {
+            edit: false, add: false, del: false,
+            search: false, view: false,
+        },
+        {/*edit*/
+        },
+        {/*add*/
+        },
+        {/*del*/
+        },
+        {/*search*/
+        },
+        {/*view*/
+		}).filterToolbar({ searchOnEnter: true });
+
+    $("#t_grid").append($('#toolbar_grid'));
+
+    function ResizeGrid() {
+        var g = $("#grid");
+        var w = $(window);
+        g.jqGrid("setGridWidth", w.innerWidth() / 2 - 10);
+        g.jqGrid("setGridHeight", w.innerHeight() - 115 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+    }
+</script>
+
+<script>
+    function setCheckNodeId(id) {
+        $('#permissionTree').jstree(true).uncheck_all();
+        $.ajax({
+            async: true,
+            url: '@Url.Action("getPermissionJson", "Permission")',
+            data: "uid=" + id,
+            success: function (data, status, xhr) {
+                $('#permissionTree').jstree(true).check_node(data);
+            },
+            error: function (data, status, xhr) {
+            }
+        });
+    }
+
+    function savePermission() {
+        var uid = $("#grid").jqGrid("getGridParam", "selrow");
+        var checkNodeId = $("#permissionTree").jstree("get_checked", null, true).join(',');
+        if (uid === null)
+            alert("尚未選取資料!");
+        else {
+            $.ajax({
+            async: true,
+            url: '@Url.Action("EditPermission", "Permission")',
+            data: { uid, checkNodeId },
+            success: function (data, status, xhr) {
+                if(data.ok > 0)
+                    alert(data.message);
+            },
+            error: function (data, status, xhr) {
+            }
+        });
+        }
+    }
+</script>
+

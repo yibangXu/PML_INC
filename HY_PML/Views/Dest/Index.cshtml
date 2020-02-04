@@ -1,0 +1,186 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Dest/';
+	var model = [
+		{
+			name: "ID", label: "ID", search: true, key: true, hidden: true
+		},
+		{
+			name: "DestNo", label: "目的地代號", search: true,
+			readonly: "edit", editable: true,
+			formoptions: { label: "*目的地代號", rowpos: 1, colpos: 1 },
+			editoptions: { maxLength: 8 },
+			editrules: { required: true },
+		},
+		{
+			name: "CName", label: "中文目的地",
+			search: true, editable: true,
+			formoptions: { label: "*中文目的地", rowpos: 1, colpos: 2 },
+			editoptions: { maxLength: 50 },
+			editrules: { required: true },
+		},
+		{
+			name: "ChName", label: "英文目的地",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 1 },
+			editoptions: { maxLength: 30 },
+		},
+		{
+			name: "Zone", label: "站點批價區域",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 2 },
+			editoptions: { maxLength: 40 },
+		},
+		{
+			name: "State", label: "州/省",
+			search: true, editable: true,
+			formoptions: { rowpos: 3, colpos: 1 },
+			editoptions: { maxLength: 30 },
+		},
+		{
+			name: "Country", label: "國家",
+			search: true, editable: true,
+			formoptions: { rowpos: 3, colpos: 2 },
+			editoptions: { maxLength: 30 },
+		},
+		{
+			name: "Areas", label: "外務批價區域",
+			search: true, editable: true,
+			formoptions: { rowpos: 4, colpos: 1 },
+			editoptions: { maxLength: 40 },
+		},
+		{
+			name: "Zip", label: "郵編",
+			search: true, editable: true,
+			formoptions: { rowpos: 4, colpos: 2 },
+			editoptions: { maxLength: 40 },
+		},
+		{
+			name: "Tel", label: "區號",
+			search: true, editable: true,
+			formoptions: { rowpos: 5, colpos: 1 },
+			editoptions: { maxLength: 40 },
+		},
+		{
+			name: "StatNo", label: "站點", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "StatID", label: "站點", editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 5, colpos: 2 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "StatNo,StatName", true);
+				},
+			},
+		},
+		{
+			name: "AreaNo", label: "區域", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Area/GetGridJSON?sidx=AreaNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "AreaNo", "AreaNo,AreaName", true);
+				},
+			},
+		},
+		{
+			name: "AreaID", label: "區域", editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 6, colpos: 1 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Area/GetGridJSON?sidx=AreaNo&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "AreaNo,AreaName", true);
+				},
+			},
+		},
+		{
+			name: 'CurrencyNo', label: '目的幣別', search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Currency/GetGridJSON?sidx=CurrencyNo&IsServer=true&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "CurrencyNo", "CurrencyNo,CurrencyName", true);
+				},
+			},
+		},
+		{
+			name: 'CurrencyID', label: '目的幣別', hidden: true,
+			formoptions: { rowpos: 6, colpos: 2 },
+			editable: true, edittype: "select",
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Currency/GetGridJSON?sidx=CurrencyNo&IsServer=true&rows=1000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "CurrencyNo,CurrencyName", true);
+				},
+			},
+		},
+		{
+			name: 'IsServer', label: '是否啟用', search: true, editable: true,
+			formoptions: { rowpos: 7, colpos: 1 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			formatter: "select",
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "目的地資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "DestNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>
+

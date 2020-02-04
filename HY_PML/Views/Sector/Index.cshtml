@@ -1,0 +1,153 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Sector/';
+	var model = [
+		{
+			name: "SectorNo", label: "代號", search: true, key: true,
+			readonly: "edit", editable: true,
+			formoptions: { label: "*代號", rowpos: 1, colpos: 1 },
+			editoptions: { maxLength: 10 },
+			editrules: { required: true },
+		},
+		{
+			name: "SectorName", label: "姓名",
+			search: true, editable: true,
+			formoptions: { label: "*姓名", rowpos: 1, colpos: 2 },
+			editoptions: { maxLength: 16 },
+			editrules: { required: true },
+		},
+		{
+			name: "PlateNO", label: "車輛編號",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 1 },
+			editoptions: { maxLength: 16 },
+		},
+		{
+			name: "Phone", label: "電話",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 2 },
+			editoptions: { maxLength: 30 },
+		},
+		{
+			name: "StatNo", label: "所屬站點",
+			search: true, editable: true,
+			formoptions: { rowpos: 3, colpos: 1 },
+			editoptions: { maxLength: 10 },
+		},
+		{
+			name: "PickUpAreaNo", label: "調度區域",
+			search: true, editable: true,
+			formoptions: { rowpos: 3, colpos: 2 },
+			editoptions: { maxLength: 20 },
+		},
+		{
+			name: "PhonePrivate", label: "私人電話",
+			search: true, editable: true,
+			formoptions: { rowpos: 4, colpos: 1 },
+			editoptions: { maxLength: 30 },
+		},
+		{
+			name: "RecTime", label: "開始時間",
+			search: true, editable: true,
+			formoptions: { rowpos: 4, colpos: 2 },
+			editoptions: { maxLength: 5 },
+		},
+		{
+			name: "EndTime", label: "結件時間",
+			search: true, editable: true,
+			formoptions: { rowpos: 5, colpos: 1 },
+			editoptions: { maxLength: 5 },
+		},
+		{
+			name: "Latitude", label: "經度",
+			search: true, editable: true, hidden: true,
+			formoptions: { rowpos: 5, colpos: 2 },
+			editoptions: { maxLength: 50 },
+		},
+		{
+			name: "Longitude", label: "緯度",
+			search: true, editable: true, hidden: true,
+			formoptions: { rowpos: 6, colpos: 1 },
+			editoptions: { maxLength: 50 },
+		},
+		{
+			name: "RecRange", label: "收送範圍",
+			search: false, editable: true,
+			formoptions: { rowpos: 6, colpos: 2 },
+			editrules: { integer: true },
+		},
+		{
+			name: "TargetKM", label: "目標里程",
+			search: false, editable: true,
+			formoptions: { rowpos: 7, colpos: 1 },
+			editrules: { integer: true },
+		},
+		{
+			name: "TargetNum", label: "目標件數",
+			search: false, editable: true,
+			formoptions: { rowpos: 7, colpos: 2 },
+			editrules: { integer: true },
+		},
+		{
+			name: "IsLeave", label: "是否離職",
+			search: true, editable: true,
+			formoptions: { rowpos: 8, colpos: 1 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "IsServer", label: "是否啟用",
+			search: true, editable: true,
+			formoptions: { rowpos: 8, colpos: 2 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "外務員資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "SectorNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

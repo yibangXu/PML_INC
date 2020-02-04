@@ -1,0 +1,285 @@
+﻿<table>
+	<tr style="display:none">
+		<td>
+			<label>出口帳單號碼：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ExBillNo" id="ExBillNo" class="easyui-textbox">
+			</div>
+		</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>
+			<label>轉會計:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="IsFinance" id="IsFinance" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>提單號碼：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="LadingNo" id="LadingNo" class="easyui-textbox" style="width:100px" data-options="validType:'maxLength[13]'">
+			</div>
+		</td>
+		<td><label>提單日期：</label></td>
+		<td>
+			<div class="fitem">
+				<input name="LadingDate" id="LadingDate" class="easyui-datetimebox" style="width:150px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>站點：</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="StatNo" id="AStatNo" class="easyui-textbox" style="width:100px" data-options="readonly:'true'">
+				<input name="StatName" id="AStatName" class="easyui-textbox" style="width:200px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','StatNo,StatName','StatNo,StatName','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>
+			<label>客戶：</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="CustNo" id="CustNo" class="easyui-textbox" style="width:100px" data-options="readonly:'true'">
+				<input name="CHName" id="CHName" class="easyui-textbox" style="width:200px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CustNo,CHName','CustNo,CustCName','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>付款：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CcNo" id="CcNo" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>目的地：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="DestNo" id="DestNo" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<input name="CName" id="CName" class="easyui-textbox" style="width:150px">
+
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','DestNo,CName','DestNo,CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>類型：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<select name="Type" id="Type" class="easyui-combobox" style="width:100px;" data-options="panelHeight:'auto'">
+					<option value="null">請選擇</option>
+					<option value="DOX">DOX</option>
+					<option value="SPX">SPX</option>
+				</select>
+			</div>
+		</td>
+		<td>
+			<label>件數：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PiecesNo" id="PiecesNo" class="easyui-numberspinner" style="width:100px" data-options="min:1">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>重量：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Weight" id="Weight" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>運費：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Freight" id="Freight" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>報關費：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustomsPay" id="CustomsPay" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>關稅：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Tariff" id="Tariff" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>產證費：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ProdIdPay" id="ProdIdPay" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>保險費：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="InsurancePay" id="InsurancePay" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>其他(有稅):</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="OtherPayTax" id="OtherPayTax" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>其他(無稅):</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="OtherPayNoTax" id="OtherPayNoTax" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>到付款:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ToPaymentCurrency" id="ToPaymentCurrency" style="width:50px" class="easyui-textbox" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','ToPaymentCurrency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+				<input name="ToPayment" id="ToPayment" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+		<td>
+			<label>代收款:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="AgentPayCurrency" id="AgentPayCurrency" class="easyui-textbox" style="width:50px" data-options="readonly:'true'">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','AgentPayCurrency','CurrencyNo','@Url.Action("getSelectionjqGrid", "Currency")');"></a>
+				<input name="AgentPay" id="AgentPay" class="easyui-numberbox" style="width:100px" data-options="min:0,precision:2">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>備註:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="Remark" class="easyui-textbox" style="width:500px">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>總金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Total" id="Total" style="width:100px" class="easyui-textbox" data-options="readonly:'true',prompt:'系統自動計算'">
+			</div>
+		</td>
+	</tr>
+</table>
+
+<script>
+	//Enter觸發新增
+	$('#LadingNo').textbox({
+		inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+			keypress: function (e) {
+				if (e.keyCode == 13) {
+					SetFromData();
+				}
+			}
+		}),
+		rules: $.extend($.fn.validatebox.defaults.rules, {
+			maxLength: {
+				validator: function (value, param) {
+					return param[0] >= value.length;
+				},
+				message: '最大長度為{0}位.'
+			}
+		}),
+	});
+
+	function SetFromData() {
+		//$.ajax({
+		//	type: "GET",
+
+		//	url: '/Bill_Lading_IsFinance/GetGridJSON/' + "?LadingNo=" + $('#LadingNo').val() + "& IsConfirm = true & IsCheck = True & IsFinance = true",
+		//	success: function (result) {
+		//		var ladingData = result.rows;
+		//		$('#LadingDate').textbox('setValue', ladingData[0].LadingDate);
+		//		$('#CustNo').textbox('setValue', ladingData[0].SendCustNo);
+		//		$('#CHName').textbox('setValue', ladingData[0].SendCHName);
+		//		$('#CcNo').textbox('setValue', ladingData[0].CcNo);
+		//		$('#DestNo').textbox('setValue', ladingData[0].DestNo);
+		//		$('#CName').textbox('setValue', ladingData[0].CName);
+		//		var Type = ladingData[0].Type == "0" ? "DOX" : "SPX"
+		//		$('#Type').textbox('setValue', Type);
+		//		$('#PiecesNo').textbox('setValue', ladingData[0].PiecesNo);
+		//		$('#Weight').textbox('setValue', ladingData[0].Weight);
+		//		$('#Freight').textbox('setValue', ladingData[0].Freight);
+		//		$('#CustomsPay').textbox('setValue', ladingData[0].CustomsPay);
+		//		$('#ProdIdPay').textbox('setValue', ladingData[0].ProdIdPay);
+		//		$('#InsurancePay').textbox('setValue', ladingData[0].InsurancePay);
+		//		$('#OtherPayTax').textbox('setValue', ladingData[0].OtherPayTax);
+		//		$('#OtherPayNoTax').textbox('setValue', ladingData[0].OtherPayNoTax);
+		//		$('#ToPayment').textbox('setValue', ladingData[0].ToPayment);
+		//		$('#ToPaymentCurrency').textbox('setValue', ladingData[0].ToPaymentCurrency);
+		//		$('#AgentPay').textbox('setValue', ladingData[0].AgentPay);
+		//		$('#AgentPayCurrency').textbox('setValue', ladingData[0].AgentPayCurrency);
+		//		$('#Remark').textbox('setValue', ladingData[0].Remark);
+		//	},
+		//	contentType: "application/json; charset=utf-8",
+		//	dataType: "json",
+		//});
+	}
+</script>

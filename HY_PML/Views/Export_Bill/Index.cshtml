@@ -1,0 +1,204 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/Export_Bill/';
+	var model =
+		[
+			{
+				name: "IsFinance", label: "轉會計", search: true, width: 80, stype: 'select',
+				formatter: function (value) { if (value === true) return '已轉'; return '未轉'; },
+				defval: true,
+				searchoptions:
+				{
+					value: { null: "不分", true: "已轉", false: "未轉" }, searchhidden: true, dataInit: function (el) {
+					},
+				},
+			},
+			{
+				name: "ExBillNo", label: "出口帳單號碼", hidden: true, key: true
+			},
+			{
+				name: "LadingNo", label: "提單號碼", search: true,hidden:true,
+			},
+			{
+				name: "LadingNo_Type", label: "提單號碼", search: true,
+			},
+			{
+				name: "LadingDate", label: "提單時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+			{
+				name: "StatNo", label: "站點代號", search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "StatNo", "StatNo", true);
+					},
+				},
+			},
+			{
+				name: "StatName", label: "站點名稱", search: true,
+				stype: "select",
+				searchoptions:
+				{
+					dataUrl: "Stat/GetGridJSON?sidx=StatName&rows=10000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "StatName", "StatName", true);
+					},
+				},
+			},
+			{
+				name: "CustNo", label: "客戶", search: false, hidden: true
+			},
+			{
+				name: "CHName", label: "客戶", search: true,
+			},
+			{
+				name: "CcNo", label: "付款方式", search: false,
+			},
+			{
+				name: "DestNo", label: "目的地", search: false, hidden: true
+			},
+			{
+				name: "CName", label: "目的地", search: false,
+			},
+			{
+				name: "Type", label: "類型", search: false,
+			},
+			{
+				name: "PiecesNo", label: "件數", search: false,
+			},
+			{
+				name: "Weight", label: "重量", search: false,
+			},
+			{
+				name: "Freight", label: "運費", search: false,
+			},
+			{
+				name: "CustomsPay", label: "報關費", search: false
+			},
+			{
+				name: "Tariff", label: "關稅", search: false
+			},
+			{
+				name: "ProdIdPay", label: "產證費", search: false
+			},
+			{
+				name: "InsurancePay", label: "保險費", search: false
+			},
+			{
+				name: "OtherPayTax", label: "其他(有稅)", search: false,
+			},
+			{
+				name: "OtherPayNoTax", label: "其他(無稅)", search: false
+			},
+			{
+				name: "ToPayment", label: "到付款", search: false,
+			},
+			{
+				name: "ToPaymentCurrency", label: "到付款", search: false, hidden: true
+			},
+			{
+				name: "AgentPay", label: "代收款", search: false,
+			},
+			{
+				name: "AgentPayCurrency", label: "代收款", search: false, hidden: true
+			},
+			{
+				name: "Remark", label: "備註", search: false,
+			},
+			{
+				name: "Total", label: "總金額", search: false,
+			},
+			{
+				name: "CreateBy", label: "建單人員", search: false
+			},
+			{
+				name: "CreateTime", label: "建單時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+			},
+
+		];
+	$("#grid").jqGrid({
+		caption: "出口帳單",
+		url: apiURL + "GetGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "CreateTime",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+		multiselect: true,
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+</script>
+
+<script>
+	function Finance() {
+			var data = $("#grid").jqGrid("getGridParam", "selarrrow");
+			if (data.length > 0) {
+				$.messager.confirm('Confirm', '是否轉入會計系統?',
+					function (r) {
+						if (r) {
+							$.post('@Url.Action("Finance", "Export_Bill")', { ExBillNo: data }, function (data, textStatus, jqXHR) {
+								if (data.ok >= 0) {
+									$('#grid').trigger('reloadGrid');
+									$('#subgrid').trigger('reloadGrid');
+									$.messager.alert('成功', '轉入成功!');
+								} else {
+									$.messager.alert('錯誤', data.message, 'error');
+								}
+							}, 'json');
+						}
+					});
+			} else {
+				$.messager.alert('警告', '尚未選擇資料!', 'warning');
+			}
+		}
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#add-btn").css('display', 'none');
+		$("#toolbar_grid").append('<a class="easyui-linkbutton" id ="Finance"  iconCls="icon-ok" onclick="Finance();">轉會計</a>')
+			.append(' | <label>建單日期：</label>')
+			.append('<input id="searchDateStart" class="easyui-datebox " style="display:none;width:90px" value="getToday()" title="建單日期起">')
+			.append(' ~ <input id = "searchDateEnd" class= "easyui-datebox " style = "display:none;width:90px" value="getToday()" title="建單日期訖">')
+			.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="doSearchTarget()"></a>');
+		var userAct = $('#UserAct').val();
+		setTimeout(function () {
+			if (userAct.includes("Finance") == false) {
+				$("#Finance").linkbutton('disable');
+			}
+	 }, 300);
+	});
+</script>

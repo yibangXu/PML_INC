@@ -1,0 +1,73 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Banks/';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "BankNo", label: "銀行代碼", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 15 },
+			formoptions: { label: "*銀行代碼" },
+		},
+		{
+			name: "BankName", label: "銀行名稱", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 15, },
+			formoptions: { label: "*銀行名稱" },
+		},
+		{
+			name: "BankAcc", label: "銀行帳號", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 30, },
+			formoptions: { label: "*銀行帳號" },
+		},
+		{
+			name: "Balance", label: "帳戶餘額", search: false,
+			editable: true,
+			editrules: {
+				required: true,
+				number: true,
+			},
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "銀行資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "BankNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

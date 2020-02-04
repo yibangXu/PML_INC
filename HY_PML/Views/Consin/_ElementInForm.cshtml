@@ -1,0 +1,203 @@
+﻿<table>
+	<tr>
+		@*<td><label>收件編號:</label></td>*@
+		<td>
+			<div class="fitem">
+				@*<input name="ConsinNo" id="ConsinNo" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[10]'">*@
+				<input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>客戶代號:</label></td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="CustNo" id="CustNo" type="hidden">
+				<input name="CustCName" class="easyui-textbox" id="CustCName" />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CustNo,CustCName','CustNo,CustCName','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>收件公司:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="ConsinComp" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+		<td><label>英文名稱1:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Enconsin1" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>英文名稱2:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Enconsin2" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>英文地址1:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Enaddr1" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>英文地址2:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Enaddr2" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>英文地址3:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Enaddr3" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[100]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>城市:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="City" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>省/州:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="State" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>國家:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Country" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>郵遞區號:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Zip" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>電話:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Tel" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>手機:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="MPhone" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td><label>收件人:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="Consinee" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td><label>簡稱統編:</label></td>
+		<td>
+			<div class="fitem">
+				<input name="UnifyNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		@*<td><label>地址代碼:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Code5" id="Code5" class="easyui-textbox" style="width:auto">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpGrid('Code5','Code5','textbox','none','none','none','選擇地址代碼','@Url.Action("getSelectionGrid", "PostCode")');"></a>
+				</div>
+			</td>*@
+	</tr>
+	@*<tr>
+			<td><label>段:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_1" class="easyui-textbox" style="width:auto">
+				</div>
+			</td>
+			<td><label>巷:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_2" class="easyui-textbox" style="width:auto">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>弄:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_3" class="easyui-textbox" style="width:auto">
+				</div>
+			</td>
+			<td><label>號:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_4" class="easyui-textbox" style="width:auto">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>樓:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_5" class="easyui-textbox" style="width:auto">
+				</div>
+			</td>
+			<td><label>其他:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="Add_6" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+				</div>
+			</td>
+		</tr>*@
+	<tr>
+		<td><label>地址:</label></td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="Cnaddr" class="easyui-textbox" style="width:400px">
+			</div>
+		</td>
+	</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

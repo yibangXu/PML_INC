@@ -1,0 +1,60 @@
+﻿.dropdown-menu {
+	font-size: 18px;
+}
+
+body{
+	padding-bottom:0;
+}
+
+.required::before {
+    color: red;
+    content: '*';
+    font-size: 1.2em;
+    line-height: 1em;
+}
+
+.navbar-inverse {
+  -moz-background-size:3840px 130px;
+  -webkit-background-size:3840px 130px;
+  -o-background-size:3840px 130px;
+  background-size:3840px 130px;
+  background-repeat: no-repeat;
+  background-color: #6dd1f6;
+  border-color: #afa7a4;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #000000;
+    font-size:18px;
+}
+.navbar-inverse .navbar-brand {
+    color: #000000;
+    font-size:18px;
+}
+.navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+    color: #000000;
+    background-color: transparent;
+}
+.navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
+    color: #000000;
+    background-color: transparent;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    color: #000000;
+    background-color: transparent;
+}
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #000000;
+    text-decoration: none;
+    background-color: #ddf1f8;
+}
+.dropdown-menu > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.42857143;
+    color: #175399;
+    white-space: nowrap;
+}

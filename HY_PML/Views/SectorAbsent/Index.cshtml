@@ -1,0 +1,231 @@
+﻿@{
+	Layout = "~/Views/Shared/_DoubleGridLayout.cshtml";
+}
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var subgrid = $("#subgrid");
+
+	var apiURL = '/SectorAbsent/';
+	var subapiURL = '/SectorAbsent/';
+	var model = [
+		{
+			name: "SectorNo", label: "代號", search: true, key: true
+		},
+		{
+			name: "SectorName", label: "姓名", search: true,
+		},
+		{
+			name: "IsOff", label: "是否休假", search: false,
+			formatter: "select",
+			editoptions: {
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: "IsLeave", label: "是否離職",
+			search: false, editable: true,
+			formoptions: { rowpos: 8, colpos: 1 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "false",
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+		{
+			name: "IsServer", label: "是否啟用",
+			search: false, editable: true,
+			formoptions: { rowpos: 8, colpos: 2 },
+			formatter: "select", edittype: "select",
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+		},
+
+	];
+	$("#grid").jqGrid({
+		caption: "外務員休假資料",
+		url: apiURL + 'GetSectorGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "SectorNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (id, selected) {
+			$("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+			if (selected) {
+				subgrid.jqGrid("setGridParam", {
+					url: subapiURL + "GetGridJSON?SectorNo=" + id,
+				});
+				subgrid[0].clearToolbar();
+			}
+			else
+				subgrid.jqGrid("clearGridData");
+		},
+	}).jqGrid("navGrid", "#pager",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		}).filterToolbar({
+			searchOnEnter: true,
+		});
+</script>
+
+<script>
+	var subModel = [
+		{
+			name: "ID", label: "ID", key: true, hidden: true,
+		},
+		{
+			name: "SectorNo", label: "外務員代號", hidden: true, editable: true,
+			formoptions: { rowpos: 9, colpos: 1 },
+			editoptions: {
+				defaultValue: function () {
+					var id = grid.jqGrid('getGridParam', 'selrow');
+					return grid.jqGrid('getCell', id, 'SectorNo');
+				},
+			},
+		},
+		{
+			name: "StartDT", label: "請假日期時間起", editable: true,
+			//formoptions: { rowpos: 2, colpos: 1 },
+			//formatter: "date",
+			//editoptions: {
+			//	dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+			//	sopt: ["ge", "le", "eq"],
+			//},
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d H:i ' },
+		},
+		{
+			name: "EndDT", label: "請假日期時間迄",
+			editable: true,
+			//formoptions: { rowpos: 2, colpos: 2 },
+			//formatter: "date",
+			//editoptions: {
+			//	dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+			//	sopt: ["ge", "le", "eq"],
+			//},
+			//formatoptions: { newformat: "Y-m-d", },
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d H:i ' },
+		},
+		{
+			name: "AgentSectorNo", label: "代理人",
+			search: true, editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 1, colpos: 1 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Sector/GetGridJSON?sidx=SectorNo&rows=10000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "SectorNo", "SectorNo,SectorName", true);
+				},
+			},
+		},
+		{
+			name: "AgentSectorName", label: "代理人", search: false,
+		},
+		{
+			name: "BackDT", label: "銷假日期時間", search: true,
+			editable: true,
+			formoptions: { rowpos: 1, colpos: 2 },
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", }
+		},
+		{
+			name: "Remark", label: "備註", search: true,
+			editable: true, edittype: "textarea",
+			formoptions: { rowpos: 3, colpos: 1 },
+		},
+		{
+			name: 'IsServer', label: '是否啟用', search: false,
+			editable: true,
+			formatter: "select", edittype: "select",
+			formoptions: { rowpos: 3, colpos: 2 },
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	subgrid.jqGrid({
+		caption: "外務員休假明細資料",
+		url: subapiURL + "GetGridJSON?SectorNo=★",
+		datatype: "json",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#subpager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+	}).jqGrid('navGrid', '#subpager',
+		{
+			del: false, add: false,
+			edit: false, search: false, view: false
+		},
+		{/*edit*/
+			url: subapiURL + "EditSectorAbsent",
+		},
+		{/*add*/
+			url: subapiURL + "NewSectorAbsent",
+		},
+		{/*del*/
+			url: subapiURL + "DeleteSectorAbsent",
+		},
+		{/*search*/
+		},
+		{/*view*/
+		}).filterToolbar({
+			searchOnEnter: true
+		});
+
+</script>
+

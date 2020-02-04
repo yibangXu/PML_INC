@@ -1,0 +1,139 @@
+﻿<table>
+	<tr>
+		<td>
+			<label>報表號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ReportNo" id="ReportNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true',prompt:'系統自動編號'">
+				<input class="easyui-textbox isMas" type="hidden">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>主提單號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="MasterNo" id="MasterNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>航班號碼:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="FlightNo" id="FlightNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[10]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>路線:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="HubName" id="HubName" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','HubNo,HubName,HubCode','HubNo,HubName,HubCode','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+				<input name="HubNo" id="HubNo" class="easyui-textbox" type="hidden" required>
+				<input name="HubCode" id="Code" class="easyui-textbox" type="hidden" required>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>報表名稱：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ReportCName" id="ReportCName" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="checkHub()"></a>
+				<input name="ReportID" id="ReportID" class="easyui-textbox" type="hidden" required>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>出口站點：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SStatNo" id="SStatNo" class="easyui-textbox" style="width:auto" required data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SStatNo,SAreaID','StatNo,AreaID','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>進口站點：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="AStatNo" id="AStatNo" class="easyui-textbox" style="width:auto" data-options="readonly:'true'">
+				<a class="easyui-linkbutton masAdd" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','AStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>備註：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Remark" class="easyui-textbox" style="width:165px;height:100px" data-options="multiline:'true'">
+			</div>
+		</td>
+	</tr>
+	<tr id="addLading">
+		<td>
+			<label>選取提單：</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="checkData()"></a>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<script>
+	function afterPickfun(url) {
+		if ($("#ReportCName").val() != "" && url=="/Hub/") {
+			$("#ReportCName").textbox('setValue', "")
+			$("#ReportID").textbox('setValue', "")
+		}
+	}
+
+	function checkHub() {
+		if ($("#HubNo").val() === "") {
+			alert("路線尚未選擇!");
+			return;
+		} else {
+			ShowWinForPickUpjqGrid('fm', 'ReportID,ReportCName','ID,ReportCName','@Url.Action("getSelectionjqGrid", "Report_Mgmt")');
+		}
+	}
+
+    function checkData() {
+        if ($("#HubNo").val() === "") {
+            alert("路線尚未選擇!");
+            return;
+        }
+        if ($("#StatNo").val() === "") {
+            alert("出口站點尚未選擇!");
+            return;
+        }
+        $.messager.confirm('警告', '確定主檔資料選填完畢?', function (r) {
+            if (r) {
+                ShowWinForCbjqGrid('grid', 'fm', 'dlg', '@Url.Action("getMultiCbjqGrid", "BL_Report_Mas")','@Url.Action("Add", "BL_Report_Mas")');
+            }
+        });
+    }
+</script>

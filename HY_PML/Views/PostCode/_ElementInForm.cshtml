@@ -1,0 +1,122 @@
+﻿<table>
+	<tbody>
+		<tr>
+			<td><label>3+2郵遞區號:</label></td>
+			<td>
+				<div class="fitem">
+
+					<input name="Code5" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[5]'">
+					<input type="hidden" name="ID" id="ID" style="width:auto">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>縣市代碼:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="CityCode" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[3]'">
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>縣市名稱:</label></td>
+			<td>
+				<div class="fitem">
+					<input id="CityName" class="easyui-combobox" name="CityName" style="width:auto"
+						   data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctCityName", "PostCode"))'" required>
+					@*<input name="CityName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[10]'">*@
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>地區名稱:</label></td>
+			<td>
+				<div class="fitem">
+					<input id="AreaName" class="easyui-combobox" name="AreaName" style="width:auto"
+						   data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetDistinctAreaName", "PostCode"))'" required>
+					@*<input name="AreaName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[10]'">*@
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>路段名稱:</label></td>
+			<td>
+				<div class="fitem">
+					<input id="RoadName" class="easyui-combobox" name="RoadName" style="width:auto"
+						   data-options="valueField:'id',textField:'text',url:'@Html.Raw(Url.Action("GetRoadName", "PostCode"))'" required>
+					@*<input name="RoadName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[30]'">*@
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><label>路號:</label></td>
+			<td>
+				<div class="fitem">
+					<input name="RowName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[50]'">
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<script>
+
+$('#CityName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        //alert ('on click event trigger....');
+        $('#AreaName').combobox('clear');
+        $('#RoadName').combobox('clear');
+        //alert ('two combo clear....');
+        var newValue = record.id;
+        //alert ('new value = '+ newValue);
+        $('#AreaName').combobox('reload', '@Html.Raw(Url.Action("GetDistinctAreaName", "PostCode"))'+'?cityName='+encodeURIComponent(newValue));
+        //alert ('reload Area...');
+        $('#DataGrid_s').datagrid('load', {
+            roadName: '',
+            cityName: newValue,
+            areaName: ''
+        });
+
+    }
+});
+$('#AreaName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert ('on click event trigger....');
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        $('#RoadName').combobox('clear');
+        var newValue = record.id;
+        $('#RoadName').combobox('reload', '@Html.Raw(Url.Action("GetRoadName", "PostCode"))' + '?areaName=' + encodeURIComponent(newValue) + '&cityName=' + encodeURIComponent($('#CityName').combobox('getValue')));
+    }
+});
+$('#RoadName').combobox({
+    onClick: function (record) {
+        //param.id = 2;
+        //param.language = 'js';
+        //alert('new is ' + newValue + 'old is ' + oldValue);
+        var newValue = record.id;
+        if (newValue == '' || newValue == null)
+            return false;
+    }
+});
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

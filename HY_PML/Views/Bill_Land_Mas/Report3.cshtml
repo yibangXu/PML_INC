@@ -1,0 +1,237 @@
+﻿@model List<HY_PML.Models.BillLadingReport>
+@{
+	Layout = null;
+	@Styles.Render("~/Content/report/e-report.css");
+}
+<style>
+	page[size="E-Report3_1"] {
+		margin: 0;
+		padding: 0;
+		width: 203mm;
+		height: 142mm;
+		background-size: contain;
+		background-image: url('../../Content/images/E-Report3_1.jpg');
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 13px !important;
+		word-break: break-all;
+		zoom: 1;
+	}
+
+	page[size="E-Report3_2"] {
+		margin: 0;
+		padding: 0;
+		width: 203mm;
+		height: 142mm;
+		background-size: contain;
+		background-image: url('../../Content/images/E-Report3_2.jpg');
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 13px !important;
+		word-break: break-all;
+		zoom: 1;
+	}
+
+	page[size="E-Report3_3"] {
+		margin: 0;
+		padding: 0;
+		width: 203mm;
+		height: 142mm;
+		background-size: contain;
+		background-image: url('../../Content/images/E-Report3_3.jpg');
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 13px !important;
+		word-break: break-all;
+		zoom: 1;
+	}
+</style>
+<body>
+	@foreach (var m in Model)
+	{
+		<div class="pageBlock" >
+			<page size="@ViewBag.PageSize">
+				<div>
+					<img style="position:absolute;padding-top:0mm;padding-left:153mm;width:235px;height:60px" src="@Url.Action("Barcode", "New_Bill_Lading", new { barCode = m.LadingNo_Type })" />
+				</div>
+				<div style="position:absolute;padding-top:21mm;width:105mm;">
+					<span style="padding-left:64mm;display:inline-block;width:40mm">
+						@m.SendCustNo
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:28mm;width:105mm;">
+					<span style="padding-left:15mm;display:inline-block;width:90mm">
+						@m.SendCompany
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:35mm;width:105mm;">
+					<span style="padding-left:22mm;display:inline-block;width:40mm">
+						@m.SendBy
+					</span>
+					<span style="padding-left:8.5mm;display:inline-block;width:33mm">
+						@m.SendInvNo
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:41mm;width:105mm;">
+					<span style="padding-left:3mm;display:inline-block;width:102mm;line-height:25px">
+						@m.SendCustAddr
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:57mm;width:105mm;">
+					<span style="padding-left:10mm;display:inline-block;width:52mm">
+						@m.SendPhone
+					</span>
+					<span style="padding-left:7mm;display:inline-block;width:34mm">
+						@m.SendFaxNo
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:62.5mm;width:105mm;">
+					<span style="padding-left:62mm;display:inline-block;width:42mm">
+						@m.RecInvNo
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:70mm;width:105mm;">
+					<span style="padding-left:17mm;display:inline-block;width:88mm">
+						@m.RecCompany
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:77mm;width:105mm;">
+					<span style="padding-left:22.5mm;display:inline-block;width:82.5mm">
+						@m.RecBy
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:82mm;width:105mm;">
+					<span style="padding-left:3mm;display:inline-block;width:102mm;line-height:30px">
+						@m.RecChAddr
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:113mm;width:105mm;">
+					<span style="padding-left:9mm;display:inline-block;width:53mm">
+						@m.RecPhone
+					</span>
+					<span style="padding-left:14mm;display:inline-block;width:27mm">
+						@m.RecMPhone
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:27.5mm;padding-left:105mm;width:98mm;">
+					<span style="padding-left:4mm;display:inline-block;width:56mm;">
+						@m.HubPName
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:34mm;padding-left:105mm;width:98mm;">
+					<span style="padding-left:58.5mm;display:inline-block;width:18mm;text-align:center">
+						@m.SStatNo
+					</span>
+					<span style="display:inline-block;width:15mm;text-align:center">
+						@m.AStatNo
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:40mm;padding-left:105mm;width:98mm;">
+					<span style="display:inline-block;width:10mm;text-align:center">
+						@if (m.Type == "0")
+						{
+							@Html.Raw("✔");
+						}
+					</span>
+					<span style="padding-left:7.5mm;display:inline-block;width:10mm;text-align:center">
+						@if (m.Type != "0" && m.Type != "null")
+						{
+							@Html.Raw("✔");
+						}
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:52.5mm;padding-left:105mm;width:64mm;">
+					<span style="padding-left:3mm;display:inline-block;width:58mm;">
+						@m.ProductName
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:51.5mm;padding-left:165mm;width:36mm;">
+					<span style="padding-left:1mm;display:inline-block;width:32mm;">
+						@m.CocustomTyp
+						<br />
+						@m.SendRemark
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:84mm;padding-left:165mm;width:32mm;">
+					<span style="display:inline-block;width:34mm;font-weight: bold;font-size: 25px;text-align: center">
+						@if (m.PiecesNo != 0)
+						{
+							@Html.Raw(m.PiecesNo)
+						}
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:112mm;padding-left:105mm;width:98mm;">
+					<span style="padding-left:1mm;display:inline-block;width:8mm;text-align:center">
+						@if (m.CcNo == "CA")
+						{
+							@Html.Raw("✔");
+						}
+						@if (m.CcNo == "DP")
+						{
+							@Html.Raw("✘");
+						}
+					</span>
+					<span style="padding-left:11mm;display:inline-block;width:8mm;text-align:center">
+						@if (m.CcNo == "PP")
+						{
+							@Html.Raw("✔");
+						}
+						@if (m.CcNo == "DP")
+						{
+							@Html.Raw("✘");
+						}
+					</span>
+					<span style="padding-left:10mm;display:inline-block;width:8mm;text-align:center">
+						@if (m.CcNo == "CC")
+						{
+							@Html.Raw("✔");
+						}
+						@if (m.CcNo == "DP")
+						{
+							@Html.Raw("✘");
+						}
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:112.5mm;padding-left:166mm;width:32mm;">
+					<span style="display:inline-block;width:32mm;font-size: 10px !important;">
+						@m.Sector
+						<br />
+						@m.SDate
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:124mm;padding-left:105mm;width:50mm;">
+					<span style="padding-left:2mm;display:inline-block;width:18mm;font-size: 36px;">
+						@if (m.CcNo == "DP")
+						{
+							@Html.Raw("DP");
+						}
+					</span>
+				</div>
+				<div style="position:absolute;padding-top:121.5mm;padding-left:160mm;width:48mm;">
+					<span style="display:inline-block;width:38mm;font-size: 10px !important;">
+						@if (m.Sale != " ")
+						{
+							@Html.Raw("負責業務：");@Html.Raw(m.Sale)
+						}
+						<br />
+						列印人員/時間：
+						<br />
+						@m.PrintBy @m.PrintTime
+					</span>
+				</div>
+			</page>
+		</div>
+	}
+</body>
+
+<script>
+							//window.onload = function () {
+							//    window.print();
+							//};
+</script>
+
+
+

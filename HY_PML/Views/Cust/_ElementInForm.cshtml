@@ -1,0 +1,627 @@
+﻿<table>
+	<tr>
+		<td>
+			<label>客戶等級:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<select name="CustLevel" id="CustLevel" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
+					<option value=null>　</option>
+					<option value="A">A</option>
+					<option value="B">B</option>
+					<option value="C">C</option>
+					<option value="D">D</option>
+					<option value="E">E</option>
+				</select>
+				<script type="text/javascript">
+					var CocustomTyp = [
+						{ val: null, text: '　' },
+						{ val: 'A', text: 'A' },
+						{ val: 'B', text: 'B' },
+						{ val: 'C', text: 'C' },
+						{ val: 'D', text: 'D' },
+						{ val: 'E', text: 'E' },
+					];
+				</script>
+			</div>
+		</td>
+		<td>
+			<label>取件名稱:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CarryName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[100]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #CCEEFF;">
+		<td>
+			<label>中文簡稱:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustCName" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[12]'">
+			</div>
+		</td>
+		<td>
+			<label>中文全稱:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustCHName" class="easyui-textbox" style="width:auto" required="required" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr style="background-color: #CCEEFF;">
+		<td>
+			<label>中文地址:</label>
+		</td>
+		<td colspan="4">
+			<div class="fitem">
+				<input name="Code5" id="Code5" class="easyui-textbox" style="width:70px">
+				<input name="Code7" id="Code7" class="easyui-textbox" style="width:70px">
+				<input name="CustAddr" id="CustAddr" class="easyui-textbox" style="width:auto">
+				@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="ShowWinForPickUpGrid('CustAddrDtl','AdrressSimpleVer','textbox','Code5','Code5','textbox','選擇地址','@Url.Action("getSelectionGrid", "PostCode")');"></a>*@
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpGrid20('Code5','Code5','textbox','CustAddr','AdrressSimpleVer','textbox','Code7','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")');"></a>
+			</div>
+		</td>
+		<td>
+		<td>
+	</tr>
+	<tr style="background-color: #CCEEFF;">
+		<td>
+			<label>段巷弄號樓 :</label>
+		</td>
+		<td colspan="4">
+			<div class="fitem">
+				<input name="Add_1" id="add1" class="easyui-textbox" style="width:30px">段
+				<input name="Add_2" id="add2" class="easyui-textbox" style="width:30px">巷
+				<input name="Add_3" id="add3" class="easyui-textbox" style="width:30px">弄
+				<input name="Add_4" id="add4" class="easyui-textbox" style="width:30px">號
+				<input name="Add_5" id="add5" class="easyui-textbox" style="width:30px">樓
+				, 其他
+				<input name="Add_6" id="add6" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+			</div>
+		</td>
+		<td>
+		<td>
+	</tr>
+	<tr style="background-color: #CCEEFF;">
+		<td>
+			<label>寄件人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SendBy" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+		<td>
+			<label>統一編號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="InvNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>郵政專號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PostDist" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[6]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #CCEEFF;">
+		<td>
+			<label>城市:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="City" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>省州:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="State" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>國家:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Country" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #FFDDAA;">
+		<td>
+			<label>英文簡稱 :</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustEName" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[100]'">
+			</div>
+		</td>
+		<td>
+			<label>英文名稱1 :</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustEName1" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[150]'">
+			</div>
+		</td>
+		<td>
+			<label>英文名稱2 :</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CustEName2" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #FFDDAA;">
+		<td>
+			<label>英文地址1:</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				@*<input name="CustENAddr1" class="easyui-textbox" style="width:100%" data-options="validType:'maxLength[150]'">*@
+				<input name="CustENAddr1" class="easyui-textbox" style="width:715px" data-options="multiline:'true',validType:'maxLength[150]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #FFDDAA;">
+		<td>
+			<label>英文地址2:</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				@*<input name="CustENAddr2" class="easyui-textbox" style="width:100%" data-options="validType:'maxLength[60]'">*@
+				<input name="CustENAddr2" class="easyui-textbox" style="width:715px" data-options="multiline:'true',validType:'maxLength[60]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #FFDDAA;">
+		<td>
+			<label>寄件人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ESendBy" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+		<td>
+			<label>統一編號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="EInvNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>郵政專號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="EPostDist" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[6]'">
+			</div>
+		</td>
+	</tr>
+	<tr style="background-color: #FFDDAA;">
+		<td>
+			<label>城市:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ECity" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>省州:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="EState" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>國家:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="ECountry" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>身分證字號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IDNo" style="width:auto" class="easyui-textbox" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+		<td>
+			<label>電話:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Phone" style="width:auto" class="easyui-textbox" required data-options="validType:'maxLength[60]'">
+			</div>
+		</td>
+		<td>
+			<label>傳真:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="FaxNo" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>EMAIL:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Email" style="width:auto" class="easyui-textbox" data-options="validType:'maxLength[250]'">
+			</div>
+		</td>
+		<td>
+			<label>會計聯絡人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CtcAcc" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+		<td>
+			<label>會計部電話:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="AccPhone" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[30]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>業務部聯絡人:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CtcSale" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+		<td>
+			<label>聯絡人2:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CtcSale2" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+		<td>
+			<label>聯絡人3:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CtcSale3" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[20]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>業務代表:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Account" class="easyui-textbox" style="width:auto" required data-options="validType:'maxLength[15]'">
+			</div>
+		</td>
+		<td>
+			<label>付款期限:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PayTerm" class="easyui-datebox" style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>付款方式:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="CcID" id="CcID" type="hidden">
+				<input name="CcNo" id="CcNo" class="easyui-textbox" data-options="readonly:true" />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','CcID,CcNo','ID,CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>出帳日期:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PayDate" class="easyui-datebox " style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>簽約日期:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SignDate" class="easyui-datebox" style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>暫停日期:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SuspDate" class="easyui-datebox" style="width:auto;">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>收價報價檔號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Discnt" class="easyui-textbox" style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>派件報價檔號:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="DiscntOut" class="easyui-textbox" style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>是否開發票:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsinVoice" id="IsinVoice" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>發票抬頭:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="InvTitle" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[250]'">
+			</div>
+		</td>
+		<td>
+			<label>發票地址:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="InvAddr" id="InvAddr" class="easyui-textbox" style="width:455px">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpGrid('InvAddr','AdrressSimpleVer','textbox','none','none','none','選擇地址','@Url.Action("getSelectionGrid", "PostCode")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>啟用信用額度:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="QuoType" value="0" style="width:auto" class="easyui-textbox" data-options="validType:'numberCheckSub'">
+			</div>
+		</td>
+		<td>
+			<label>信用額度金額:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Balance" value="0" style="width:auto" class="easyui-textbox" data-options="validType:'numberCheckSub'">
+			</div>
+		</td>
+		<td>
+			<label>周叫件日:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="DayOfWeek" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[13]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>備註:</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				<input name="Remark" class="easyui-textbox" multiline="true" style="width:715px;height:50px" data-options="validType:'maxLength[100]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>取件週期:</label>
+		</td>
+		<td colspan="3">
+			<div class="fitem">
+				<input name="RedyDayOfWeek_0" class="form-check-input" type="checkbox" value="true" id="defaultCheck0">
+				<label class="form-check-label" for="defaultCheck0">
+					星期日
+				</label>
+				<input name="RedyDayOfWeek_1" class="form-check-input" type="checkbox" value="true" id="defaultCheck1">
+				<label class="form-check-label" for="defaultCheck1">
+					星期一
+				</label>
+				<input name="RedyDayOfWeek_2" class="form-check-input" type="checkbox" value="true" id="defaultCheck2">
+				<label class="form-check-label" for="defaultCheck2">
+					星期二
+				</label>
+				<input name="RedyDayOfWeek_3" class="form-check-input" type="checkbox" value="true" id="defaultCheck3">
+				<label class="form-check-label" for="defaultCheck3">
+					星期三
+				</label>
+				<input name="RedyDayOfWeek_4" class="form-check-input" type="checkbox" value="true" id="defaultCheck4">
+				<label class="form-check-label" for="defaultCheck4">
+					星期四
+				</label>
+				<input name="RedyDayOfWeek_5" class="form-check-input" type="checkbox" value="true" id="defaultCheck5">
+				<label class="form-check-label" for="defaultCheck5">
+					星期五
+				</label>
+				<input name="RedyDayOfWeek_6" class="form-check-input" type="checkbox" value="true" id="defaultCheck6">
+				<label class="form-check-label" for="defaultCheck6">
+					星期六
+				</label>
+			</div>
+		</td>
+		<td>
+			<label>取件時間:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="RedyTime" class="easyui-timespinner" style="width:auto" data-options="validType:'maxLength[5]'">
+			</div>
+		</td>
+		<td>
+	</tr>
+	<tr>
+		<td>
+			<label>取件地址:</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				<input name="Code5_C" id="Code5_C" class="easyui-textbox" style="width:70px">
+				<input name="Code7_C" id="Code7_C" class="easyui-textbox" style="width:70px">
+				<input name="CustAddr_C" id="CustAddr_C" class="easyui-textbox" style="width:240px">
+				@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="ShowWinForPickUpGrid('CustAddrDtl','AdrressSimpleVer','textbox','Code5','Code5','textbox','選擇地址','@Url.Action("getSelectionGrid", "PostCode")');"></a>*@
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpGrid20('Code5_C','Code5','textbox','CustAddr_C','AdrressSimpleVer','textbox','Code7_C','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>　　</label>
+		</td>
+		<td colspan="5">
+			<div class="fitem">
+				<input name="Add_1_C" id="add1_C" class="easyui-textbox" style="width:30px">段
+				<input name="Add_2_C" id="add2_C" class="easyui-textbox" style="width:30px">巷
+				<input name="Add_3_C" id="add3_C" class="easyui-textbox" style="width:30px">弄
+				<input name="Add_4_C" id="add4_C" class="easyui-textbox" style="width:30px">號
+				<input name="Add_5_C" id="add5_C" class="easyui-textbox" style="width:30px">樓
+				, 其他
+				<input name="Add_6_C" id="add6_C" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[50]'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>代理或同行:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsAgent" class="easyui-textbox" style="width:auto">
+			</div>
+		</td>
+		<td>
+			<label>所屬站點:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="StatID" id="StatID" type="hidden">
+				<input name="StatNo" id="StatNo" class="easyui-textbox" required data-options="readonly:true" />
+				@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','StatID,StatNo','ID,StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>*@
+			</div>
+		</td>
+		<td>
+			<label>是否供其他站點選擇:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsCommon" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>所屬調度區域:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="PickUpAreaID" id="PickUpAreaID" type="hidden">
+				<input name="PickUpAreaName" id="PickUpAreaName" class="easyui-textbox" data-options="readonly:true" />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','PickUpAreaID,PickUpAreaName','ID,PickUpAreaName','@Url.Action("getSelectionjqGrid", "PickUpArea")');"></a>
+			</div>
+		</td>
+		<td>
+			<label>調度重要說明:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="Remark5" class="easyui-textbox" style="width:auto" data-options="validType:'maxLength[250]'">
+			</div>
+		</td>
+		<td>
+			<label>調派外務員:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="SectorNo" id="SectorNo" type="hidden" style="width:auto">
+				<input name="SectorName" id="SectorName" class="easyui-textbox" data-options="readonly:true" />
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				   onclick="ShowWinForPickUpjqGrid('fm','SectorNo,SectorName','SectorNo,SectorName','@Url.Action("getSelectionjqGrid", "Sector")');"></a>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<label>為主資料:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsMas" id="IsMas" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" readonly>
+			</div>
+		</td>
+		<td>
+			<label>是否啟用:</label>
+		</td>
+		<td>
+			<div class="fitem">
+				<input name="IsServer" id="IsServer" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'" readonly>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div class="fitem">
+				<div id="newCustZone" style="display:none">
+					<input name="CustNo" class="easyui-textbox" style="width:auto">
+					<input type="hidden" name="ID" class="easyui-textbox" style="width:auto">
+				</div>
+			</div>
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,84 @@
+﻿@{
+    Layout = "~/Views/Shared/_SelectionjqGrid2.cshtml";
+}
+<script>
+	var url = '/Report_Mgmt/GetGridJSON';
+    var gridTitle = '報表資料';
+    var sortName = 'ID';
+    var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "ReportCName", label: "報表中文名稱", search: true,
+		},
+		{
+			name: "ReportEName", label: "報表英文名稱", search: true,
+
+		},
+		{
+			name: "HubNo", label: "路線", search: false,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=100000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "HubName", "HubNo", true);
+				},
+			},
+		},
+		{
+			name: "HubCode", label: "路線代號", search: false,
+		},
+		{
+			name: "ReportCode", label: "報表代號", search: false,
+		},
+	];
+
+	$("#DataGrid_s").jqGrid("autoWidthColumns").jqGrid({
+		caption: gridTitle,
+		url: url + "?HubNo=" + $('#HubNo').val(),
+		datatype: "json",
+		colModel: model,
+		sortname: sortName,
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager_s",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		ondblClickRow: function (rowid) {
+			pickRowtoForm(fmId, inputFields, inputValues, rowid);
+		},
+	}).jqGrid("navGrid", "#pager_s",
+		{
+			edit: false, add: false, del: false,
+			search: false, view: false,
+		},
+		{/*edit*/
+
+		},
+		{/*add*/
+
+		},
+		{/*del*/
+
+		},
+		{/*search*/
+		},
+		{/*view*/
+		}).filterToolbar({
+			searchOnEnter: true
+		});
+	$('#DataGrid_s').setGridParam({ datatype: 'json', url: url, });
+</script>

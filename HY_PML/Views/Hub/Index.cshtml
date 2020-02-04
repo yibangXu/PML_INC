@@ -1,0 +1,106 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+	var apiURL = '/Hub/';
+	var model = [
+		{
+			name: "ID", label: "ID", hidden: true, key: true
+		},
+		{
+			name: "HubCode", label: "路線代號", search: false,
+		},
+		{
+			name: "HubName", label: "路線名稱", search: true,
+			editable: true,
+			editrules: { required: true, },
+			editoptions: { maxLength: 20 },
+			formoptions: { label: "*路線名稱" },
+		},
+		{
+			name: "HubPName", label: "列印名稱", search: false,
+		},
+		{
+			name: "CustNo", label: "客戶", search: true,
+			stype: "select",
+			searchoptions:
+			{
+				dataUrl: "Cust/GetGridJSON?sidx=CustNo&rows=100000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "CustNo", "CustNo", true);
+				},
+			},
+		},
+		{
+			name: "CustID", label: "客戶", editable: true,
+			edittype: "select", hidden: true,
+			formoptions: { rowpos: 2, colpos: 1 },
+			editrules: { edithidden: true },
+			editoptions:
+			{
+				dataUrl: "Cust/GetGridJSON?sidx=CustNo&rows=100000",
+				buildSelect: function (data) {
+					return Lib.jqGrid.buildSelect(data, "ID", "CustNo,CustCName", true);
+				},
+			},
+		},
+		{
+			name: "PrintLang", label: "列印語言", search: false, 
+			formatter: "select",
+			editoptions: {
+				value: { '': " ", 'zh': "中文資料", 'en': '英文資料' }
+			},
+			stype: "select",
+			searchoptions: {
+				value: { '': " ", 'zh': "中文資料", 'en': '英文資料' }
+			}
+		},
+		{
+			name: "IsServer", label: "是否啟用", search: true, editable: true,
+			formoptions: { label: "*是否啟用", rowpos: 2, colpos: 2 },
+			formatter: "select", edittype: "select",
+
+			stype: "select", searchoptions: {
+				value: { "": "", true: "是", false: "否" }
+			},
+			editoptions: {
+				defaultValue: "true",
+				value: { "": "", true: "是", false: "否" },
+			},
+			editrules: { required: true, },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "路線資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "HubNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>

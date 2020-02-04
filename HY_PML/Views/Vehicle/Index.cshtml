@@ -1,0 +1,144 @@
+﻿@{
+	Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+<table id="grid"></table>
+<div id="pager"></div>
+
+<script>
+	var apiURL = '/Vehicle/';
+	var model = [
+		{
+			name: "CarID", label: "車輛編號", key: true,
+			search: true, readonly: "edit", editable: true,
+			formoptions: { label: "*車輛編號", rowpos: 1, colpos: 1 },
+			editoptions: { maxLength: 4 },
+			editrules: { required: true },
+		},
+		{
+			name: "CarNO", label: "車牌號碼",
+			search: true, editable: true,
+			formoptions: { rowpos: 1, colpos: 2 },
+			editoptions: { maxLength: 20 },
+		},
+		{
+			name: "CarKind", label: "車型",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 1 },
+			editoptions: { maxLength: 20 },
+		},
+		{
+			name: "CarBrand", label: "品牌",
+			search: true, editable: true,
+			formoptions: { rowpos: 2, colpos: 2 },
+			editoptions: { maxLength: 20 },
+		},
+		{
+			name: "CheckDT", label: "驗車時間",
+			search: false, editable: true,
+			formoptions: { rowpos: 3, colpos: 1 },
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", }
+		},
+		{
+			name: "Oil", label: "油品",
+			search: false, editable: true,
+			formoptions: { rowpos: 3, colpos: 2 },
+			editrules: { integer: true },
+		},
+		{
+			name: "LoadLimit", label: "載重極限",
+			search: false, editable: true,
+			formoptions: { rowpos: 4, colpos: 1 },
+			editrules: { integer: true },
+		},
+		{
+			name: "LoadSafety", label: "載重安全值",
+			search: false, editable: true,
+			formoptions: { rowpos: 4, colpos: 2 },
+			editrules: { integer: true },
+		},
+		{
+			name: "ValueMax", label: "材積重極限",
+			search: false, editable: true,
+			formoptions: { rowpos: 5, colpos: 1 },
+			editrules: { number: true },
+		},
+		{
+			name: "ValueSafe", label: "材積重安全值",
+			search: false, editable: true,
+			formoptions: { rowpos: 5, colpos: 2 },
+			editrules: { number: true },
+		},
+		{
+			name: "BoxLength", label: "箱體長度",
+			search: false, editable: true,
+			formoptions: { rowpos: 6, colpos: 1 },
+			editrules: { integer: true },
+		},
+		{
+			name: "BoxWidth", label: "箱體寬度",
+			search: false, editable: true,
+			formoptions: { rowpos: 6, colpos: 2 },
+			editrules: { integer: true },
+		},
+		{
+			name: "BoxHeight", label: "箱體高度",
+			search: false, editable: true,
+			formoptions: { rowpos: 7, colpos: 1 },
+			editrules: { integer: true },
+		},
+		{
+			name: "StopDT", label: "停用日期",
+			search: false, editable: true,
+			formoptions: { rowpos: 7, colpos: 2 },
+			formatter: "date",
+			editoptions: {
+				dataInit: function (elm) { $(elm).datepicker({ dateFormat: "yy-mm-dd" }); },
+				sopt: ["ge", "le", "eq"],
+			},
+			formatoptions: { newformat: "Y-m-d", }
+		},
+		{
+			name: "ReMark", label: "備註",
+			search: false, editable: true,
+			formoptions: { rowpos: 8, colpos: 1 },
+			editoptions: { maxLength: 100 },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	$("#grid").jqGrid({
+		caption: "車輛資料",
+		url: apiURL + 'GetGridJSON',
+
+		datatype: "json",
+		colModel: model,
+		sortname: "CarID",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		toolbar: [true, "top"],
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>
+

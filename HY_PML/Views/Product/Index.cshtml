@@ -1,0 +1,101 @@
+﻿@{
+    Layout = "~/Views/Shared/_SingleGridLayout.cshtml";
+}
+
+<table id="grid"></table>
+<div id="pager"></div>
+<script>
+    var apiURL = '/Product/';
+    var model = [
+        { name: "ID", label: "ID", hidden: true, key: true },
+
+        {
+            name: "ProductNo", label: "品名代號", readonly: "edit"
+            , search: true, editable: true,
+            formoptions: { label: "*品名代號", rowpos: 1, colpos: 1 },
+            editoptions: { maxLength: 10 },
+            editrules: { required: true },
+        },
+        {
+            name: "ProductName", label: "中文名稱",
+            search: true, editable: true,
+            formoptions: { label: "*中文名稱", rowpos: 1, colpos: 2 },
+            editoptions: { maxLength: 50 },
+            editrules: { required: true },
+        },
+        {
+            name: "ProductEName", label: "英文品名",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 1 },
+            editoptions: { maxLength: 50 },
+        },
+        {
+            name: "ProductEName2", label: "英文品名",
+            search: true, editable: true,
+            formoptions: { rowpos: 2, colpos: 2 },
+            editoptions: { maxLength: 50 },
+        },
+        {
+            name: "Unit", label: "單位",
+            search: true, editable: true,
+            formoptions: { rowpos: 3, colpos: 1 },
+            editoptions: { maxLength: 30 },
+        },
+        {
+            name: "TaxWay", label: "纳税方法",
+            search: true, editable: true,
+            formoptions: { rowpos: 3, colpos: 2 },
+            editoptions: { maxLength: 30 },
+        },
+        {
+            name: "Country", label: "生產國",
+            search: true, editable: true,
+            formoptions: { rowpos: 4, colpos: 1 },
+            editoptions: { maxLength: 30 },
+        },
+        {
+            name: "Hsno", label: "HS NO",
+            search: true, editable: true,
+            formoptions: { rowpos: 4, colpos: 2 },
+            editoptions: { maxLength: 10 },
+        },
+        {
+            name: "Price", label: "價格",
+            search: false, editable: true,
+            formoptions: { rowpos: 5, colpos: 1 },
+            editrules: { number: true },
+		},
+		{
+			name: "CreatedBy", label: "建立人員", search: false
+		},
+		{
+			name: "CreatedDate", label: "建立時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+    ];
+    $("#grid").jqGrid({
+        caption: "物品資料",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "ProductNo",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+</script>
+

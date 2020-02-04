@@ -1,0 +1,105 @@
+﻿@model HY_PML.Models.BillLadingReport
+@{
+	Layout = null;
+	@Styles.Render("~/Content/report/e-report.css");
+}
+<style>
+	page[size="E-Report5"] {
+		margin: 0;
+		padding: 0 0 0 12mm;
+		width: 215mm;
+		height: 152mm;
+		background-size: cover;
+		/*background-image: url('../../Content/images/E-Report5.jpg');*/
+		background-repeat: no-repeat;
+		font-family: PMingLiU;
+		font-weight: bold;
+		font-size: 12px !important;
+		word-break: break-all;
+		zoom: 1;
+	}
+</style>
+<body>
+	<div style="width:100%;height:100%">
+		<page size="E-Report5">
+			<div style="position:absolute;padding-top:31.5mm;width:108mm;">
+				<span style="padding-left:22mm;display:inline-block;width:46mm">
+					@Model.SendCompany
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:35.5mm;width:108mm;">
+				<span style="padding-left:4mm;display:inline-block;width:101mm;line-height:18px">
+					@Model.SendCustAddr
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:49mm;width:108mm;">
+				<span style="padding-left:10mm;display:inline-block;width:48mm">
+					@Model.SendCity
+				</span>
+				<span style="padding-left:18mm;display:inline-block;width:28mm">
+					@Model.SendPostDist
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:53mm;width:108mm;">
+				<span style="padding-left:21mm;display:inline-block;width:45mm">
+					@Model.SendState
+				</span>
+				<span style="padding-left:10mm;display:inline-block;width:28mm">
+					@Model.SendCountry
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:57.5mm;width:108mm;">
+				<span style="padding-left:20mm;display:inline-block;width:45mm">
+					@Model.SendBy
+				</span>
+				<span style="padding-left:10mm;display:inline-block;width:28mm">
+					@Model.SendPhone
+				</span>
+			</div>
+
+			<div style="position:absolute;padding-top:66.5mm;width:108mm;">
+				<span style="padding-left:22mm;display:inline-block;width:46mm">
+					@Model.RecCompany
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:70mm;width:108mm;">
+				<span style="padding-left:4mm;display:inline-block;width:102mm; line-height:18px">
+					@Model.RecChAddr
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:84mm;width:108mm;">
+				<span style="padding-left:10mm;display:inline-block;width:48mm">
+					@Model.RecCity
+				</span>
+				<span style="padding-left:18mm;display:inline-block;width:28mm">
+					@Model.RecPostDist
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:88.5mm;width:108mm;">
+				<span style="padding-left:22mm;display:inline-block;width:44mm">
+					@Model.RecState
+				</span>
+				<span style="padding-left:10mm;display:inline-block;width:28mm">
+					@Model.RecCountry
+				</span>
+			</div>
+			<div style="position:absolute;padding-top:93mm;width:108mm;">
+				<span style="padding-left:20mm;display:inline-block;width:46mm">
+					@Model.RecBy
+				</span>
+				<span style="padding-left:10mm;display:inline-block;width:28mm">
+					@Model.RecPhone
+				</span>
+			</div>
+		</page>
+	</div>
+</body>
+
+<script>
+																																			//window.onload = function () {
+																																			//    window.print();
+																																			//};
+</script>
+
+
+

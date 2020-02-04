@@ -1,0 +1,3805 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+	<link href="~/Content/easyui/themes/default/easyui.css" rel="stylesheet" />
+	<link href="~/Content/easyui/themes/icon.css" rel="stylesheet" />
+	<style>
+		.custom_mask {
+			position: relative;
+			display: block;
+			background: #B9D1EA;
+			z-index: 999;
+			opacity: 0.3;
+		}
+
+		.scrollable-menu {
+			height: auto;
+			max-height: 200px;
+			overflow-x: hidden;
+		}
+	</style>
+}
+
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid2"></table>
+	<div id="subpager2"></div>
+</div>
+
+@*主表toolbar*@
+<div id="toolbar_jqGrid">
+	<table width="100%" border="1">
+		<tr>
+			<td style="background-color:burlywood"><label style="margin:0px">調派編號:<u><span id="showSelectContent"></span></u></label></td>
+			<td>
+				@*權限控管*@
+				<a class="easyui-linkbutton" iconCls="icon-edit" plain="true" id="m1" onclick="openDetail1_win();">修改</a>
+				<a class="easyui-linkbutton" iconCls="icon-remove" plain="true" id="d1" onclick="destroyDetail1_win()">刪除</a>
+				<a class="easyui-linkbutton" id="openQuickAdd" plain="true" onclick="openQuickAdd(); isNewCust()">++快速新增</a>
+				@RenderSection("despButton", required: false)
+				<input type="radio" name="searchType" value="true" checked />預約、建單
+				<input type="radio" id="despButton" name="searchType" value="false" />收件
+				<input id="sRedyDateS" class="easyui-datebox " style="display:none;width:90px" title="收件時間起">
+				<input id="sRedyTimeS" class="easyui-timespinner" style="width:60px;" data-options="showSeconds:false">
+				~
+				<input id="sRedyDateE" class="easyui-datebox " style="display:none;width:90px" title="收件時間訖">
+				<input id="sRedyTimeE" class="easyui-timespinner" style="width:60px;" data-options="showSeconds:false">
+				<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="SearchReserveDate();"></a>
+			</td>
+		</tr>
+	</table>
+</div>
+@*子表toolbar*@
+<div id="toolbar_jqGrid2">
+	<table width="100%" border="1">
+		<tr>
+			<td style="background-color:burlywood"><label style="margin:0px">明細編號:<u><span id="showSelectContent2"></span></u></label></td>
+			<td>
+				@*權限控管*@
+				<a class="easyui-linkbutton" iconCls="icon-add" plain="true" id="n2" onclick="openDetail2_win('add');">新增</a>
+				<a class="easyui-linkbutton" iconCls="icon-edit" plain="true" id="m2" onclick="openDetail2_win('edit');">修改</a>
+				<a class="easyui-linkbutton" iconCls="icon-remove" plain="true" id="d2" onclick="destroyDetail2_win()">刪除</a>
+			</td>
+		</tr>
+	</table>
+</div>
+@*子表2toolbar*@
+<div id="toolbar_jqGrid3">
+	<table width="100%" border="1">
+		<tr>
+			<td style="background-color:burlywood"><label style="margin:0px">貨物序號:<u><span id="showSelectContent3"></span></u></label></td>
+			<td>
+				@*權限控管*@
+				<a class="easyui-linkbutton" iconCls="icon-edit" plain="true" id="m3" onclick="if ($('#showSelectContent3').text() == '' || $('#showSelectContent3').text() == '新增') {$.messager.alert('注意', '無資料選取或新增');return false;}openDetail3_win();">修改</a>
+				<a class="easyui-linkbutton" iconCls="icon-remove" plain="true" id="d3" onclick="destroyDetail3_win()">刪除</a>
+				<a class="easyui-linkbutton" iconCls="icon-large-clipart" plain="true" id="batchProdButton" onclick="newBatchDetail3();">多筆新增</a>
+			</td>
+		</tr>
+	</table>
+
+</div>
+
+<input type="hidden" id="hidStatNo" value="@ViewBag.StatNo">
+<input type="hidden" id="DataGrid1AutoSelectLastFlag" value="">
+<input type="hidden" id="DataGrid2AutoSelectLastFlag" value="">
+
+<div id="win" class="easyui-window" title="My Window" style="width:800px;height:500px;display:none"
+	 data-options="iconCls:'icon-search',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+</div>
+<div id="winBatchNewProd" class="easyui-window" title="新增視窗" style="width:800px;height:500px;display:none"
+	 data-options="iconCls:'icon-large-clipart',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="insert();">暫添一筆</a>
+	<a class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="saveDetail3BatchSubmit();">全部存檔</a>
+	<input type="hidden" id="SubCarID" class="easyui-textbox">
+	<table id="DataGridBatchProd" style="width:auto;height:420px"></table>
+</div>
+<div id="winQuickAdd" class="easyui-window" title="@ViewBag.Title-快速新增" style="width:800px;height:600px;display:none"
+	 data-options="modal:true,resizable:false,draggable:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	@*added by jie,20180910   height:700px *@
+	<a class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="if (checkTodaySameCust($('#CustNoQuickAdd').val())) { return false; };saveAllQuickAdd();">存檔</a>
+	<form id="fmQuickAdd" method="post" novalidate>
+		<table>
+			<tr>
+				<td style="vertical-align: top;">
+					<table>
+						<tr>
+							<td><label>客戶代號</label></td>
+							<td>
+								<input type="hidden" name="ShdetNo" id="ShdetNoQuickAdd">
+								<input type="hidden" name="sNo" id="sNoQuickAdd">
+								<input name="CustNo" id="CustNoQuickAdd" class="easyui-textbox" required style="display:none;width:90px" data-options="readonly:true">
+								<a id="searchCust" class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+								   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','CustCHName,CustNo','CustCHName,CustNo','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+							</td>
+							<td>
+								<div class="form-check">
+									<input name="newCust" class="form-check-input" value="true" type="checkbox" id="defaultCheckQuickAdd" onclick="isNewCust()">
+									<label class="form-check-label" for="defaultCheckQuickAdd">
+										不收款客戶
+									</label>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>客戶名稱</label></td>
+							<td>
+								<input name="CustCHName" id="CustCHNameQuickAdd" class="easyui-textbox" style="display:none;width:90px" required>
+							</td>
+						</tr>
+						<tr>
+							<td><label id="newCustZoneLabelQuickAdd" style="display:none">區碼(3碼)</label></td>
+							<td>
+								<div id="newCustZoneQuickAdd" style="display:none">
+									<input name="Post3Code" id="Post3CodeQuickAdd" class="easyui-textbox" style="display:none;width:90px">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>業務專員</label></td>
+							<td>
+								@*	<input name="Clerk" id="HeadClerkQuickAdd" class="easyui-textbox" style="display:none;width:90px">*@
+								<select class="easyui-combobox" id="HeadClerkQuickAdd" name="Clerk" style="width:auto;" data-options="panelHeight:'auto'"></select>
+							</td>
+						</tr>
+						<tr>
+							<td><label>路線</label></td>
+							<td>
+								<div style="display:none;width:90px"><input name="HubNo" id="HubNoQuickAdd" class="easyui-textbox" style="display:none;width:90px"></div>
+								<input name="HubName" id="HubNameQuickAdd" class="easyui-textbox" data-options="readonly:true" style="display:none;width:90px" required="true">
+								<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+								   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','HubName,HubNo','HubName,HubNo','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+							</td>
+						</tr>
+						<tr>
+							<td><label>目的地</label></td>
+							<td>
+								<input name="Dest" id="DestQuickAdd" class="easyui-textbox" style="display:none;width:90px">
+								<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+								   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','Dest','CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+							</td>
+						</tr>
+						<tr>
+							<td><label>預約日期</label></td>
+							<td>
+								<input name="ReserveDate" id="ReserveDateQuickAdd" class="easyui-datetimebox" style="display:none;width:150px" data-options="readonly:false">
+							</td>
+						</tr>
+						<tr>
+							<td><label>出貨日期</label></td>
+							<td>
+								<input name="SDate" id="SDateQuickAdd" class="easyui-datebox" style="display:none;width:150px" data-options="readonly:false">
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td style="vertical-align: top;">
+					<table id="tableDetailQuickAdd">
+						@*modified by jie,20180910  id="tableDetailQuickAdd"  *@
+						<tr>
+							<td><label>取件名稱:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="CarryName" id="CarryNameQuickAdd" class="easyui-textbox" style="width:90px" required>
+									<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+									   onclick="if($('#CustNoQuickAdd').val() == ''){ $.messager.alert('提示', '無客戶代號'); return false;} ShowWinForPickUpjqGrid('fmQuickAdd','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CcNo,PickUpAreaNo','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CcNo,PickUpAreaNo','@Url.Action("getSelectionjqGrid", "ShdetF")',$('#CustNoQuickAdd').val(),'GetGridJSON_HistoryShdetDetail');"></a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>郵政5碼:</label></td>
+							<td colspan="3">
+								<div class="fitem">
+									<input name="Code5" id="Code5QuickAdd" class="easyui-textbox" style="width:70px;display:none" data-options="readonly:true">
+									<input name="Code7" id="Code7QuickAdd" class="easyui-textbox" style="width:70px" data-options="readonly:true" required>
+									<input name="CustAddr" id="CustAddrQuickAdd" class="easyui-textbox" style="width:240px" data-options="readonly:true,onChange:function(newValue,oldValue){ CustAddrChangedQuickAdd(newValue,oldValue);}" required>
+									<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+									   onclick="ShowWinForPickUpGrid20('Code5QuickAdd','Code5','textbox','CustAddrQuickAdd','AdrressSimpleVer','textbox','PickUpAreaNoQuickAdd','PickUpAreaNo','textbox','Code7QuickAdd','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")',$('#Code5QuickAdd').val());"></a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>段巷弄號樓 :</label></td>
+							<td colspan="3">
+								<div class="fitem">
+									<input name="Add_1" id="add1QuickAdd" class="easyui-textbox" style="width:30px">段
+									<input name="Add_2" id="add2QuickAdd" class="easyui-textbox" style="width:30px">巷
+									<input name="Add_3" id="add3QuickAdd" class="easyui-textbox" style="width:30px">弄
+									<input name="Add_4" id="add4QuickAdd" class="easyui-textbox" style="width:30px" required>號
+									<input name="Add_5" id="add5QuickAdd" class="easyui-textbox" style="width:30px">樓
+									,其他<input name="Add_6" id="add6QuickAdd" class="easyui-textbox" style="width:120px">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>英文地址:</label></td>
+							<td colspan="3">
+								<div class="fitem">
+									<input name="CustENAddr1" id="CustENAddr1QuickAdd" class="easyui-textbox" style="width:240px">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>國家:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="Country" id="CountryQuickAdd" class="easyui-textbox" style="width:90px">
+								</div>
+							</td>
+							<td><label>業務部聯絡人:</label></td>
+							<td>
+								<div class="fitem">
+									@*<input name="CtcSale" id="CtcSaleQuickAdd" class="easyui-textbox" style="width:90px" required="true">*@
+									<select class="easyui-combobox" id="CtcSaleQuickAdd" name="CtcSale" style="width:auto;" data-options="panelHeight:'auto'" required></select>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>電話:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="Tel" id="TelQuickAdd" class="easyui-textbox" style="width:90px" required="true">
+								</div>
+							</td>
+							<td><label>可取件日期</label></td>
+							<td><input id="RedyDateQuickAdd" name="RedyDate" class="easyui-datebox" style="display:none;width:90px"></td>
+						</tr>
+						<tr>
+							<td><label>可取件時間</label></td>
+							<td><input id="RedyTimeQuickAdd" name="RedyTime" class="easyui-timespinner" style="display:none;width:80px" required="true"></td>
+							<td><label>外務員:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="SectorName" id="SectorNameQuickAdd" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+									<input type="hidden" name="SectorNo" id="SectorNoQuickAdd" class="easyui-textbox" style="width:0px;display:none !important" data-options="readonly:true">
+									<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+									   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','SectorName,SectorNo,CarID,CallStatNo','SectorName,SectorNo,CarID,StatNo','@Url.Action("getSelectionjqGrid_Add", "Sector")');"></a>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>調度區域:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="PickUpAreaNo" id="PickUpAreaNoQuickAdd" class="easyui-textbox" style="width:90px" required data-options="readonly:true,onChange:function(newValue,oldValue){ PickUpAreaNoChangedQuickAdd(newValue,oldValue);}">
+									<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+									   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','PickUpAreaNo','PickUpAreaNo','@Url.Action("getSelectionjqGrid", "PickUpArea")');"></a>
+								</div>
+							</td>
+							<td><label>截止時間:</label></td>
+							<td>
+								<div class="fitem">
+
+									<input name="EndDate" id="EndDateQuickAdd" class="easyui-timespinner" style="width:80px;"
+										   data-options="showSeconds:false" required>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label>叫件站點:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="StatNo" id="StatNoQuickAdd" class="easyui-textbox" style="width:90px" data-options="readonly:true" value="@ViewBag.StatNo" required>
+									@*<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="ShowWinForPickUpjqGrid('fmQuickAdd','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>*@
+								</div>
+							</td>
+							<td><label>車輛ID:</label></td>
+							<td>
+								<input name="CarID" id="CarIDQuickAdd" class="easyui-textbox" style="width:90px" required readonly>
+								<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+								   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','CarID','CarID','@Url.Action("getSelectionjqGrid", "Vehicle")');"></a>
+							</td>
+						</tr>
+						<tr>
+							<td><label>貨物類型</label></td>
+							<td>
+								<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+									<option value="0">0.文件</option>
+									<option value="1">1.包裹5KG以下</option>
+									<option value="2">2.箱貨5KG以上</option>
+									<option value="3">3.木箱</option>
+									<option value="4">4.棧板</option>
+								</select>
+								<script type="text/javascript">
+									var WeigLevel = [
+										{ val: '0', text: '0.文件' },
+										{ val: '1', text: '1.包裹5KG以下' },
+										{ val: '2', text: '2.箱貨5KG以上' },
+										{ val: '3', text: '3.木箱' },
+										{ val: '4', text: '4.棧板' }
+									];
+								</script>
+							</td>
+							<td><label>報關類型</label></td>
+							<td>
+								<select class="easyui-combobox" name="CocustomTyp" style="width:auto;display:none">
+									<option value="0">0.不報關</option>
+									<option value="1">1.正式報關</option>
+									<option value="2">2.簡易報關</option>
+									<option value="3">3.正式報關+後段核銷</option>
+									<option value="4">4.簡易報關+後段核銷</option>
+									<option value="5">5.不報關+後段核銷</option>
+									<option value="6">6.其他</option>
+								</select>
+								<script type="text/javascript">
+									var CocustomTyp = [
+										{ val: '0', text: '0.不報關' },
+										{ val: '1', text: '1.正式報關' },
+										{ val: '2', text: '2.簡易報關' },
+										{ val: '3', text: '3.正式報關+後段核銷' },
+										{ val: '4', text: '4.簡易報關+後段核銷' },
+										{ val: '5', text: '5.不報關+後段核銷' },
+										{ val: '6', text: '6.其他' }
+									];
+								</script>
+							</td>
+						</tr>
+						<tr>
+							<td><label>付款方式</label></td>
+							<td>
+								<input name="CcNo" id="CcNoQuickAdd" class="easyui-textbox" style="display:none;width:90px" data-options="readonly:true">
+								<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+								   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+							</td>
+							<td><label>收款金額</label></td>
+							<td><input name="Charge" id="ChargeQuickAdd" class="easyui-textbox" style="display:none;width:90px"></td>
+						</tr>
+						<tr>
+							<td><label>取件站點:</label></td>
+							<td>
+								<div class="fitem">
+									<input name="CallStatNo" id="CallStatNoQuickAdd" class="easyui-textbox" value="@ViewBag.StatNo" style="width:90px" data-options="readonly:true" required>
+									<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+									   onclick="ShowWinForPickUpjqGrid('fmQuickAdd','CallStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+								</div>
+							</td>
+							<td>
+								<label>準時取件:</label>
+							</td>
+							<td>
+								<div class="fitem">
+									<input name="IsRedy" id="IsRedyQuickAdd" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+								</div>
+							</td>
+						</tr>
+						<tr style="display:none">
+							<td><label>可取件日期</label></td>
+							<td><input id="ADateQuickAdd" name="ADate" class="easyui-datebox" style="display:none;width:90px"></td>
+
+							<td><label>可取件時間</label></td>
+							<td><input id="ATimeQuickAdd" name="ATime" class="easyui-timespinner" style="display:none;width:80px" required="true"></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			@*added by jie,20180910   *@
+			<tr>
+				<td colspan="2" style="vertical-align: top;">
+					<table style="width:100%;">
+						<tr>
+							<td>
+								<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="insertDetailQuickAdd();">暫添一筆明細</a>
+								<table id="DataGridBatchDetailQuickAdd" style="width:100%;height:120px"></table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			@*end added by jie,20180910   *@
+			<tr>
+				<td colspan="2" style="vertical-align: top;">
+					<table style="width:100%;">
+						<tr>
+							<td>
+								<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="insertQuickAdd();">暫添一筆貨物</a> @*modified by jie,20180910  暫添一筆貨物  *@
+								<table id="DataGridBatchProdQuickAdd" style="width:100%;height:170px"></table> @*modified by jie,20180910  height:170px  *@
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+	var Saving = 0;
+	var FirstLoad = true;
+	$(function () {
+
+		$('#Code5QuickAdd').textbox("textbox").parent("span.textbox").hide();
+		$('#Code5').textbox("textbox").parent("span.textbox").hide();
+			var userAct = $('#UserAct').val();
+			setTimeout(function () {
+				if (userAct.includes("Add") == false) {
+					$("#openQuickAdd").linkbutton('disable');
+					$("#n2").linkbutton('disable');
+					$("#batchProdButton").linkbutton('disable');
+				}
+				if (userAct.includes("Edit") == false) {
+					$("#m1").linkbutton('disable');
+					$("#m2").linkbutton('disable');
+					$("#m3").linkbutton('disable');
+				}
+				if (userAct.includes("Del") == false) {
+					$("#d1").linkbutton('disable');
+					$("#d2").linkbutton('disable');
+					$("#d3").linkbutton('disable');
+				}
+				if (userAct.includes("despButton") == false) {
+					$("#despButton").linkbutton('disable');
+				}
+			}, 300);
+
+
+		$('#IsRedyQuickAdd').switchbutton({
+			checked: true,
+			onChange: function (checked) {
+				$('#IsRedyQuickAdd').val(checked);
+				$('#IsRedy').val(checked);
+			}
+		})
+	})
+
+    //此區都在處理批次新增視窗
+    function getRowIndex(target) {
+        var tr = $(target).closest('tr.datagrid-row');
+        return parseInt(tr.attr('datagrid-row-index'));
+    }
+    function editrow(target) {
+        $('#DataGridBatchProd').datagrid('beginEdit', getRowIndex(target));
+    }
+    function editrowQuickAdd(target) {
+        $('#DataGridBatchProdQuickAdd').datagrid('beginEdit', getRowIndex(target));
+	}
+    function deleterow(target) {
+        $.messager.confirm('@ViewBag.Title-確認', '刪除此筆?', function (r) {
+            if (r) {
+                $('#DataGridBatchProd').datagrid('deleteRow', getRowIndex(target));
+            }
+        });
+    }
+    function deleterowQuickAdd(target) {
+        $.messager.confirm('@ViewBag.Title-確認', '刪除此筆?', function (r) {
+            if (r) {
+                $('#DataGridBatchProdQuickAdd').datagrid('deleteRow', getRowIndex(target));
+            }
+        });
+	}
+	function deletedetailrowQuickAdd(target) {
+		$.messager.confirm('-確認', '刪除此筆?', function (r) {
+			if (r) {
+				$('#DataGridBatchDetailQuickAdd').datagrid('deleteRow', getRowIndex(target));
+			}
+		});
+	}
+    function saverow(target) {
+        $('#DataGridBatchProd').datagrid('endEdit', getRowIndex(target));
+    }
+    function saverowQuickAdd(target) {
+        $('#DataGridBatchProdQuickAdd').datagrid('endEdit', getRowIndex(target));
+	}
+    function cancelrow(target) {
+        $('#DataGridBatchProd').datagrid('cancelEdit', getRowIndex(target));
+    }
+    function cancelrowQuickAdd(target) {
+        $('#DataGridBatchProdQuickAdd').datagrid('cancelEdit', getRowIndex(target));
+	}
+    function insert() {
+        var row = $('#DataGridBatchProd').datagrid('getSelected');
+        if (row) {
+            var index = $('#DataGridBatchProd').datagrid('getRowIndex', row);
+        } else {
+            index = 0;
+        }
+        $('#DataGridBatchProd').datagrid('insertRow', {
+            index: index,
+            row: {
+				status: 'P',
+				CarID: $('#SubCarID').val()
+            }
+        });
+        $('#DataGridBatchProd').datagrid('selectRow', index);
+        $('#DataGridBatchProd').datagrid('beginEdit', index);
+	}
+    function insertQuickAdd() {
+        //add by jie,20180910
+        var rowDetail = $('#DataGridBatchDetailQuickAdd').datagrid('getSelected');
+        if (rowDetail) {
+
+        } else {
+            $.messager.alert('@ViewBag.Title-提示','未選取明細');
+            return false;
+        }
+        var stringCarryName = rowDetail.CarryName;
+        //end add by jie,20180910
+        var row = $('#DataGridBatchProdQuickAdd').datagrid('getSelected');
+        if (row) {
+            var index = $('#DataGridBatchProdQuickAdd').datagrid('getRowIndex', row);
+        } else {
+            index = 0;
+        }
+
+        $('#DataGridBatchProdQuickAdd').datagrid('insertRow', {
+            index: index,
+            row: {
+                CarryName: stringCarryName,
+                sDtlNo: rowDetail.sNo,
+            }
+        });
+        $('#DataGridBatchProdQuickAdd').datagrid('selectRow', index);
+        $('#DataGridBatchProdQuickAdd').datagrid('beginEdit', index);
+    }
+    function saveDetail3BatchSubmit() {
+        var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+        //var row = $('#DataGrid').datagrid('getSelected');
+        var row2 = $('#DataGridBatchProd').datagrid('getRows');
+        if (row2) {
+            if (row2.length < 1)
+                return false;
+        } else {
+            return false;
+        }
+        for (var i = 0; i < row2.length ; i++){
+            if (row2[i].editing == true)
+                return false;
+        }
+        if (gsr) {
+            var row = $("#subgrid").jqGrid('getRowData', gsr);
+            if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+            //$.messager.progress();	// display the progress bar
+        } else {
+            return false;
+        }
+
+        var countOK = 0;
+        var countFAIL = 0;
+        var countR1 = 0;
+        var countR2 = 0;
+        var countR3 = 0;
+        var errorMsg = '';
+
+        var targetData = $('#DataGridBatchProd').datagrid('getData');
+
+        $.ajax({
+            url: '@Url.Action("NewShdet3Batch", "ShdetF")',
+            type: "POST",
+            cache: false,
+            async: false,
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            data: JSON.stringify(targetData),
+            success: function (response) {
+                //Some Code here
+                countOK = response.OK;
+                countFAIL = response.FAIL;
+                countR1 = response.R1;
+                countR2 = response.R2;
+                countR3 = response.R3;
+                errorMsg = response.errorMsg;
+            }
+        });
+
+        if (countFAIL == 0)
+            $.messager.alert('@ViewBag.Title-提示', '新增貨物資料' + countOK + '筆成功');
+        else
+            $.messager.alert('@ViewBag.Title-提示', '新增貨物資料' + countOK + '筆成功，失敗' + countFAIL + '筆，失敗訊息：' + errorMsg);
+
+        $('#winBatchNewProd').window('close');
+        SearchReserveDate();
+    }
+	function isNewCust() {
+		var isChecked = $("#defaultCheckQuickAdd").is(":checked");
+		if (isChecked) {
+			$('#searchCust').linkbutton({
+				disabled: true
+			});
+		} else {
+			$('#searchCust').linkbutton({
+				disabled: false
+			});
+		}
+	}
+</script>
+
+<div id="winHeader" class="easyui-window" title="@ViewBag.Title-主檔" style="width:800px;height:500px;display:none"
+	 data-options="iconCls:'icon-large-clipart',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	<a class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="saveDetail1_win();">存檔</a>
+
+	<form id="fm" method="post" novalidate>
+		<table id="table1">
+			<tr>
+				<td><label>客戶代號<input type="hidden" id="ShdetNo" name="ShdetNo"></label></td>
+				<td>
+					<input name="CustNo" id="CustNo" class="easyui-textbox" required style="display:none;width:90px" data-options="readonly:true">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpjqGrid('fm','CustCHName,CustNo','CustCHName,CustNo','@Url.Action("getSelectionjqGrid", "Cust")');"></a>
+				</td>
+				<td>
+					<div class="form-check">
+						<input name="newCust" class="form-check-input" type="checkbox" value="true" id="defaultCheck1">
+						<label class="form-check-label" for="defaultCheck1">
+							不收款客戶
+						</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>客戶名稱</label></td>
+				<td>
+					<input name="CustCHName" id="CustCHName" class="easyui-textbox" style="display:none;width:90px" required="true">
+				</td>
+				<td><label>業務專員</label></td>
+				<td>
+					@*<input name="Clerk" id="HeadClerk" class="easyui-textbox" style="display:none;width:90px">*@
+					<select class="easyui-combobox" id="HeadClerk" name="Clerk" style="width:auto;" data-options="panelHeight:'auto'"></select>
+				</td>
+			</tr>
+			<tr>
+				<td><label id="newCustZoneLabel" style="display:none">區碼(3碼)</label></td>
+				<td>
+					<div id="newCustZone" style="display:none"><input name="Post3Code" id="Post3Code" class="easyui-textbox" style="display:none;width:90px"></div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>路線</label></td>
+				<td>
+					<div style="display:none;width:90px"><input name="HubNo" id="HubNo" class="easyui-textbox" style="display:none;width:90px"></div>
+					<input name="HubName" id="HubName" class="easyui-textbox" data-options="readonly:true" style="display:none;width:90px" required="true">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpjqGrid('fm','HubName,HubNo','HubName,HubNo','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
+				</td>
+				<td><label>目的地</label></td>
+				<td>
+					<input name="Dest" id="Dest" class="easyui-textbox" style="display:none;width:90px">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpjqGrid('fm','Dest','CName','@Url.Action("getSelectionjqGrid", "Dest")');"></a>
+				</td>
+			</tr>
+			<tr>
+				<td><label>預約日期</label></td>
+				<td>
+					<input name="ReserveDate" id="ReserveDate" class="easyui-datetimebox" style="display:none;width:150px" data-options="readonly:false">
+				</td>
+				<td><label>出貨日期</label></td>
+				<td>
+					<input name="SDate" id="SDate" class="easyui-datebox" style="display:none;width:150px" data-options="readonly:false">
+				</td>
+			</tr>
+			<tr>
+				<td><label>建單人員</label></td>
+				<td>
+					<input name="CreatedBy" class="easyui-textbox" style="display:none;width:90px" data-options="readonly:true">
+				</td>
+				<td><label>建單時間</label></td>
+				<td>
+					<input name="CreatedDate" class="easyui-textbox" style="display:none;width:125px" data-options="readonly:true">
+				</td>
+			</tr>
+			<tr>
+				<td><label>修改人員</label></td>
+				<td>
+					<input name="UpdatedBy" class="easyui-textbox" style="display:none;width:90px" data-options="readonly:true">
+				</td>
+				<td><label>修改時間</label></td>
+				<td>
+					<input name="UpdatedDate" class="easyui-textbox" style="display:none;width:125px" data-options="readonly:true">
+				</td>
+			</tr>
+			@*2019-11-13 ShdetFix*@
+			@RenderBody()
+		</table>
+	</form>
+</div>
+
+<div id="winDetail" class="easyui-window" title="@ViewBag.Title-明細" style="width:800px;height:500px;display:none"
+	 data-options="iconCls:'icon-large-clipart',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	<a class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="saveDetail2_win();">存檔</a>
+
+	<form id="fm2" method="post" novalidate>
+		<table id="table2">
+			<tr>
+				<td><label>明細序號:</label></td>
+				<td>
+					<div class="fitem">
+						<label id="sNoDisplay"></label>
+						<input type="hidden" id="DetailShdetNo" name="ShdetNo">
+						<input name="sNo" id="DetailsNo" type="hidden" style="width:auto">
+						<input name="CustNo" id="DetailCustNo" type="hidden" style="width:auto">
+					</div>
+				</td>
+				<td><label>取件名稱:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="CarryName" id="CarryName" class="easyui-textbox" style="width:90px" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm2','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CarID,CcNo,Charge,CallStatNo,PickUpAreaNo','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CarID,CcNo,Charge,CallStatNo,PickUpAreaNo','@Url.Action("getSelectionjqGrid", "ShdetF")',$('#DetailCustNo').val(),'GetGridJSON_HistoryShdetDetail');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>郵政5碼:</label></td>
+				<td colspan="3">
+					<div class="fitem">
+						<input name="Code5" id="Code5" class="easyui-textbox" style="width:70px" data-options="readonly:true">
+						<input name="Code7" id="Code7" class="easyui-textbox" style="width:70px" data-options="readonly:true" required>
+						<input name="CustAddr" id="CustAddr" class="easyui-textbox" style="width:240px" data-options="readonly:true,onChange:function(newValue,oldValue){ CustAddrChanged(newValue,oldValue);}">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpGrid20('Code5','Code5','textbox','CustAddr','AdrressSimpleVer','textbox','PickUpAreaNo','PickUpAreaNo','textbox','Code7','Code7','textbox','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','none','選擇地址','@Url.Action("getSelectionGrid20", "PostCode")',$('#Code5').val());"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>段巷弄號樓 :</label></td>
+				<td colspan="3">
+					<div class="fitem">
+						<input name="Add_1" id="add1" class="easyui-textbox" style="width:30px">段
+						<input name="Add_2" id="add2" class="easyui-textbox" style="width:30px">巷
+						<input name="Add_3" id="add3" class="easyui-textbox" style="width:30px">弄
+						<input name="Add_4" id="add4" class="easyui-textbox" style="width:30px" required>號
+						<input name="Add_5" id="add5" class="easyui-textbox" style="width:30px">樓
+						,其他<input name="Add_6" id="add6" class="easyui-textbox" style="width:120px">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>英文地址:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="CustENAddr1" id="CustENAddr1" class="easyui-textbox" style="width:240px">
+					</div>
+				</td>
+				<td><label>國家:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="Country" id="Country" class="easyui-textbox" style="width:90px">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>業務部聯絡人:</label></td>
+				<td>
+					<div class="fitem">
+						@*<input name="CtcSale" id="CtcSale" class="easyui-textbox" style="width:90px" required="true">*@
+						<select class="easyui-combobox" id="CtcSale" name="CtcSale" style="width:auto;" data-options="panelHeight:'auto'" required></select>
+					</div>
+				</td>
+				<td><label>電話:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="Tel" id="Tel" class="easyui-textbox" style="width:90px" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>外務員:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="SectorName" id="SectorName" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+						<input type="hidden" name="SectorNo" id="SectorNo" class="easyui-textbox" style="width:0px;display:none" data-options="readonly:true">
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm2','SectorNo,SectorName,CarID,CallStatNo','SectorNo,SectorName,CarID,StatNo','@Url.Action("getSelectionjqGrid_Add", "Sector")');"></a>
+
+					</div>
+				</td>
+				<td><label>調度區域:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" style="width:90px" required data-options="readonly:true,onChange:function(newValue,oldValue){ PickUpAreaNoChanged(newValue,oldValue);}">
+						@*<input name="PickUpAreaNo" id="PickUpAreaNo" class="easyui-textbox" style="width:90px" required data-options="readonly:true,onChange:function(newValue,oldValue){ setTimeout(PickUpAreaNoChanged(newValue,oldValue),3000)}">*@
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm2','PickUpAreaNo','PickUpAreaNo','@Url.Action("getSelectionjqGrid", "PickUpArea")');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>截止時間:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="EndDate" id="EndDate" class="easyui-timespinner" style="width:80px;"
+							   data-options="showSeconds:false" required>
+					</div>
+				</td>
+				<td><label>叫件站點:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="StatNo" id="StatNo" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm2','StatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>車輛ID:</label></td>
+				<td>
+					<input name="CarID" id="CarID" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpjqGrid('fm2','CarID','CarID','@Url.Action("getSelectionjqGrid", "Vehicle")');"></a>
+				</td>
+				<td><label>貨物類型</label></td>
+				<td>
+					<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+						<option value="0">0.文件</option>
+						<option value="1">1.包裹5KG以下</option>
+						<option value="2">2.箱貨5KG以上</option>
+						<option value="3">3.木箱</option>
+						<option value="4">4.棧板</option>
+					</select>
+					<script type="text/javascript">
+						var WeigLevel = [
+							{ val: '0', text: '0.文件' },
+							{ val: '1', text: '1.包裹5KG以下' },
+							{ val: '2', text: '2.箱貨5KG以上' },
+							{ val: '3', text: '3.木箱' },
+							{ val: '4', text: '4.棧板' }
+						];
+					</script>
+				</td>
+			</tr>
+			<tr>
+				<td><label>報關類型</label></td>
+				<td>
+					<select class="easyui-combobox" name="CocustomTyp" style="width:auto;display:none">
+						<option value="0">0.不報關</option>
+						<option value="1">1.正式報關</option>
+						<option value="2">2.簡易報關</option>
+						<option value="3">3.正式報關+後段核銷</option>
+						<option value="4">4.簡易報關+後段核銷</option>
+						<option value="5">5.不報關+後段核銷</option>
+						<option value="6">6.其他</option>
+					</select>
+					<script type="text/javascript">
+						var CocustomTyp = [
+							{ val: '0', text: '0.不報關' },
+							{ val: '1', text: '1.正式報關' },
+							{ val: '2', text: '2.簡易報關' },
+							{ val: '3', text: '3.正式報關+後段核銷' },
+							{ val: '4', text: '4.簡易報關+後段核銷' },
+							{ val: '5', text: '5.不報關+後段核銷' },
+							{ val: '6', text: '6.其他' }
+						];
+					</script>
+				</td>
+				<td><label>付款方式</label></td>
+				<td>
+					<input name="CcNo" id="CcNo" class="easyui-textbox" style="display:none;width:90px" data-options="readonly:true">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					   onclick="ShowWinForPickUpjqGrid('fm2','CcNo','CcNo','@Url.Action("getSelectionjqGrid", "Cc")');"></a>
+				</td>
+			</tr>
+			<tr>
+				<td><label>收款金額</label></td>
+				<td><input name="Charge" id="Charge" class="easyui-textbox" style="display:none;width:90px"></td>
+				<td><label>取件站點:</label></td>
+				<td>
+					<div class="fitem">
+						<input name="CallStatNo" id="CallStatNo" class="easyui-textbox" style="width:90px" data-options="readonly:true" required>
+						<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						   onclick="ShowWinForPickUpjqGrid('fm2','CallStatNo','StatNo','@Url.Action("getSelectionjqGrid", "Stat")');"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>可取件日期</label></td>
+				<td><input id="RedyDate" name="RedyDate" class="easyui-datebox" style="display:none;width:90px"></td>
+				<td><label>可取件時間</label></td>
+				<td><input id="RedyTime" name="RedyTime" class="easyui-timespinner" style="display:none;width:80px" required="true"></td>
+			</tr>
+			<tr>
+				<td>
+					<label>準時取件:</label>
+				</td>
+				<td>
+					<div class="fitem">
+						<input name="IsRedy" id="IsRedy" class="easyui-switchbutton" data-options="onText:'是',offText:'否',value:'true'">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td><label>回覆說明</label></td>
+				<td colspan="3"><input name="ReplyComment" class="easyui-textbox" style="display:none;width:240px" data-options="multiline:'true'"></td>
+			</tr>
+			<tr style="display:none">
+				<td><label>調派狀態</label></td>
+				<td>
+					<input class="form-check-input" type="checkbox" value="true" name="d_IsDesp" id="d_IsDesp">
+				</td>
+				<td><label>取消狀態</label></td>
+				<td>
+					<input class="form-check-input" type="checkbox" value="true" name="d_IsCancel" id="d_IsCancel">
+				</td>
+			</tr>
+			<tr style="display:none">
+				<td><label>回覆狀態</label></td>
+				<td>
+					<input class="form-check-input" type="checkbox" value="true" name="d_IsReply" id="d_IsReply">
+				</td>
+				<td><label>完成狀態</label></td>
+				<td>
+					<input class="form-check-input" type="checkbox" value="true" name="d_IsFinish" id="d_IsFinish">
+				</td>
+			</tr>
+		</table>
+		<div id="step2" data-options="region:'center',title:'明細資料',split:false,collapsible:false" style="height:50%;overflow: hidden;">
+		</div>
+	</form>
+</div>
+
+<div id="winProduct" class="easyui-window" title="@ViewBag.Title-貨物" style="width:800px;height:500px;display:none"
+	 data-options="iconCls:'icon-large-clipart',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+	<a class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="saveDetail3_win();">存檔</a>
+
+	<form id="fm3" method="post" novalidate>
+		<table id="table3">
+			<tr>
+				<td><label>貨物序號</label></td>
+				<td>
+					<label id="ProdSNoDisplay"></label>
+					<input type="hidden" id="ProdShdetNo" name="ShdetNo">
+					<input name="sDtlNo" id="sDtlNo" type="hidden">
+					<input name="CustNo" id="ProdCustNo" type="hidden">
+					<input name="sNo" id="ProdSNo" type="hidden">
+				</td>
+				<td><label>件數</label></td>
+				<td>
+					<input name="Pcs" id="Pcs" class="easyui-textbox" style="display:none;width:90px" required="true">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<label>長</label><input name="fLen" id="fLen" class="easyui-textbox" style="display:none;width:40px">
+					<label>寬</label><input name="fWidth" id="fWidth" class="easyui-textbox" style="display:none;width:40px">
+					<label>高</label><input name="fHeight" id="fHeight" class="easyui-textbox" style="display:none;width:40px">C.m.
+				</td>
+			</tr>
+			<tr>
+				<td><label>總材數</label></td>
+				<td>
+					<input name="iTotNum" id="iTotNum" class="easyui-numberbox" precision="3" min="0" style="display:none;width:40px" data-options="readonly:false" required="true">材
+				</td>
+				<td><label>重量</label></td>
+				<td><input name="Weig" class="easyui-textbox" style="display:none;width:90px" required="true"><label>KGS</label></td>
+			</tr>
+			<tr>
+				<td><label>內部說明</label></td>
+				<td colspan="3"><input name="Remark1" class="easyui-textbox" style="display:none;width:240px" data-options="multiline:'true'"></td>
+			</tr>
+			<tr>
+				<td><label>注意事項</label></td>
+				<td colspan="3"><input name="Remark3" class="easyui-textbox" style="display:none;width:240px" data-options="multiline:'true'"></td>
+			</tr>
+			@*ShdetFix
+				<tr>
+						<td><label>調派狀態</label></td>
+						<td>
+							<input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						</td>
+						<td><label>取消狀態</label></td>
+						<td>
+							<input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						</td>
+					</tr>
+					<tr>
+						<td><label>回覆狀態</label></td>
+						<td>
+							<input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						</td>
+						<td><label>完成狀態</label></td>
+						<td>
+							<input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						</td>
+					</tr>
+					<tr>
+						<td><label>回覆說明</label></td>
+						<td colspan="3"><input name="ReplyComment" class="easyui-textbox" style="display:none;width:240px" data-options="multiline:'true'"></td>
+					</tr>
+			*@
+		</table>
+		<div id="step3" data-options="region:'center',title:'調派貨物區',split:false,collapsible:false" style="width:auto;overflow: hidden;">
+		</div>
+	</form>
+</div>
+
+@section scripts
+{
+	<script src="~/Content/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript">
+        var NowStep = 1;
+        var LastAddedRow;
+        var $fmDetail = $('#fm2');
+
+        $(function () {
+            @RenderSection("FromQuickSearch", required: false)
+            $('#DataGridBatchProd').datagrid({
+                title: '多筆新增',
+                singleSelect:"true",
+                columns: [[
+                    { field: 'Pcs', title: '件數',  width: 80 ,editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'fLen', title: '長(cm)', width: 80,editor: 'text' },
+                    { field: 'fWidth', title: '寬(cm)', width: 80,editor: 'text' },
+                    { field: 'fHeight', title: '高(cm)', width: 80,editor: 'text' },
+                    { field: 'iTotNum', title: '總材數(材)', width: 80,editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'Weig', title: '重量(KGS)', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'remark3', title: '注意事項', width: 160, editor: 'text' },
+					{ field: 'remark1', title: '內部說明', width: 160, editor: 'text' },
+					{ field: 'CarID', title: '車輛ID', width: 50 },
+                    {
+                        field: 'action', title: 'Action', width: 80, align: 'center',
+                        formatter: function (value, row, index) {
+                            if (row.editing) {
+                                var s = '<a href="javascript:void(0)" onclick="saverow(this)">OK</a> ';
+                                var c = '<a href="javascript:void(0)" onclick="cancelrow(this)">Cancel</a>';
+                                return s + c;
+                            } else {
+                                var e = '<a href="javascript:void(0)" onclick="editrow(this)">編輯此筆</a> ';
+                                var d = '<a href="javascript:void(0)" onclick="deleterow(this)">刪除此筆</a>';
+                                return e + d;
+                            }
+                        }
+                    }
+                ]],
+				onEndEdit: function (index, row) {
+                },
+                onBeforeEdit: function (index, row) {
+                    var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+                    var row2 = $("#subgrid").jqGrid('getRowData', gsr);
+                    if (row.ShdetNo) { } else { row.ShdetNo = row2.ShdetNo; }
+                    if (row.CustNo) { } else { row.CustNo = row2.CustNo; }
+                    if (row.sDtlNo) { } else { row.sDtlNo = row2.sNo; }
+                    row.editing = true;
+                    $(this).datagrid('refreshRow', index);
+                },
+                onBeginEdit: function (index, row) {
+                    var edPcs = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'Pcs'
+                    });
+                    var edfLen = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fLen'
+                    });
+                    var edfWidth = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fWidth'
+                    });
+                    var edfHeight = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fHeight'
+                    });
+                    var ediTotNum = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'iTotNum'
+                    });
+                    $(edPcs.target).bind('keyup', function (e) {
+						if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfLen.target).bind('keyup', function (e) {
+						if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfWidth.target).bind('keyup', function (e) {
+                        if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfHeight.target).bind('keyup', function (e) {
+                        if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val())*1000 / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                },
+                onAfterEdit: function (index, row) {
+                    row.editing = false;
+                    $(this).datagrid('refreshRow', index);
+                },
+                onCancelEdit: function (index, row) {
+                    row.editing = false;
+                    $(this).datagrid('refreshRow', index);
+                }
+            });
+
+            $('#DataGridBatchProdQuickAdd').datagrid({
+                title: '貨物多筆新增',
+                singleSelect: "true",
+                columns: [[
+                    //add by jie,20180910
+                    { field: 'CarryName', title: '取件名稱' },
+                    //end add by jie,20180910
+                    { field: 'Pcs', title: '件數', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'fLen', title: '長(cm)', width: 80, editor: 'text' },
+                    { field: 'fWidth', title: '寬(cm)', width: 80, editor: 'text' },
+                    { field: 'fHeight', title: '高(cm)', width: 80, editor: 'text' },
+                    { field: 'iTotNum', title: '總材數(材)', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'Weig', title: '重量(KGS)', width: 80, editor: { type: 'validatebox', options: { required: true } } },
+                    { field: 'remark3', title: '注意事項', width: 160, editor: 'text' },
+                    //add by jie,20180913
+                    { field: 'remark1', title: '內部說明', width: 160, editor: 'text' },
+                    //end add by jie,20180913
+                    {
+                        field: 'action', title: 'Action', width: 80, align: 'center',
+                        formatter: function (value, row, index) {
+                            if (row.editing) {
+                                var s = '<a href="javascript:void(0)" onclick="saverowQuickAdd(this)">OK</a> ';
+                                var c = '<a href="javascript:void(0)" onclick="cancelrowQuickAdd(this)">Cancel</a>';
+                                return s + c;
+                            } else {
+                                var e = '<a href="javascript:void(0)" onclick="editrowQuickAdd(this)">編輯此筆</a> ';
+                                var d = '<a href="javascript:void(0)" onclick="deleterowQuickAdd(this)">刪除此筆</a>';
+                                return e + d;
+                            }
+                        }
+                    }
+                ]],
+				onEndEdit: function (index, row) {
+					if (row.iTotNum == 0 && row.Weig == 0) {
+						$.messager.alert("錯誤",'總材數(材)或重量(KGS)至少有一不得為0！');
+						$('#DataGridBatchProdQuickAdd').datagrid('onBeginEdit', index);
+					}
+                },
+                onBeforeEdit: function (index, row) {
+                    if (row.ShdetNo) { } else { }
+                    if (row.CustNo) { } else {  }
+                    if (row.sDtlNo) { } else {  }
+                    row.editing = true;
+                    $(this).datagrid('refreshRow', index);
+                },
+                onBeginEdit: function (index, row) {
+                    var edPcs = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'Pcs'
+                    });
+                    var edfLen = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fLen'
+                    });
+                    var edfWidth = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fWidth'
+                    });
+                    var edfHeight = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'fHeight'
+                    });
+                    var ediTotNum = $(this).datagrid('getEditor', {
+                        index: index,
+                        field: 'iTotNum'
+                    });
+                    $(edPcs.target).bind('keyup', function (e) {
+						if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfLen.target).bind('keyup', function (e) {
+                        if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfWidth.target).bind('keyup', function (e) {
+                        if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+                    $(edfHeight.target).bind('keyup', function (e) {
+                        if (($(edPcs.target).val() != '') && ($(edfLen.target).val() != '') && ($(edfWidth.target).val() != '') && ($(edfHeight.target).val() != '')) {	// when press ENTER key, accept the inputed value.
+							var x = Math.round(parseFloat($(edfLen.target).val()) * parseFloat($(edfWidth.target).val()) * parseFloat($(edfHeight.target).val()) * parseFloat($(edPcs.target).val()*1000) / 28350)/1000
+                            $(ediTotNum.target).val(x);
+                        }
+                    });
+
+                },
+                onAfterEdit: function (index, row) {
+                    row.editing = false;
+                    $(this).datagrid('refreshRow', index);
+                },
+                onCancelEdit: function (index, row) {
+                    row.editing = false;
+                    $(this).datagrid('refreshRow', index);
+                }
+            });
+
+            @* added by jie,20180910 *@
+            $('#DataGridBatchDetailQuickAdd').datagrid({
+                title: '明細多筆新增',
+                rownumbers: true,
+                singleSelect: "true",
+                columns: [[
+                    { field: 'sNo', title: '序號', styler: function (value, row, index) { return 'background-color:blue;color:yellow;'; }},
+                    { field: 'CarryName', title: '取件名稱' },
+					{ field: 'Code5', title: '郵政5碼' },
+					{ field: 'Code7', title: '郵政7碼' },
+                    { field: 'CustAddrFull', title: '完整地址' },
+                    { field: 'CustENAddr1', title: '英文地址' },
+                    { field: 'Country', title: '國家' },
+                    { field: 'CtcSale', title: '業務部聯絡人' },
+                    { field: 'Tel', title: '電話' },
+                    { field: 'PickUpAreaNo', title: '調度區域' },
+                    { field: 'EndDate', title: '截止時間' },
+                    { field: 'SectorNo', title: '外務員代號' },
+                    { field: 'SectorName', title: '外務員' },
+                    { field: 'WeigLevel', title: '貨物類型' },
+                    { field: 'CocustomTyp', title: '報關類型' },
+                    { field: 'CcNo', title: '付款方式' },
+                    { field: 'Charge', title: '收款金額' },
+                    { field: 'RedyDate', title: '可取件日期' },
+                    { field: 'RedyTime', title: '可取件時間' },
+					{ field: 'IsRedy', title: '準時取件' },
+                    { field: 'StatNo', title: '叫件站點' },
+                    { field: 'CarID', title: '車輛ID' },
+                    { field: 'CallStatNo', title: '取件站點' },
+					{
+						field: 'action', title: 'Action', width: 80, align: 'center',
+						formatter: function (value, row, index) {
+								return '<a href="javascript:void(0)" onclick="deletedetailrowQuickAdd(this)">刪除此筆</a>';
+						}
+					}
+                ]]
+            });
+            @* end added by jie,20180910 *@
+
+            //計算總材數
+            $('#Pcs').textbox('textbox').bind('keyup', function (e) {
+                if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+					var x = Math.round(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText')*1000) / 28350)/1000
+                    $('#iTotNum').textbox('setValue', x);
+                }
+                //alert($('#Pcs').textbox('getText'));
+            });
+            $('#fLen').textbox('textbox').bind('keyup', function (e) {
+                if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+					var x = Math.round(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText')*1000) / 28350)/1000
+                    $('#iTotNum').textbox('setValue', x);
+                }
+            });
+            $('#fWidth').textbox('textbox').bind('keyup', function (e) {
+                if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+                    var x = Math.ceil(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText')*1000) / 28350)/1000
+                    $('#iTotNum').textbox('setValue', x);
+                }
+            });
+            $('#fHeight').textbox('textbox').bind('keyup', function (e) {
+                if (($('#Pcs').textbox('getText') != '') && ($('#fLen').textbox('getText') != '') && ($('#fWidth').textbox('getText') != '') && ($('#fHeight').textbox('getText') != '')) {	// when press ENTER key, accept the inputed value.
+                    var x = Math.ceil(parseFloat($('#fLen').textbox('getText')) * parseFloat($('#fWidth').textbox('getText')) * parseFloat($('#fHeight').textbox('getText')) * parseFloat($('#Pcs').textbox('getText')*1000) / 28350)/1000
+                    $('#iTotNum').textbox('setValue', x);
+                }
+            });
+
+            var datetimeTarget = new Date();
+            var monthTarget = '';
+            var dayTarget = '';
+            if ((datetimeTarget.getMonth() + 1) < 10) { monthTarget = '0' + (datetimeTarget.getMonth() + 1); } else { monthTarget = datetimeTarget.getMonth() + 1; }
+            if (datetimeTarget.getDate() < 10) { dayTarget = '0' + datetimeTarget.getDate(); } else { dayTarget = datetimeTarget.getDate(); }
+            $('#sRedyDateS').datebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget);
+            $('#sRedyDateE').datebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget);
+
+            //20180704新增，在客戶代號輸入統編或電話號碼，自動帶出客戶代號、客戶姓名、專員
+            //$('#CustNo').textbox('textbox').bind('keyup', function (e) { alert('123'); });
+            //上行的bind方法無法使用，因為CustNo的required屬性會被動態更改，導致textbox('textbox')回傳的object會變動
+            $('#CustNo').textbox({
+                inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+                    keyup: function (e) {
+                        //enter key
+                        if (e.keyCode == 13) {
+                            $.messager.progress();  // display the progress bar
+                            $.ajax({ url: './Cust/FindCustByPhoneInvNo', dataType: 'json', cache: false, async: false, data: { targetString: $(this).val() }, success: function (data) { setCustField(data); } });
+                            $.messager.progress('close'); // close the progress bar
+                        }
+                    }
+                })
+            });
+            $('#CustNoQuickAdd').textbox({
+                inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+                    keyup: function (e) {
+                        //enter key
+                        if (e.keyCode == 13) {
+                            $.messager.progress();  // display the progress bar
+                            $.ajax({ url: './Cust/FindCustByPhoneInvNo', dataType: 'json', cache: false, async: false, data: { targetString: $(this).val() }, success: function (data) { setCustFieldQuickAdd(data); } });
+                            $.messager.progress('close'); // close the progress bar
+                        }
+                    }
+                })
+            });
+        });
+
+        function setCustField(data) {
+            if (data.result == 0) {
+                $.messager.show({
+                    title: '查無資料',
+                    showType: 'show',
+                    msg: '查無此統編或電話資料',
+                    style: {
+                        right: '',
+                        bottom: ''
+                    }
+                });
+            } else {
+                $('#CustNo').textbox('setValue', data.CustNo);
+                if (data.CustCHName != null) {
+                    $('#CustCHName').textbox('setValue', data.CustCHName);
+                    $('#CustCName').textbox('setValue', data.CustCName);
+                }
+                else {
+                    $('#CustCHName').textbox('setValue', data.CustCName);
+                    $('#CustCName').textbox('setValue', data.CustCName);
+                }
+                $('#HeadClerk').textbox('setValue', data.Account);
+            }
+		}
+
+        function setCustFieldQuickAdd(data) {
+            if (data.result == 0) {
+                $.messager.show({
+                    title: '查無資料',
+                    showType: 'show',
+                    msg: '查無此統編或電話資料',
+                    style: {
+                        right: '',
+                        bottom: ''
+                    }
+                });
+            } else {
+                $('#CustNoQuickAdd').textbox('setValue', data.CustNo);
+                if (data.CustCHName != null) {
+                    $('#CustCHNameQuickAdd').textbox('setValue', data.CustCHName);
+                    $('#CustCNameQuickAdd').textbox('setValue', data.CustCName);
+                }
+                else {
+                    $('#CustCHNameQuickAdd').textbox('setValue', data.CustCName);
+                    $('#CustCNameQuickAdd').textbox('setValue', data.CustCName);
+                }
+                $('#HeadClerkQuickAdd').textbox('setValue', data.Account);
+            }
+		}
+
+        function newDetail() {
+            $('#DataGrid').datagrid('unselectAll');
+            $('#fm').form('clear');
+            $('#ShdetNo').val('新增');
+            $('#showSelectContent').text($('#ShdetNo').val());
+            @RenderSection("enableBtn4", required: false)
+            $('#fm2').form('clear');
+            $('#sNoDisplay').text('');
+            $('#showSelectContent2').text('');
+            $('#DataGrid3').datagrid('loadData', []); // reload the user data
+            $('#fm3').form('clear');
+            $('#ProdSNoDisplay').text('');
+            $('#showSelectContent3').text('');
+
+			editMask('table1_mask', 'table1');
+
+            var datetimeTarget = new Date();
+            var monthTarget = '';
+            var dayTarget = '';
+            var hourTarget = '';
+            var minuteTarget = '';
+            var secondTarget = '';
+
+            if ((datetimeTarget.getMonth() + 1) < 10) { monthTarget = '0' + (datetimeTarget.getMonth() + 1); } else { monthTarget = datetimeTarget.getMonth() + 1; }
+            if (datetimeTarget.getDate() < 10) { dayTarget = '0' + datetimeTarget.getDate(); } else { dayTarget = datetimeTarget.getDate(); }
+            if (datetimeTarget.getHours() < 10) { hourTarget = '0' + datetimeTarget.getHours(); } else { hourTarget = datetimeTarget.getHours(); }
+            if (datetimeTarget.getMinutes() < 10) { minuteTarget = '0' + datetimeTarget.getMinutes(); } else { minuteTarget = datetimeTarget.getMinutes(); }
+            if (datetimeTarget.getSeconds() < 10) { secondTarget = '0' + datetimeTarget.getSeconds(); } else { secondTarget = datetimeTarget.getSeconds(); }
+            $('#ReserveDate').datetimebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget + ' ' + hourTarget + ':' + minuteTarget + ':' + secondTarget);
+
+            f_judgeGuideStep(-2);
+        }
+
+        function openDetail1_win() {
+            var gsr = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+                $('#winHeader').window('open');
+                $('#fm').form('clear');
+                var retRow = $("#grid").jqGrid('getRowData', gsr);
+				$('#fm').form('load', retRow);
+				if ($("#CustNo").val() != "") {
+					$.ajax({
+						type: "GET",
+						url: '/Cust/' + "GetGridJSON?CustNo=" + $("#CustNo").val(),
+						success: function (result) {
+							if (result.ok === 1) {
+								var data = []
+								if (result.rows[0].CtcSale!=null)
+									data.push({ text: result.rows[0].CtcSale, value: result.rows[0].CtcSale });
+								if (result.rows[0].CtcSale2 != null)
+									data.push({ text: result.rows[0].CtcSale2, value: result.rows[0].CtcSale2 });
+								if (result.rows[0].CtcSale3 != null)
+									data.push({ text: result.rows[0].CtcSale3, value: result.rows[0].CtcSale3 });
+								$("#HeadClerk").combobox("loadData", data);
+							}
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+					});
+				}
+				//Enter觸發
+				$('#HeadClerk').textbox({
+					inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+						keypress: function (e) {
+							if (e.keyCode == 13) {
+								var data = $('#HeadClerk').combobox('getData');
+								data.push({ text: $('#HeadClerk').combobox('getText'), value: $('#HeadClerk').combobox('getText') });
+								$("#HeadClerk").combobox("loadData", data);
+							}
+						}
+					}),
+				});
+            }
+            else {
+                alert("未選擇資料");
+            }
+		}
+
+		function openDetail2_win(addORedit) {
+			FirstLoad = true;
+			$('#fm2').form('clear');
+            var gsr = $("#grid").jqGrid('getGridParam', 'selrow');
+			if (gsr) {
+                var retRow = $("#grid").jqGrid('getRowData', gsr);
+            }
+            else {
+                return false;
+            }
+            if (addORedit == 'add') {
+                $('#DetailsNo').val('新增');
+                $('#StatNo').textbox('setValue', $('#hidStatNo').val());
+                $('#CallStatNo').textbox('setValue', $('#hidStatNo').val());
+                if (retRow.ReserveDate) {
+                    $('#RedyDate').datebox('setValue', (retRow.ReserveDate).substring(0, 10));
+                    $('#RedyTime').timespinner('setValue', (retRow.ReserveDate).substring(11));
+				}
+			} else {
+                var gsr2 = $("#subgrid").jqGrid('getGridParam', 'selrow');
+                if (gsr2) {
+                    var retRow2 = $("#subgrid").jqGrid('getRowData', gsr2);
+					$('#fm2').form('load', retRow2);
+					setTimeout(FirstLoad = false, 5000);
+					  @Html.Raw(ViewBag.FormCustomJsEdit2)
+                }
+                else {
+                    alert("未選擇資料");
+                    return false;
+                }
+            }
+
+            $('#DetailShdetNo').val(retRow.ShdetNo);
+            $('#DetailCustNo').val(retRow.CustNo);
+            $('#sNoDisplay').text($('#DetailsNo').val());
+			$('#winDetail').window('open');
+			if ($("#DetailCustNo").val() != "") {
+				$.ajax({
+					type: "GET",
+					url: '/Cust/' + "GetGridJSON?CustNo=" + $("#DetailCustNo").val(),
+					success: function (result) {
+						if (result.ok === 1) {
+							var data = []
+							if (result.rows[0].CtcSale != null)
+								data.push({ text: result.rows[0].CtcSale, value: result.rows[0].CtcSale });
+							if (result.rows[0].CtcSale2 != null)
+								data.push({ text: result.rows[0].CtcSale2, value: result.rows[0].CtcSale2 });
+							if (result.rows[0].CtcSale3 != null)
+								data.push({ text: result.rows[0].CtcSale3, value: result.rows[0].CtcSale3 });
+							$("#CtcSale").combobox("loadData", data);
+						}
+					},
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+				});
+			}
+			//Enter觸發
+			$('#CtcSale').textbox({
+				inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+					keypress: function (e) {
+						if (e.keyCode == 13) {
+							var data = $('#CtcSale').combobox('getData');
+							data.push({ text: $('#CtcSale').combobox('getText'), value: $('#CtcSale').combobox('getText') });
+							$("#CtcSale").combobox("loadData", data);
+
+						}
+					}
+				}),
+			});
+        }
+
+        function editDetail() {
+            if ($('#ShdetNo').val() === '新增' || $('#ShdetNo').val() === '') {
+                @RenderSection("saveAndDesp", required: false)
+                url = '@Url.Action("NewShdet", "ShdetF")';
+            }
+            else
+            {
+                url = '@Url.Action("EditShdet", "ShdetF")';
+            }
+            if ($('#ShdetNo').val() !== '') {
+                saveDetail();
+            }
+
+		}
+
+        function saveDetail() {
+            $('#fm').form('submit', {
+                url: url,
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        var row_after = $('#DataGrid').datagrid('getSelected');
+                        $('#fm').form('load', row_after);
+                    } else {
+                        if ($('#ShdetNo').val() === '新增')
+                        {
+                            $('#DataGrid1AutoSelectLastFlag').val('yes');
+                            $('#search_target').val('');
+                            $('#sRedyDateS').datebox('setValue', '');
+                            $('#sRedyDateE').datebox('setValue', '');
+                            SearchReserveDate();
+                        }
+                        else {
+                            $('#DataGrid').datagrid('reload');    // reload the user data
+                            $('#fm').form('clear');
+                            $('#showSelectContent').text($('#ShdetNo').val());
+                            @RenderSection("enableBtn1", required: false)
+
+                            $('#fm2').form('clear');
+                            $('#sNoDisplay').text($('#DetailsNo').val());
+                            $('#showSelectContent2').text($('#ShdetNo').val());
+
+                            $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+                            $('#fm3').form('clear');
+                            $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                            $('#showSelectContent3').text($('#DetailsNo').val());
+                        }
+                        putMask('table1_mask', 'table1');
+                        putMask('table2_mask', 'table2');
+                        putMask('table3_mask', 'table3');
+                    }
+                }
+
+            });
+        }
+
+        function saveDetail1_win() {
+             $('#fm').form('submit', {
+                url: '@Url.Action("EditShdet", "ShdetF")',
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        SearchReserveDate();
+                    }
+                    $('#winHeader').window('close');
+                }
+
+            });
+        }
+
+        function saveDetail2_win() {
+            var url = '';
+            if ($('#DetailsNo').val() == '新增') {
+                url = '@Url.Action("NewShdet2", "ShdetF")';
+            } else {
+                url = '@Url.Action("EditShdet2", "ShdetF")';
+            }
+
+            $('#fm2').form('submit', {
+                url: url,
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        SearchReserveDate();
+                    }
+                    $('#winDetail').window('close');
+                }
+            });
+        }
+
+        function destroyDetail1_win() {
+            var gsr = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+                var row = $("#grid").jqGrid('getRowData', gsr);
+                $.messager.confirm('@ViewBag.Title-警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet", "ShdetF")', { ShdetNo: row.ShdetNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+                              SearchReserveDate();
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+            else { return false;}
+		}
+
+        function destroyDetail2_win() {
+            var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+               var row = $("#subgrid").jqGrid('getRowData', gsr);
+               if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+               $.messager.confirm('@ViewBag.Title-警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet2", "ShdetF")', { ShdetNo: row.ShdetNo,CustNo:row.CustNo,sNo:row.sNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+                              SearchReserveDate();
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+		}
+
+        function destroyDetail3_win() {
+            var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+               var row = $("#subgrid2").jqGrid('getRowData', gsr);
+               $.messager.confirm('@ViewBag.Title-警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet3", "ShdetF")', { ShdetNo: row.ShdetNo, CustNo: row.CustNo, sDtlNo: row.sDtlNo,sNo:row.sNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+                               SearchReserveDate();
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+		}
+
+        function newDetail2() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (row) {
+            } else {
+                $.messager.alert('@ViewBag.Title-提示', '未選取調派');
+                return false;
+            }
+            $('#fm2').form('clear');
+            $('#DetailsNo').val('新增');
+            $('#sNoDisplay').text($('#DetailsNo').val());
+            $('#showSelectContent2').text($('#ShdetNo').val());
+
+            $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+            $('#fm3').form('clear');
+            $('#ProdSNoDisplay').text('');
+            $('#showSelectContent3').text('');
+
+            editMask('table2_mask', 'table2');
+
+            $('#add1').textbox('setValue', '');
+            $('#add2').textbox('setValue', '');
+            $('#add3').textbox('setValue', '');
+            $('#add4').textbox('setValue', '');
+            $('#add5').textbox('setValue', '');
+            $('#add6').textbox('setValue', '');
+
+            $('#StatNo').textbox('setValue', $('#hidStatNo').val());
+            $('#CallStatNo').textbox('setValue', $('#hidStatNo').val());
+
+            if (row.ReserveDate)
+            {
+                $('#RedyDate').datebox('setValue', (row.ReserveDate).substring(0, 10));
+                $('#RedyTime').timespinner('setValue', (row.ReserveDate).substring(11));
+            }
+		}
+
+        function editDetail2() {
+            if ($('#DetailsNo').val() === '新增' || $('#DetailsNo').val() === '') {
+                url = '@Url.Action("NewShdet2", "ShdetF")';
+            }
+            else
+            {
+                url = '@Url.Action("EditShdet2", "ShdetF")';
+            }
+
+            if ($('#DetailsNo').val() !== '') {
+                saveDetail2();
+            }
+		}
+
+        function saveDetail2() {
+            if ($('#hidStatNo').val() != $('#StatNo').textbox('getValue')) {
+                var confirmStatNo = confirm('站點代號與登入人員站點代號不同，確定繼續？');
+                if (!confirmStatNo)
+                    return false;
+            }
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (row) {
+                $('#DetailShdetNo').val(row.ShdetNo);
+                $('#DetailCustNo').val(row.CustNo);
+            } else {
+                return false;
+            }
+
+            $('#fm2').form('submit', {
+                url: url,
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    f_getLastSubmitDeatil();
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+
+                        //只動到datagrid
+                        if (result.message == '1') { UpdateGrid1Row(); return true; }
+
+
+                        if ($('#DetailsNo').val() === '新增') {
+                            $('#DataGrid1AutoSelectLastFlag').val('yes');
+                            $('#search_target').val(result.ShdetNo);
+                            $('#sRedyDateS').datebox('setValue', '');
+                            $('#sRedyDateE').datebox('setValue', '');
+                            SearchReserveDate();
+                        } else {
+                            $('#DataGrid').datagrid('reload');    // reload the user data
+                            $('#fm').form('clear');
+                            $('#showSelectContent').text($('#ShdetNo').val());
+                            @RenderSection("enableBtn6", required: false)
+
+                            $('#fm2').form('clear');
+                            $('#sNoDisplay').text($('#DetailsNo').val());
+                            $('#showSelectContent2').text($('#ShdetNo').val());
+
+                            $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+                            $('#fm3').form('clear');
+                            $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                            $('#showSelectContent3').text($('#DetailsNo').val());
+                        }
+
+                        putMask('table1_mask', 'table1');
+                        putMask('table2_mask', 'table2');
+                        putMask('table3_mask', 'table3');
+                    }
+                }
+            });
+		}
+
+        function destroyDetail2() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (row) {
+               if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+               $.messager.confirm('@ViewBag.Title-警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet2", "ShdetF")', { ShdetNo: row.ShdetNo,CustNo:row.CustNo,sNo:row.sNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+
+                               //只動到datagrid
+                               if (data.message == '1') { UpdateGrid1Row(); return true; }
+
+                               $('#DataGrid').datagrid('reload');    // reload the user data
+                               $('#fm').form('clear');
+                               $('#showSelectContent').text($('#ShdetNo').val());
+                               @RenderSection("enableBtn7", required: false)
+                               $('#fm2').form('clear');
+                               $('#sNoDisplay').text($('#DetailsNo').val());
+                               $('#showSelectContent2').text($('#ShdetNo').val());
+
+                               $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+                               $('#fm3').form('clear');
+                               $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                               $('#showSelectContent3').text($('#DetailsNo').val());
+
+                               putMask('table1_mask', 'table1');
+                               putMask('table2_mask', 'table2');
+                               putMask('table3_mask', 'table3');
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+		}
+
+        function newDetail3() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (row) {
+                if (row.sNo) { } else { $.messager.alert('-提示', '無調派明細'); return false; }
+            } else {
+                $.messager.alert('@ViewBag.Title-提示', '未選取明細');
+                return false;
+            }
+            $('#DataGrid3').datagrid('unselectAll');
+            $('#fm3').form('clear');
+            $('#ProdSNo').val('新增');
+            $('#ProdSNoDisplay').text($('#ProdSNo').val());
+            $('#showSelectContent3').text($('#DetailsNo').val());
+
+            editMask('table3_mask', 'table3');
+
+        }
+
+		function newBatchDetail3() {
+            var gsr = $("#subgrid").jqGrid('getGridParam', 'selrow');
+
+            if (gsr) {
+                var row = $("#subgrid").jqGrid('getRowData', gsr);
+                if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+            } else {
+                $.messager.alert('@ViewBag.Title-提示', '未選取明細');
+                return false;
+            }
+            $('#HubNoEd').val('');
+            $('#CcNoEd').val('');
+            $('#ProdSectorNoEd').val('');
+            $('#ProdStatNoEd').val('');
+            $('#CarIDEd').val('');
+            $("#copyToNew").prop("checked", true);
+            $('#DataGridBatchProd').datagrid('loadData', []);
+			$('#winBatchNewProd').window('open');
+			$('#SubCarID').textbox('setValue', row.CarID);
+
+        }
+
+        function openDetail3_win() {
+            $('#fm3').form('clear');
+            $('#ProdSNoDisplay').text('');
+            var gsr = $("#subgrid2").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+                var row = $("#subgrid2").jqGrid('getRowData', gsr);
+                if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+                $('#fm3').form('load', row);
+                $('#ProdSNoDisplay').text(row.sNo);
+                $('#winProduct').window('open');
+            } else {
+                $.messager.alert('@ViewBag.Title-提示', '未選取貨物');
+                return false;
+            }
+        }
+
+        function editDetail3() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (!row) {
+                $.messager.alert('@ViewBag.Title-提示', '未選取明細');
+                return false;
+            }
+            if ($('#ProdSNo').val() === '新增' || $('#ProdSNo').val() === '') {
+                url = '@Url.Action("NewShdet3", "ShdetF")';
+
+            }
+            else
+            {
+                url = '@Url.Action("EditShdet3", "ShdetF")';
+            }
+
+            if ($('#ProdSNo').val() !== '') {
+                saveDetail3();
+
+            }
+
+        }
+
+        function saveDetail3_win() {
+            $('#fm3').form('submit', {
+                url: '@Url.Action("EditShdet3", "ShdetF")',
+                onSubmit: function () {
+                    return $(this).form('validate');
+                    //return true;
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        SearchReserveDate();
+                    }
+                }
+
+            });
+            $('#winProduct').window('close');
+        }
+
+        function saveDetail3() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            if (row) {
+                if (row.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+                $('#ProdShdetNo').val(row.ShdetNo);
+                $('#ProdCustNo').val(row.CustNo);
+                $('#sDtlNo').val(row.sNo);
+                //存檔時,可取件時間若大於明細的截止時間,show 取件時間大於截止時間,無法調派,不可存檔
+                var rTime = $('#RedyTime').timespinner('getValue');
+                var eTime = row.EndDate;
+                if ((eTime == null) || (eTime == '')) {
+                    $.messager.alert('@ViewBag.Title-注意', '明細無截止時間，不可存檔');
+                    return false;
+                } else if ((rTime == null) || (rTime == '')) {
+                    $.messager.alert('@ViewBag.Title-注意', '無取件時間，不可存檔');
+                    return false;
+                } else {
+                    if (rTime > eTime) {
+                        $.messager.alert('@ViewBag.Title-注意', '取件時間大於截止時間,無法調派,不可存檔');
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            $('#fm3').form('submit', {
+                url: url,
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+
+
+                        //只動到datagrid
+                        if (result.message == '1') { UpdateGrid1Row(); putMask('table1_mask', 'table1'); putMask('table2_mask', 'table2'); putMask('table3_mask', 'table3');return true;}
+                        //只動到datagrid2
+                        if (result.message == '2') { UpdateGrid2Row(); putMask('table1_mask', 'table1'); putMask('table2_mask', 'table2'); putMask('table3_mask', 'table3');return true;}
+                        //datagrid1 datagrid2 都動了
+                        if (result.message == '3') { UpdateGrid1Row(); putMask('table1_mask', 'table1'); putMask('table2_mask', 'table2'); putMask('table3_mask', 'table3');return true;}
+
+                        $('#DataGrid3').datagrid('reload');     // reload the user data
+                        $('#fm3').form('clear');
+                        $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                        $('#showSelectContent3').text($('#DetailsNo').val());
+
+                        putMask('table1_mask', 'table1');
+                        putMask('table2_mask', 'table2');
+                        putMask('table3_mask', 'table3');
+
+                    }
+                }
+
+            });
+		}
+
+        function destroyDetail3() {
+            var row = $('#DataGrid3').datagrid('getSelected');
+            if (row) {
+               $.messager.confirm('@ViewBag.Title-警告', '確認刪除?', function (r) {
+                   if (r) {
+                       $.post('@Url.Action("DeleteShdet3", "ShdetF")', { ShdetNo: row.ShdetNo, CustNo: row.CustNo, sDtlNo: row.sDtlNo,sNo:row.sNo }, function (data, textStatus, jqXHR) {
+                           if (data) {
+
+                               //只動到datagrid
+                               if (data.message == '1') { UpdateGrid1Row(); return true; }
+                               //只動到datagrid2
+                               if (data.message == '2') { UpdateGrid2Row(); return true; }
+                               //datagrid1 datagrid2 都動了
+                               if (data.message == '3') { UpdateGrid1Row(); return true; }
+
+                               $('#DataGrid3').datagrid('reload');     // reload the user data
+                               $('#fm3').form('clear');
+                               $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                               $('#showSelectContent3').text($('#DetailsNo').val());
+
+                               putMask('table1_mask', 'table1');
+                               putMask('table2_mask', 'table2');
+                               putMask('table3_mask', 'table3');
+                           } else {
+                               $.messager.show({    // show error message
+                                   title: 'Error',
+                                   msg: data.errorMsg
+                               });
+                           }
+                       }, 'json');
+                   }
+               });
+            }
+        }
+
+        $.fn.datebox.defaults.formatter = function (date) {
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            var d = date.getDate();
+            return y + '/' + (m < 10 ? ('0' + m) : m) + '/' + (d < 10 ? ('0' + d) : d);
+        }
+        $.fn.datebox.defaults.parser = function (s) {
+            var t = Date.parse(s);
+            if (!isNaN(t)) {
+                return new Date(t);
+            } else {
+                return new Date();
+            }
+        }
+        $("#defaultCheck1").change(function () {
+            if (this.checked) {
+                //Do stuff
+                //alert('new');
+                $("#newCustZone").show();
+                $("#newCustZoneLabel").show();
+                $('#Post3Code').textbox({ required: true });
+                $('#CustNo').textbox({ required: false });
+            } else {
+                $("#newCustZone").hide();
+                $("#newCustZoneLabel").hide();
+                $('#Post3Code').textbox({ required: false });
+                $('#CustNo').textbox({ required: true });
+            }
+        });
+        $("#defaultCheckQuickAdd").change(function () {
+            if (this.checked) {
+                //Do stuff
+                //alert('new');
+                $("#newCustZoneQuickAdd").show();
+                $("#newCustZoneLabelQuickAdd").show();
+                $('#Post3CodeQuickAdd').textbox({ required: true });
+                $('#CustNoQuickAdd').textbox({ required: false });
+            } else {
+                $("#newCustZoneQuickAdd").hide();
+                $("#newCustZoneLabelQuickAdd").hide();
+                $('#Post3CodeQuickAdd').textbox({ required: false });
+                $('#CustNoQuickAdd').textbox({ required: true });
+            }
+        });
+
+        function getToday() {
+            var today = new Date();
+            return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        }
+
+        function SearchReserveDate() {
+
+			$('#showSelectContent').text('');
+            clearLevel23();
+			var postData = grid.jqGrid("getGridParam", "postData");
+			let promise1 = new Promise((resolve, reject) => {
+				$.ajax({
+					url: "ShdetF/GetCreateBy?start_date=" + $('#sRedyDateS').datebox('getValue') + "&end_date=" + $('#sRedyDateE').datebox('getValue') + "&searchType=" + $('input[name=searchType]:checked').val() + "&rows=1000",
+					success: function (result) {
+						resolve({
+							status: 'success',
+						});
+						if (result.ok > 0) {
+							var data = JSON.stringify(result)
+							var str = Lib.jqGrid.buildSelect(data, "CreatedBy", "CreatedBy", true);
+							$('#gs_grid_CreatedBy').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+							if (postData.CreatedBy !== undefined) {
+								if ($('#gs_grid_CreatedBy  option[value=' + postData.CreatedBy + ']')[0] === undefined) {
+									postData.CreatedBy = '';
+								} else {
+									$('#gs_grid_CreatedBy  option[value=' + postData.CreatedBy + ']').attr('selected', 'selected');
+								}
+							}
+						}
+					},
+				});
+			});
+			let promise2 = new Promise((resolve, reject) => {
+				$.ajax({
+					url: "ShdetF/GetUpdatedBy?start_date=" + $('#sRedyDateS').datebox('getValue') + "&end_date=" + $('#sRedyDateE').datebox('getValue') + "&rows=1000",
+					success: function (result) {
+						resolve({
+							status: 'success',
+						});
+						if (result.ok > 0) {
+							var data = JSON.stringify(result)
+							var str = Lib.jqGrid.buildSelect(data, "UpdatedBy", "UpdatedBy", true);
+							$('#gs_grid_UpdatedBy').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+							if (postData.UpdatedBy !== undefined) {
+								if ($('#gs_grid_UpdatedBy  option[value=' + postData.UpdatedBy + ']')[0] === undefined) {
+									postData.UpdatedBy = '';
+								} else {
+									$('#gs_grid_UpdatedBy  option[value=' + postData.UpdatedBy + ']').attr('selected', 'selected');
+								}
+							}
+						}
+					},
+				});
+			});
+			let promise3 = new Promise((resolve, reject) => {
+				$.ajax({
+					url: "ShdetF/GetGridJSON_Sector?start_date=" + $('#sRedyDateS').datebox('getValue') + "&end_date=" + $('#sRedyDateE').datebox('getValue') + "&searchType=" + $('input[name=searchType]:checked').val() + "&rows=1000",
+					success: function (result) {
+						resolve({
+							status: 'success',
+						});
+						if (result.ok > 0) {
+							var data = JSON.stringify(result)
+							var str = Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true);
+							$('#gs_grid_SectorName').html(str.replace(/[<][\/]option>/g, "</option> + ").replace("<select>", "").replace(" + </select>", ""))
+							if (postData.SectorName !== undefined) {
+								if ($('#gs_grid_SectorName  option[value=' + postData.SectorName + ']')[0] === undefined) {
+									postData.SectorName = '';
+								} else {
+									$('#gs_grid_SectorName  option[value=' + postData.SectorName + ']').attr('selected', 'selected');
+								}
+							}
+						}
+					},
+				});
+			});
+			Promise.all([promise1, promise2, promise3]).then(function (results) {
+				 grid.jqGrid("setGridParam", {
+                url: apiURL + "GetGridJson1?"
+                    + "sredy_date=" + $('#sRedyDateS').datebox('getValue') + "&eredy_date=" + $('#sRedyDateE').datebox('getValue')
+                    + "&sredy_time=" + $('#sRedyTimeS').val() + "&eredy_time=" + $('#sRedyTimeE').val()
+                    + "&from=@ViewBag.Title" + "&searchType=" + $('input[name=searchType]:checked').val(),
+                datatype: 'json'
+            });
+            grid.trigger('reloadGrid');
+			});
+        }
+
+        function SearchReserveDate2() {
+            var row2 = $('#DataGrid').datagrid('getSelected');
+            if (row2) {
+                $('#DataGrid2').datagrid('load', {
+                    ShdetNo: row2.ShdetNo,
+                    target: $('#search_target2').val()
+                });
+                $('#fm2').form('clear');
+                $('#sNoDisplay').text($('#DetailsNo').val());
+                $('#showSelectContent2').text($('#ShdetNo').val());
+
+                $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+                $('#fm3').form('clear');
+                $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                $('#showSelectContent3').text($('#DetailsNo').val());
+            }
+
+		}
+
+        function SearchReserveDate3() {
+            var row3 = $('#DataGrid').datagrid('getSelected');
+            if (row3) {
+                if (row3.sNo) { } else { $.messager.alert('@ViewBag.Title-提示', '無調派明細'); return false; }
+                $('#DataGrid3').datagrid('load', {
+                    ShdetNo: row3.ShdetNo,
+                    CustNo: row3.CustNo,
+                    DtlSNo: row3.sNo,
+                    target: $('#search_target3').val()
+                });
+
+                $('#fm3').form('clear');
+                $('#ProdSNoDisplay').text($('#ProdSNo').val());
+                $('#showSelectContent3').text($('#DetailsNo').val());
+            }
+        }
+
+        //retID1,retVal1 為
+        function ShowWinForPickUpGrid(retID1, retVal1, retType1, retID2, retVal2, retType2, titleString, contentUrl) {
+            $('#win').window('open');
+            $('#win').panel('clear');
+            $('#win').window('setTitle', titleString);
+            $('#win').window('refresh', contentUrl + '?retID1=' + retID1 + '&retVal1=' + retVal1 + '&retType1=' + retType1 + '&retID2=' + retID2 + '&retVal2=' + retVal2 + '&retType2=' + retType2);
+		}
+
+        function ShowWinForPickUpjqGrid(formId,inputFields, inputValues, contentUrl,id=null, funcName="GetGridJSON") {
+            $('#win').window('open');
+            $('#win').panel('clear');
+            $('#win').window('setTitle', '');
+            $('#win').window('refresh', contentUrl + '?' + 'formId=' + formId + '&inputFields=' + inputFields + '&inputValues=' + inputValues + '&id=' + id + '&funcName=' + funcName);
+		}
+
+        function ShowWinForPickUpGrid20(retID1, retVal1, retType1, retID2, retVal2, retType2, retID3, retVal3, retType3, retID4, retVal4, retType4, retID5, retVal5, retType5, retID6, retVal6, retType6, retID7, retVal7, retType7, retID8, retVal8, retType8, retID9, retVal9, retType9, retID10, retVal10, retType10, retID11, retVal11, retType11, retID12, retVal12, retType12, retID13, retVal13, retType13, retID14, retVal14, retType14, retID15, retVal15, retType15, retID16, retVal16, retType16, retID17, retVal17, retType17, retID18, retVal18, retType18, retID19, retVal19, retType19, retID20, retVal20, retType20, titleString, contentUrl,target) {
+            $('#win').window('open');
+            $('#win').panel('clear');
+            $('#win').window('setTitle', titleString);
+			$('#win').window('refresh', contentUrl + '?retID1=' + retID1 + '&retVal1=' + retVal1 + '&retType1=' + retType1 + '&retID2=' + retID2 + '&retVal2=' + retVal2 + '&retType2=' + retType2 + '&retID3=' + retID3 + '&retVal3=' + retVal3 + '&retType3=' + retType3 + '&retID4=' + retID4 + '&retVal4=' + retVal4 + '&retType4=' + retType4 + '&retID5=' + retID5 + '&retVal5=' + retVal5 + '&retType5=' + retType5 + '&retID6=' + retID6 + '&retVal6=' + retVal6 + '&retType6=' + retType6 + '&retID7=' + retID7 + '&retVal7=' + retVal7 + '&retType7=' + retType7 + '&retID8=' + retID8 + '&retVal8=' + retVal8 + '&retType8=' + retType8 + '&retID9=' + retID9 + '&retVal9=' + retVal9 + '&retType9=' + retType9 + '&retID10=' + retID10 + '&retVal10=' + retVal10 + '&retType10=' + retType10 + '&retID11=' + retID11 + '&retVal11=' + retVal11 + '&retType11=' + retType11 + '&retID12=' + retID12 + '&retVal12=' + retVal12 + '&retType12=' + retType12 + '&retID13=' + retID13 + '&retVal13=' + retVal13 + '&retType13=' + retType13 + '&retID14=' + retID14 + '&retVal14=' + retVal14 + '&retType14=' + retType14 + '&retID15=' + retID15 + '&retVal15=' + retVal15 + '&retType15=' + retType15 + '&retID16=' + retID16 + '&retVal16=' + retVal16 + '&retType16=' + retType16 + '&retID17=' + retID17 + '&retVal17=' + retVal17 + '&retType17=' + retType17 + '&retID18=' + retID18 + '&retVal18=' + retVal18 + '&retType18=' + retType18 + '&retID19=' + retID19 + '&retVal19=' + retVal19 + '&retType19=' + retType19 + '&retID20=' + retID20 + '&retVal20=' + retVal20 + '&retType20=' + retType20 + '&target=' + target);
+
+		}
+
+        function DisableWhenIsDesp() {
+            $('#m1').linkbutton('disable');
+            $('#d1').linkbutton('disable');
+            $('#n2').linkbutton('disable');
+            $('#e2').linkbutton('disable');
+            $('#m2').linkbutton('disable');
+            $('#d2').linkbutton('disable');
+            $('#c2').linkbutton('disable');
+            $('#b2').linkbutton('disable');
+            $('#n3').linkbutton('disable');
+            $('#e3').linkbutton('disable');
+            $('#m3').linkbutton('disable');
+            $('#d3').linkbutton('disable');
+            $('#b3').linkbutton('disable');
+            $('#batchProdButton').linkbutton('disable');
+		}
+
+        function EnableWhenNotDesp() {
+            $('#e1').linkbutton('enable');
+            $('#m1').linkbutton('enable');
+            $('#d1').linkbutton('enable');
+            $('#n2').linkbutton('enable');
+            $('#e2').linkbutton('enable');
+            $('#m2').linkbutton('enable');
+            $('#c2').linkbutton('enable');
+            $('#d2').linkbutton('enable');
+            $('#n3').linkbutton('enable');
+            $('#e3').linkbutton('enable');
+            $('#m3').linkbutton('enable');
+            $('#d3').linkbutton('enable');
+            $('#batchProdButton').linkbutton('enable');
+		}
+
+        function UpdateGrid1Row() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            $.messager.alert('@ViewBag.Title-注意', '調派編號：' + row.ShdetNo+ '變更已完成，資料重新載入…');
+
+            $('#DataGrid').datagrid('reload');    // reload the user data
+            $('#fm').form('clear');
+            $('#showSelectContent').text($('#ShdetNo').val());
+
+            $('#DataGrid2').datagrid('loadData', []);     // reload the user data
+            $('#fm2').form('clear');
+            $('#sNoDisplay').text($('#DetailsNo').val());
+            $('#showSelectContent2').text($('#ShdetNo').val());
+
+            $('#DataGrid3').datagrid('loadData', []);     // reload the user data
+            $('#fm3').form('clear');
+            $('#ProdSNoDisplay').text($('#ProdSNo').val());
+            $('#showSelectContent3').text($('#DetailsNo').val());
+        }
+
+        function UpdateGrid2Row() {
+            var row = $('#DataGrid').datagrid('getSelected');
+            //$.messager.alert('注意', '明細序號：' + row.sNo + '變更已完成，資料重新載入…');
+            UpdateGrid1Row();
+
+        }
+        function editMask(maskId, tableId) {
+            $('#' + maskId).css("visibility", "hidden");
+
+            if (tableId == 'table1') {
+                $("#newCustZone").hide();
+                $("#newCustZoneLabel").hide();
+                $('#Post3Code').textbox({ required: false });
+                $('#CustNo').textbox({ required: true });
+            }
+		}
+
+        function putMask(maskId, tableId) {
+            return false;
+            var t1 = $('#' + tableId);
+            var p1 = t1.position();
+            $('#' + maskId).css('width', (t1.width()) + 'px');
+            $('#' + maskId).css('height', (t1.height()) + 'px');
+
+            var offset = $('#' + tableId).offset();
+            $('#' + maskId).offset({ top: offset.top, left: offset.left });
+
+            $('#' + maskId).css("visibility", "visible");
+
+            if (tableId == 'table1') {
+                $("#newCustZone").hide();
+                $("#newCustZoneLabel").hide();
+                $('#Post3Code').textbox({ required: false });
+                $('#CustNo').textbox({ required: true });
+            }
+		}
+
+        function goDesp() {
+            var gsr = $("#grid").jqGrid('getGridParam', 'selrow');
+            if (gsr) {
+                $('#fm').form('clear');
+                var retRow = $("#grid").jqGrid('getRowData', gsr);
+                retRow.IsDesp = "true";
+                $('#fm').form('load', retRow);
+                saveDetail1_win();
+            }
+        }
+
+        @{
+            var controllerName = this.ViewContext.RouteData.GetRequiredString("controller");
+            var actionName = this.ViewContext.RouteData.GetRequiredString("action");
+        }
+
+        $('.dropdown-menu a').on('click', function (event) {
+
+            var controllerName = '@controllerName';
+            var actionName = '@actionName';
+            var $target = $(event.currentTarget),
+                val = $target.attr('data-value'),
+                $inp = $target.find('input'),
+                idx;
+            if ($inp.prop('checked')) {
+                $('#DataGrid').datagrid('showColumn', val);
+                $.ajax({ url: './User/EditUserDataGridField', dataType: 'json', cache: false, async: true, data: { controllerName: controllerName, actionName: actionName, fieldName: val, addOrRemove:'add' }, success: function (data) {  } });
+            }
+            else {
+                $('#DataGrid').datagrid('hideColumn', val);
+                $.ajax({ url: './User/EditUserDataGridField', dataType: 'json', cache: false, async: true, data: { controllerName: controllerName, actionName: actionName, fieldName: val, addOrRemove: 'remove' }, success: function (data) { } });
+            }
+            $(event.target).blur();
+        });
+
+        function f_initDataGridCustom() {
+            var controllerName = '@controllerName';
+            var actionName = '@actionName';
+            var options = [];
+            $.each($('.dropdown-menu a'), function (i, item) {
+                options.push(item.getAttribute('data-value'));
+            });
+            $.ajax({ url: './User/InitUserDataGridField', dataType: 'json', cache: false, async: true, data: { controllerName: controllerName, actionName: actionName, fieldName: options.toString() }, success: function (data) { f_SetDataGridField(data); } });
+        }
+
+        function f_SetDataGridField(fieldNames) {
+            $.each($('.dropdown-menu a'), function (i, item) {
+                $inp = $(item).find('input'),
+                $inp.prop('checked', false);
+                $('#DataGrid').datagrid('hideColumn', item.getAttribute('data-value'));
+            });
+            $.each(fieldNames, function (i, item1) {
+                $.each($('.dropdown-menu a'), function (j, item2) {
+                    if (item2.getAttribute('data-value') == item1.fieldName) {
+                        $inp = $(item2).find('input'),
+                        $inp.prop('checked', true);
+                        $('#DataGrid').datagrid('showColumn', item2.getAttribute('data-value'));
+                    }
+                });
+            });
+        }
+
+        function f_judgeGuideStep(forwardStep) {
+            //now step can only between 1~3
+            var newStep;
+            if (forwardStep === null) {
+                if ($('#ShdetNo').val()) {
+                    if ($('#DetailsNo').val()) {
+                        newStep = 2;
+                    } else {
+                        newStep = 2;
+                    }
+                } else {
+                    newStep = 1;
+                }
+            } else {
+                newStep = NowStep + forwardStep;
+                if (newStep < 1)
+                    newStep = 1;
+                if (newStep > 3)
+                    newStep = 3;
+            }
+
+            switch (newStep) {
+                case 1:
+                    $('#step1').css('background-color', 'Khaki');
+                    $('#toolbar').css('background-color', 'white');
+                    $('#step2').css('background-color', 'grey');
+                    $('#step3').css('background-color', 'grey');
+                    $('#e1').linkbutton('enable');
+                    $('#m1').linkbutton('enable');
+                    $('#d1').linkbutton('enable');
+                    $('#n2').linkbutton('disable');
+                    $('#e2').linkbutton('disable');
+                    $('#m2').linkbutton('disable');
+                    $('#d2').linkbutton('disable');
+                    $('#c2').linkbutton('disable');
+                    $('#b2').linkbutton('disable');
+                    $('#n3').linkbutton('disable');
+                    $('#e3').linkbutton('disable');
+                    $('#m3').linkbutton('disable');
+                    $('#d3').linkbutton('disable');
+                    $('#b3').linkbutton('disable');
+                    $('#batchProdButton').linkbutton('disable');
+                    putMask('table2_mask', 'table2'); putMask('table3_mask', 'table3');
+                    break;
+                case 2:
+                    $('#step1').css('background-color', 'grey');
+                    $('#step2').css('background-color', 'Khaki');
+                    $('#toolbar2').css('background-color', 'white');
+                    $('#step3').css('background-color', 'grey');
+                    $('#e1').linkbutton('disable');
+                    $('#m1').linkbutton('disable');
+                    $('#d1').linkbutton('disable');
+                    $('#n2').linkbutton('enable');
+                    $('#e2').linkbutton('enable');
+                    $('#m2').linkbutton('enable');
+                    $('#d2').linkbutton('enable');
+                    $('#c2').linkbutton('enable');
+                    $('#b2').linkbutton('enable');
+                    $('#n3').linkbutton('disable');
+                    $('#e3').linkbutton('disable');
+                    $('#m3').linkbutton('disable');
+                    $('#d3').linkbutton('disable');
+                    $('#b3').linkbutton('disable');
+                    $('#batchProdButton').linkbutton('disable');
+                    //$('#despButton').linkbutton('disable');
+                    putMask('table1_mask', 'table1');  putMask('table3_mask', 'table3');
+                    break;
+                case 3:
+                    $('#step1').css('background-color', 'grey');
+                    //$('#toolbar').css('background-color', 'white');
+                    $('#step2').css('background-color', 'grey');
+                    //$('#toolbar2').css('background-color', 'white');
+                    $('#step3').css('background-color', 'Khaki');
+                    $('#toolbar3').css('background-color', 'white');
+                    $('#e1').linkbutton('disable');
+                    $('#m1').linkbutton('disable');
+                    $('#d1').linkbutton('disable');
+                    $('#n2').linkbutton('disable');
+                    $('#e2').linkbutton('disable');
+                    $('#m2').linkbutton('disable');
+                    $('#d2').linkbutton('disable');
+                    $('#c2').linkbutton('disable');
+                    $('#b2').linkbutton('disable');
+                    $('#n3').linkbutton('enable');
+                    $('#e3').linkbutton('enable');
+                    $('#m3').linkbutton('enable');
+                    $('#d3').linkbutton('enable');
+                    $('#b3').linkbutton('enable');
+                    $('#batchProdButton').linkbutton('enable');
+                    //$('#despButton').linkbutton('disable');
+                    putMask('table1_mask', 'table1'); putMask('table2_mask', 'table2');
+                    break;
+            }
+            NowStep = newStep;
+
+        }
+        function f_getLastSubmitDeatil() {
+            LastAddedRow = new Object();
+            $.each($fmDetail.find('input'), function (i, item) {
+                if ($(item).attr('name'))
+                    LastAddedRow[$(item).attr('name')] = $(item).val();
+                else
+                    LastAddedRow[$(item).attr('id')] = $(item).val();
+            });
+            a = 0;
+		}
+
+        function pasteDetail2() {
+            var Ori_DeatilsNo = $('#DetailsNo').val();
+            $('#fm2').form('clear');
+            $('#fm2').form('load', LastAddedRow);
+            $('#DetailsNo').val(Ori_DeatilsNo);
+            $('#sNoDisplay').text($('#DetailsNo').val());
+            $('#showSelectContent2').text($('#ShdetNo').val());
+        }
+
+        //取件地址改變
+        var isAddrModifiedByMachine = false;
+        function CustAddrChanged(newValue, oldValue) {
+            if (isAddrModifiedByMachine) {
+                isAddrModifiedByMachine = false;
+                return false;
+            }
+            var targetAry = ["０","１","２","３","４","５","６","７","８","９"];
+            if ((newValue != null) && (newValue != '')) {
+                var posTarget = newValue.indexOf('段');
+                //有段
+                if (posTarget >= 0) {
+                    var beforeTarget = newValue.substring(posTarget - 1, posTarget);
+                    var posBeforeTarget = targetAry.indexOf(beforeTarget);
+                    //段前1的是數字
+                    if (posBeforeTarget >= 0) {
+                        var beforeTwoTarget = newValue.substring(posTarget - 2, posTarget - 1);
+                        var posBeforeTwoTarget = targetAry.indexOf(beforeTwoTarget);
+                        //段前2的是數字
+                        if (posBeforeTwoTarget >= 0) {
+                            //只處理段前1、2
+                           // $('#add1').textbox('setValue', (posBeforeTwoTarget * 10 + posBeforeTarget).toString());
+                            isAddrModifiedByMachine = true;
+                            $('#CustAddr').textbox('setValue', newValue.replace(beforeTwoTarget + beforeTarget + '段', ''));
+                            //newValue = newValue.replace(beforeTwoTarget + beforeTarget + '段', '');
+
+                        } else {
+                            //只處理段前1
+                           // $('#add1').textbox('setValue', posBeforeTarget.toString());
+                            isAddrModifiedByMachine = true;
+                            $('#CustAddr').textbox('setValue', newValue.replace(beforeTarget + '段', ''));
+                            //newValue = newValue.replace(beforeTarget + '段', '');
+
+                        }
+                    }
+                } else {
+                }
+            }
+
+        }
+        var isAddrQuickAddModifiedByMachine = false;
+        function CustAddrChangedQuickAdd(newValue, oldValue) {
+            if (isAddrQuickAddModifiedByMachine) {
+                isAddrQuickAddModifiedByMachine = false;
+                return false;
+            }
+            var targetAry = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+            if ((newValue != null) && (newValue != '')) {
+                var posTarget = newValue.indexOf('段');
+                //有段
+                if (posTarget >= 0) {
+                    var beforeTarget = newValue.substring(posTarget - 1, posTarget);
+                    var posBeforeTarget = targetAry.indexOf(beforeTarget);
+                    //段前1的是數字
+                    if (posBeforeTarget >= 0) {
+                        var beforeTwoTarget = newValue.substring(posTarget - 2, posTarget - 1);
+                        var posBeforeTwoTarget = targetAry.indexOf(beforeTwoTarget);
+                        //段前2的是數字
+                        if (posBeforeTwoTarget >= 0) {
+                            //只處理段前1、2
+                            $('#add1QuickAdd').textbox('setValue', (posBeforeTwoTarget * 10 + posBeforeTarget).toString());
+                            isAddrQuickAddModifiedByMachine = true;
+                            $('#CustAddrQuickAdd').textbox('setValue', newValue.replace(beforeTwoTarget + beforeTarget + '段', ''));
+                            //newValue = newValue.replace(beforeTwoTarget + beforeTarget + '段', '');
+
+                        } else {
+                            //只處理段前1
+                            $('#add1QuickAdd').textbox('setValue', posBeforeTarget.toString());
+                            isAddrQuickAddModifiedByMachine = true;
+                            $('#CustAddrQuickAdd').textbox('setValue', newValue.replace(beforeTarget + '段', ''));
+                            //newValue = newValue.replace(beforeTarget + '段', '');
+
+                        }
+                    }
+                } else {
+                    $('#add1QuickAdd').textbox('setValue', '');
+                }
+                $('#add2QuickAdd').textbox('setValue', '');
+                $('#add3QuickAdd').textbox('setValue', '');
+                $('#add4QuickAdd').textbox('setValue', '');
+                $('#add5QuickAdd').textbox('setValue', '');
+                $('#add6QuickAdd').textbox('setValue', '');
+            }
+
+		}
+
+		$('#RedyDate').datebox({
+			onSelect: function () {
+				PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+			}
+		});
+
+		$('#RedyTime').timespinner({
+			onChange: function (newValue, oldValue) {
+				if (newValue!='' && oldValue!='')
+					PickUpAreaNoChanged($('#PickUpAreaNo').val(), $('#PickUpAreaNo').val())
+			}
+		});
+
+		function PickUpAreaNoChanged(newValue, oldValue) {
+			var redyDate = $('#RedyDate').val();
+			var redyTime = $('#RedyTime').val();
+			if (($('#DetailsNo').val() != '新增' && FirstLoad == false) || ($('#DetailsNo').val() == '新增')) {
+				if (newValue != '') {
+					$.ajax({
+						url: '@Url.Action("PickUpAreaNoChanged", "ShdetF")',
+						type: "POST",
+						cache: false,
+						async: false,
+						dataType: 'json',
+						contentType: 'application/json; charset=UTF-8',
+						data: JSON.stringify({ pickUpAreaNo: newValue, RedyDate: redyDate, RedyTime: redyTime }),
+						success: function (response) {
+							if (response.total > 0) {
+								$('#SectorNo').textbox('setValue', response.rows.SectorNo);
+								$('#SectorName').textbox('setValue', response.rows.SectorName);
+								$('#EndDate').textbox('setValue', response.rows.EndTime)
+								$('#CarID').textbox('setValue', response.rows.CarID)
+								$('#CallStatNo').textbox('setValue', response.rows.SectorStat)
+							}
+						}
+					});
+				} else {
+					$('#SectorNo').textbox('setValue', null);
+					$('#SectorName').textbox('setValue', null);
+					$('#EndDate').textbox('setValue', null)
+					$('#CarID').textbox('setValue', null)
+					$('#CallStatNo').textbox('setValue', null)
+				}
+			}
+		}
+
+		$('#RedyDateQuickAdd').datebox({
+			onSelect: function () {
+				PickUpAreaNoChangedQuickAdd($('#PickUpAreaNoQuickAdd').val(), null)
+			}
+		});
+
+		$('#RedyTimeQuickAdd').timespinner({
+			onChange: function () {
+				PickUpAreaNoChangedQuickAdd($('#PickUpAreaNoQuickAdd').val(), null)
+			}
+		});
+
+		function PickUpAreaNoChangedQuickAdd(newValue, oldValue) {
+			if ($('#RedyDateQuickAdd').val() != "" && Saving == 0) {
+				var redyDate = $('#RedyDateQuickAdd').val();
+				var redyTime = $('#RedyTimeQuickAdd').val();
+				if ((newValue != null) && (newValue != '')) {
+					console.log('AJAX');
+					$.ajax({
+						url: '@Url.Action("PickUpAreaNoChanged", "ShdetF")',
+						type: "POST",
+						cache: false,
+						async: false,
+						dataType: 'json',
+						contentType: 'application/json; charset=UTF-8',
+						data: JSON.stringify({ pickUpAreaNo: newValue, RedyDate: redyDate, RedyTime: redyTime }),
+						success: function (response) {
+							if (response.total > 0) {
+								$('#SectorNoQuickAdd').textbox('setValue', response.rows.SectorNo);
+								$('#SectorNameQuickAdd').textbox('setValue', response.rows.SectorName);
+								$('#EndDateQuickAdd').textbox('setValue', response.rows.EndTime)
+								$('#CarIDQuickAdd').textbox('setValue', response.rows.CarID)
+								$('#CallStatNoQuickAdd').textbox('setValue', response.rows.SectorStat)
+							}
+						}
+					});
+				} else {
+					$('#SectorNoQuickAdd').textbox('setValue', null);
+					$('#SectorNameQuickAdd').textbox('setValue', null);
+					$('#EndDateQuickAdd').textbox('setValue', null)
+					$('#CarIDQuickAdd').textbox('setValue', null)
+					$('#CallStatNoQuickAdd').textbox('setValue', null)
+				}
+			}
+		}
+
+        function openQuickAdd() {
+			$('#fmQuickAdd').form('clear');
+            $('#DataGridBatchProdQuickAdd').datagrid('loadData', []);
+            var datetimeTarget = new Date();
+            var monthTarget = '';
+            var dayTarget = '';
+            var hourTarget = '';
+            var minuteTarget = '';
+            var secondTarget = '';
+
+            if ((datetimeTarget.getMonth() + 1) < 10) { monthTarget = '0' + (datetimeTarget.getMonth() + 1); } else { monthTarget = datetimeTarget.getMonth() + 1; }
+            if (datetimeTarget.getDate() < 10) { dayTarget = '0' + datetimeTarget.getDate(); } else { dayTarget = datetimeTarget.getDate(); }
+            if (datetimeTarget.getHours() < 10) { hourTarget = '0' + datetimeTarget.getHours(); } else { hourTarget = datetimeTarget.getHours(); }
+            if (datetimeTarget.getMinutes() < 10) { minuteTarget = '0' + datetimeTarget.getMinutes(); } else { minuteTarget = datetimeTarget.getMinutes(); }
+            if (datetimeTarget.getSeconds() < 10) { secondTarget = '0' + datetimeTarget.getSeconds(); } else { secondTarget = datetimeTarget.getSeconds(); }
+			$('#ReserveDateQuickAdd').datetimebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget + ' ' + hourTarget + ':' + minuteTarget + ':' + secondTarget);
+			$('#SDateQuickAdd').datebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget );
+            $('#RedyDateQuickAdd').datebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget);
+            $('#RedyTimeQuickAdd').timespinner('setValue', hourTarget + ':' + minuteTarget);
+			$('#ADateQuickAdd').datebox('setValue', datetimeTarget.getFullYear() + '/' + monthTarget + '/' + dayTarget);
+			$('#ATimeQuickAdd').timespinner('setValue', hourTarget + ':' + minuteTarget);
+            $('#StatNoQuickAdd').textbox('setValue', $('#hidStatNo').val());
+            $('#CallStatNoQuickAdd').textbox('setValue', $('#hidStatNo').val());
+
+            //added by jie,20180910
+            AllBatchDetailJson = { total: 0, rows: [] };
+            $('#DataGridBatchDetailQuickAdd').datagrid('loadData', []);
+            //end added by jie,20180910
+
+            $('#winQuickAdd').window('open');
+        }
+
+        //added by jie,20180910
+        var AllBatchDetailJson;
+        function insertDetailQuickAdd() {
+            if ($('#fmQuickAdd').form('validate')) {
+                tempRow = new Object();
+                $.each($('#fmQuickAdd').find('input'), function (i, item) {
+                    if ($(item).attr('name'))
+                        tempRow[$(item).attr('name')] = $(item).val();
+                    else
+                        tempRow[$(item).attr('id')] = $(item).val();
+				});
+				tempRow.IsRedyQuickAdd = $('#IsRedyQuickAdd').val()
+				tempRow.IsRedy = $('#IsRedyQuickAdd').val()
+                tempRow["sNo"] = AllBatchDetailJson.total + 1;
+
+                AllBatchDetailJson.total = AllBatchDetailJson.total + 1;
+                AllBatchDetailJson.rows.push(tempRow);
+                //a = 1;
+                $('#DataGridBatchDetailQuickAdd').datagrid('loadData', AllBatchDetailJson);
+            }
+        }
+        //end added by jie,20180910
+
+        function saveAllQuickAdd() {
+            var headerSubmitOK = false;
+            var detailSubmitOK = false;
+            var prodSubmitOK = false;
+
+            var ProdSuccessCount = 0;
+
+            if ($('#Post3CodeQuickAdd').val().length < 3 && $("#CustNoQuickAdd").val() === "") {
+                $.messager.alert('@ViewBag.Title-警告', '區碼至少3位');
+                return false;
+            }
+
+            var rowProd = $('#DataGridBatchProdQuickAdd').datagrid('getRows');
+            if (rowProd) {
+                if (rowProd.length < 1) {
+                    $.messager.alert('@ViewBag.Title-警告', '無貨物資料');
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            for (var i = 0; i < rowProd.length; i++) {
+                if (rowProd[i].editing == true)
+                    return false;
+            }
+            if ($('#fmQuickAdd').form('validate') == false)
+                return false;
+
+            //$.messager.progress();  // display the progress bar
+
+            $('#fmQuickAdd').form('submit', {
+                url: '@Url.Action("NewShdet", "ShdetF")',
+                onSubmit: function () {
+                    return $(this).form('validate');
+                },
+                success: function (result) {
+                    var result = eval('(' + result + ')');
+                    if (result.errorMsg) {
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                        //$.messager.progress('close');
+                        $('#winQuickAdd').window('close');
+					} else {
+						headerSubmitOK = true;
+						Saving = 1;
+                        if (headerSubmitOK) {
+							//modified by jie,20180910
+                            for (var ii = 0; ii < AllBatchDetailJson.total; ii++) {
+                                $('#fmQuickAdd').form('clear');
+                                $('#fmQuickAdd').form('load', AllBatchDetailJson.rows[ii]);
+                                $('#ShdetNoQuickAdd').val(result.ShdetNo);
+                                //$('#sNoQuickAdd').val(ii+1);
+                                //add by jie,20180913
+                                $('#CustNoQuickAdd').textbox('setValue', result.CustNo);
+                                //end add by jie,20180913
+
+                                $('#fmQuickAdd').form('submit', {
+                                    url: '@Url.Action("NewShdet2", "ShdetF")',
+                                    onSubmit: function () {
+                                        return $(this).form('validate');
+                                    },
+                                    success: function (result) {
+                                        var result = eval('(' + result + ')');
+                                        if (result.errorMsg) {
+                                            $.messager.show({
+                                                title: 'Error',
+                                                msg: result.errorMsg
+                                            });
+                                            ProdSuccessCount += 1;
+                                            if (ProdSuccessCount == AllBatchDetailJson.total) {
+                                                //$('#DataGrid1AutoSelectLastFlag').val('yes');
+                                                //$('#search_target').val($('#ShdetNoQuickAdd').val());
+                                                //$('#sRedyDateS').datebox('setValue', '');
+                                                //$('#sRedyDateE').datebox('setValue', '');
+                                                SearchReserveDate();
+                                                //putMask('table1_mask', 'table1');
+                                                //putMask('table2_mask', 'table2');
+                                                //putMask('table3_mask', 'table3');
+                                                //$.messager.progress('close');
+                                                $('#winQuickAdd').window('close');
+                                            }
+
+										} else {
+											Saving = 0;
+                                            $('#sNoQuickAdd').val(result.sNo);
+                                            detailSubmitOK = true;
+
+                                            if (detailSubmitOK) {
+
+                                                var targetData = $('#DataGridBatchProdQuickAdd').datagrid('getData');
+                                                var transferData = {total:0,rows:[]};
+                                                for (var i = targetData.total - 1; i >= 0; i--) {
+                                                    targetData.rows[i].ShdetNo = $('#ShdetNoQuickAdd').val();
+                                                    targetData.rows[i].CustNo = $('#CustNoQuickAdd').val();
+                                                    if (targetData.rows[i].CarryName === result.CarryName && targetData.rows[i].sDtlNo === result.sNo) {
+                                                        //targetData.rows[i].sDtlNo = result.sNo;
+                                                        targetData.rows[i].CarID = result.CarID;
+                                                        targetData.rows[i].RedyDate = result.RedyDate;
+                                                        transferData.total += 1;
+                                                        transferData.rows.push(targetData.rows[i]);
+                                                    }
+                                                    else {}
+                                                }
+
+                                                $.ajax({
+                                                    url: '@Url.Action("NewShdet3Batch", "ShdetF")',
+                                                    type: "POST",
+                                                    cache: false,
+                                                    async: false,
+                                                    dataType: 'json',
+                                                    contentType: 'application/json; charset=UTF-8',
+                                                    data: JSON.stringify(transferData),
+                                                    success: function (response) {
+                                                        //Some Code here
+                                                        countOK = response.OK;
+                                                        countFAIL = response.FAIL;
+                                                        countR1 = response.R1;
+                                                        countR2 = response.R2;
+                                                        countR3 = response.R3;
+                                                        errorMsg = response.errorMsg;
+
+                                                        ProdSuccessCount += 1;
+
+                                                        if (ProdSuccessCount == AllBatchDetailJson.total) {
+                                                            SearchReserveDate();
+                                                            $('#winQuickAdd').window('close');
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                });
+                            }
+                            //end modified by jie,20180910
+                        }
+                    }
+                }
+            });
+        }
+
+        function checkTodaySameCust(custNo) {
+            $.messager.progress();  // display the progress bar
+            var retValue = false;
+            $.ajax({
+                url: './ShdetF/checkTodaySameCust',
+                type: "POST",
+                cache: false,
+                async: false,
+                dataType: 'json',
+                contentType: 'application/json; charset=UTF-8',
+                data: JSON.stringify({ custNo: custNo.toString(), statNo: '@ViewBag.StatNo' }),
+                success: function (response) {
+                    //Some Code here
+                    if (response.message > "0") {
+                        var r = confirm('本站點於今天已建立過此客戶調派單，確定新增？');
+                        if (r) {
+                            retValue = false;
+                        } else {
+                            retValue = true;
+                        }
+                    }
+                    $.messager.progress('close');
+                }
+            });
+            return retValue;
+        }
+	</script>
+	<script>
+		var grid = $("#grid");
+		var ResizeGrid = ResizeGrid || function () {
+			var w = $(window);
+			grid.jqGrid("setGridWidth", w.innerWidth() - 10);
+			grid.jqGrid("setGridHeight", w.innerHeight() - 10 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+			console.log("Default Resize Mode");
+		};
+
+		$(function () {
+			$(window).resize(
+				function () {
+					$("body").css("padding-top", $(".navbar").height());
+					ResizeGrid();
+				}).trigger("resize");
+			setTimeout(function () {
+				$(window).trigger("resize");
+			}, 1000);
+		});
+
+		function clearLevel23() {
+			$('#showSelectContent2').text('');
+			subgrid.jqGrid("setGridParam", { datatype: 'local' });
+			try { // statements to try
+				subgrid[0].clearToolbar();
+			}
+			catch (e) { }
+
+			subgrid.jqGrid("clearGridData");
+
+			$('#showSelectContent3').text('');
+			subgrid2.jqGrid("setGridParam", { datatype: 'local' });
+			try { // statements to try
+				subgrid2[0].clearToolbar();
+			}
+			catch (e) { }
+			subgrid2.jqGrid("clearGridData");
+		}
+
+		function clearLevel3() {
+			$('#showSelectContent3').text('');
+			subgrid2.jqGrid("setGridParam", { datatype: 'local' });
+			try { // statements to try
+				subgrid2[0].clearToolbar();
+			}
+			catch (e) { }
+			subgrid2.jqGrid("clearGridData");
+		}
+	</script>
+	<script>
+        var grid = $("#grid");
+        var subgrid = $("#subgrid");
+        var subgrid2 = $("#subgrid2");
+        var apiURL = "/ShdetF/";
+        var model = [
+            {
+                name: 'RowNumber', label: 'RowNumber', search: false, width: 80, key: true, hidden: true
+            },
+            {
+                name: 'IsDesp', label: '調派狀態', search: true, width: 80, stype: 'select',
+                formatter: function (value) { if (value === true) return '是'; return '否'; },
+                searchoptions:
+                {
+                    value: { true: "是", false: "否", null: "不分" }
+                },
+			},
+			{
+				name: 'LadingNo_Type', label: '調派編號', width: 80,
+			},
+            {
+                name: 'ShdetNo', label: '調派編號', width: 80,hidden:true,
+                 editoptions: { hidden: true, maxLength: 12, readonly: "readonly" },
+            },
+            {
+                name: 'CustNo', label: '客戶代號', readonly: "edit", search: true,width:80,
+            },
+            {
+                name: 'CustCHName', label: '客戶名稱', readonly: "edit", search: true, width: 80,
+                editable: true, editoptions: { maxLength: 100 },
+
+            },
+            {
+                name: 'Remark5', label: '調度重要說明', readonly: "edit", search: true, width: 80,
+                editable: true, editoptions: { maxLength: 100 },
+            },
+            {
+                name: 'RedyDate', label: '收件日期', search: false, width: 80,
+                editable: true, formatter: 'date',
+            },
+            {
+                name: 'ReserveDate', label: '預約日期', search: false, width: 80,
+                editable: true, formatter: 'date',
+			},
+			{
+				name: 'SDate', label: '出貨日期', search: false, width: 80,
+				editable: true, formatter: 'date',
+			},
+            {
+                name: 'Clerk', label: '業務專員', search: false, width: 80,
+                editable: true,
+            },
+             {
+                name: 'HubNo', label: '路線代號', search: false, hidden: true,
+            },
+            {
+                name: 'HubName', label: '路線', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Hub/GetGridJSON?sidx=HubNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "HubName", "HubName", true);
+                    },
+                },
+            },
+            {
+                name: 'SectorName', label: '外務員', search: true,
+                stype: "select",
+                searchoptions:
+                {
+					dataUrl: "/ShdetF/GetGridJSON_Sector?start_date=" + getToday() + "&end_date=" + getToday() + "&searchType=" + $('input[name=searchType]:checked').val() + "&rows=1000",
+                    buildSelect: function (data) {
+                        return $(Lib.jqGrid.buildSelect(data, "SectorName", "SectorName", true));
+                    }
+                },
+            },
+            {
+                name: 'StatNo', label: '叫件站點', search: true, hidden: true,
+            },
+            {
+                name: 'StatName', label: '叫件站點', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "StatName", "StatName", true);
+                    },
+                },
+            },
+            {
+                name: 'CallStatNo', label: '取件站點', search: true, hidden: true,
+            },
+            {
+                name: 'CallStatName', label: '取件站點', search: true,
+                stype: "select",
+                searchoptions:
+                {
+                    dataUrl: "Stat/GetGridJSON?sidx=StatNo&rows=1000",
+                    buildSelect: function (data) {
+                        return Lib.jqGrid.buildSelect(data, "StatName", "StatName", true);
+                    },
+                },
+            },
+            {
+                name: 'Dest', label: '目的地', search: false, width: 70,
+                editable: true,
+			},
+			{
+				name: 'CocustomTypStr', label: '報關類型', search: true, width: 70,
+				formatter: "select",
+				editoptions: {
+					value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '正式報關+後段核銷': '正式報關+後段核銷', '簡易報關+後段核銷': '簡易報關+後段核銷', '不報關+後段核銷': '不報關+後段核銷','其他': '其他' }
+				},
+				stype: "select",
+				searchoptions: {
+					value: { '': " ", '不報關': "不報關", '正式報關': '正式報關', '簡易報關': '簡易報關', '正式報關+後段核銷': '正式報關+後段核銷', '簡易報關+後段核銷': '簡易報關+後段核銷', '不報關+後段核銷': '不報關+後段核銷', '其他': '其他' }
+				}
+			},
+            {
+                name: 'ShdetBy', label: '調派人', search: false, width: 70,
+			},
+            {
+                name: 'ShdetDate', label: '調派時間', search: false, width: 80, hidden: true,
+                formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+	//	shdetFix
+   //         {
+   //             name: 'IsCancel', label: '取消狀態', search: false, width: 80,
+   //             formatter: function (value) { if (value === true) return '是'; return '否'; }
+   //         },
+   //         {
+   //             name: 'CancelBy', label: '取消人', search: false, width: 70,
+   //         },
+   //         {
+   //             name: 'CancelDate', label: '取消時間', search: false, width: 80, hidden: true,
+   //             formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+	//			},
+   //         {
+   //             name: 'IsReply', label: '回覆狀態', search: false, width: 80,
+   //             formatter: function (value) { if (value === true) return '是'; return '否'; }
+   //         },
+   //         {
+   //             name: 'ReplyBy', label: '回覆人', search: false, width: 70,
+   //         },
+   //         {
+   //             name: 'ReplyDate', label: '回覆時間', search: false, width: 80,
+   //             formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+   //         },
+	//			{
+	//				name: 'IsFinish', label: '完成狀態', search: false, width: 80,
+	//				formatter: function (value) { if (value === true) return '是'; return '否'; }
+	//			},
+   //         {
+   //             name: 'FinishBy', label: '完成人', search: false, width: 80,
+   //             editoptions: {
+   //                 dataUrl: "/User/GetGridJSON?rows=100000",
+   //                 buildSelect: function (data) {
+   //                     return $(Lib.jqGrid.buildSelect(data, "Account", "UserName", true));
+   //                 }
+   //             },
+   //             formatter: "select",
+   //         },
+   //         {
+   //             name: 'FinishDate', label: '完成時間', search: false, width: 80, hidden: true,
+   //             formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+   //         },
+            {
+                name: 'CreatedBy', label: '建單人', search: true, width: 70,
+                formatter: "select",
+                stype: "select",
+                searchoptions:
+                {
+					dataUrl: "ShdetF/GetCreateBy?start_date=" + getToday() + "&end_date=" + getToday()+"&searchType=" + $('input[name=searchType]:checked').val()+"&rows=1000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "CreatedBy", "CreatedBy", true);
+					},
+                },
+            },
+            {
+                name: 'CreatedDate', label: '建單時間', search: false, width: 80,
+                formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+            },
+            {
+                name: 'UpdatedBy', label: '修改人員', search: true, width: 80,
+                formatter: "select",
+                stype: "select",
+                searchoptions:
+                {
+					dataUrl: "ShdetF/GetUpdatedBy?start_date=" + getToday() + "&end_date=" + getToday()+"&rows=1000",
+					buildSelect: function (data) {
+						return Lib.jqGrid.buildSelect(data, "UpdatedBy", "UpdatedBy", true);
+					},
+                },
+            },
+            {
+                name: 'UpdatedDate', label: '修改時間', search: false, width: 80,
+                formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+            },
+            //{
+            //    name: 'sNo', label: '序號', search: false, width: 80, hidden: true,
+            //},
+        ];
+        grid.jqGrid("autoWidthColumns").jqGrid({
+            caption: "@ViewBag.Title",
+            url: apiURL + "GetGridJSON1?sredy_date=" + getToday() + "&eredy_date=" + getToday() + "&from=" + "@ViewBag.Title"+ "&QueryNo=@ViewBag.QuickNo" ,
+
+            datatype: "json",
+            colModel: model,
+            sortname: "ShdetNo",
+            sortorder: "asc",
+
+            shrinkToFit: false,
+            autowidth: true,
+            pager: "#pager",
+            toppager: false,
+            pgbuttons: true,
+            pginput: true,
+            viewrecords: true,
+            rowNum: 40,
+            rowList: [40, 80, 120, 160],
+
+            altRows: true,
+            altclass: "ui-jz-altRow",
+
+            hidegrid: false,
+            toolbar: [true, "top"],
+            onSelectRow: function (id, selected) {
+                $("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+                var row = $("#grid").jqGrid('getRowData', id);
+
+                $('#showSelectContent').text('');
+                clearLevel23();
+
+                if (selected) {
+                    subgrid.jqGrid("setGridParam", {
+                        url: subapiURL + "GetGridJson2?ShdetNo=" + row.ShdetNo + "&CustNo=" + row.CustNo + "&sNo=" + row.sNo,
+                        datatype: 'json',
+                        loadComplete: function () {
+                            //id list value
+                            var ids = subgrid.jqGrid('getDataIDs');
+                            //get first id
+                            var rowid = ids[0];
+                            var rowData = subgrid.getRowData(rowid);
+                            if (rowData) {
+                            subgrid2.jqGrid("setGridParam", {
+                                url: subapiURL2 + "GetGridJson3?ShdetNo=" + rowData.ShdetNo + "&CustNo=" + rowData.CustNo + "&sDtlNo=" + rowid,
+                                datatype: 'json'
+                            });
+                            subgrid2.trigger('reloadGrid');
+                            }
+                        }
+                    });
+                    subgrid.trigger('reloadGrid');
+
+
+//> var rowData = jQuery("#gridtable2").getRowData(rowId);
+
+                    //subgrid2.jqGrid("setGridParam", {
+                    //    url: subapiURL + "GetGridJson3?ShdetNo=" + id + "&CustNo=" + row.CustNo, datatype: 'json'
+                    //});
+                    //subgrid2.trigger('reloadGrid');
+
+
+                    $('#showSelectContent').text(row.ShdetNo);
+
+                    if ((row.IsDesp == false) || (row.IsDesp == '否')) {
+                             @RenderSection("enableBtnWithDesp", required: false)
+                        } else {
+                            @RenderSection("disableBtn", required: false)
+
+                        }
+
+                }
+                else {
+                }
+            },
+            gridComplete: function () {
+                //alert('grid complete');
+                $('#showSelectContent').text('');
+                clearLevel23();
+            },
+        }).jqGrid('navGrid', '#pager',
+            {
+                del: false, add: false,
+                edit: false, search: false, view: false, refresh:true,
+            },
+            {/*edit*/
+                url: apiURL + "EditShdet"
+            },
+            {/*add*/
+                url: apiURL + "NewShdet"
+            },
+            {/*del*/
+                url: apiURL + "DeleteShdet"
+            },
+            {/*search*/
+            },
+            {/*view*/
+            }).filterToolbar({
+				searchOnEnter: true
+            });
+        //$("#t_grid").append("<input type='button' value='Click Me' style='height:20px;font-size:-3' />");
+        $("#t_grid").css("height","40px").append($('#toolbar_jqGrid'));
+
+	</script>
+	<script>
+		var subapiURL = "/ShdetF/";
+		var subModel = [
+			{
+				name: 'ShdetNo', label: '調派編號', hidden: true, width: 80,
+				editoptions: {
+					defaultValue: function () {
+						return grid.jqGrid('getGridParam', 'selrow');
+					},
+				},
+				editrules: { required: true },
+			},
+			{
+				name: 'CustNo', label: '客戶代號', hidden: true, width: 80,
+				editoptions: {
+					defaultValue: function () {
+						var id = subgrid.jqGrid('getGridParam', 'selrow');
+						return subgrid.jqGrid('getCell', id, 'CustNo');
+					},
+				},
+				editrules: { required: true },
+			},
+			{
+				name: 'sNo', label: '序號', key: true, width: 60,
+			},
+			{
+				name: 'CarryName', label: '取件名稱', editable: true, width: 80,
+				formoptions: { rowpos: 1, colpos: 1 },
+			},
+			{
+				name: 'Code5', label: '郵政5碼', editable: true, width: 80, hidden: true,
+				formoptions: { rowpos: 1, colpos: 2 },
+			},
+			{
+				name: 'Code7', label: '郵政7碼', editable: true, width: 80, hidden: true,
+				formoptions: { rowpos: 1, colpos: 2 },
+			},
+			{ name: 'CustAddr', label: '完整地址', editable: true, hidden: true },
+			{ name: 'CustAddrFull', label: '完整地址', editable: true, width: 160, },
+			{ name: 'CustENAddr1', label: '英文地址', editable: true, width: 60, },
+			{ name: 'Country', label: '國家', editable: true, width: 80, },
+			{ name: 'CtcSale', label: '業務部聯絡人', editable: true, width: 100, },
+			{ name: 'Tel', label: '電話', editable: true, width: 100, },
+			{ name: 'PickUpAreaNo', label: '調度區域', editable: true, width: 80, },
+			{ name: 'EndDate', label: '截止時間', editable: true, width: 80, },
+			{ name: 'SectorName', label: '外務員', editable: true, width: 80, },
+			{ name: 'SectorNo', label: '外務員', editable: true, width: 80, hidden: true },
+			{
+				name: 'WeigLevel', label: '貨物類型', editable: true, width: 80,
+				formatter: "select",
+				editoptions: {
+					value: { '0': "0.文件", '1': '1.包裹5KG以下', '2': '2.箱貨5KG以上', '3': '3.木箱', '4': '4.棧板' }
+				},
+				stype: "select",
+				searchoptions: {
+					value: { '0': "0.文件", '1': '1.包裹5KG以下', '2': '2.箱貨5KG以上', '3': '3.木箱', '4': '4.棧板' }
+				}
+			},
+			{
+				name: 'CocustomTyp', label: '報關類型', editable: true, width: 80,
+				formatter: "select",
+				editoptions: {
+					value: { '0': "0.不報關", '1': '1.正式報關', '2': '2.簡易報關', '3': '3.正式報關+後段核銷', '4': '4.簡易報關+後段核銷', '5': '5.不報關+後段核銷', '6': '6.其他' }
+				},
+				stype: "select",
+				searchoptions: {
+					value: { '0': "0.不報關", '1': '1.正式報關', '2': '2.簡易報關', '3': '3.正式報關+後段核銷', '4': '4.簡易報關+後段核銷', '5': '5.不報關+後段核銷', '6': '6.其他' }
+				}
+			},
+			{ name: 'CcNo', label: '付款方式', editable: true, width: 80, },
+			{ name: 'Charge', label: '收款金額', editable: true, width: 80, },
+			{
+				name: 'RedyDate', label: '可取件日期', editable: true, width: 140,
+				formatter: 'date',
+
+			},
+			{ name: 'RedyTime', label: '可取件時間', editable: true, width: 100, },
+			{ name: 'IsRedy', label: '準時取件', editable: true, width: 100, formatter: function (value) { if (value === true) return '是'; else if (value === false) return '否'; else return '否' } },
+			{ name: 'StatNo', label: '叫件站點', editable: true, width: 80, },
+			{ name: 'CarNO', label: '車牌號碼', editable: true, width: 80, },
+			{ name: 'CarID', label: '車輛ID', editable: true, width: 80, hidden: true, },
+			{ name: 'CallStatNo', label: '取件站點', editable: true, width: 80, },
+			{
+				name: 'IsFinish', label: '完成狀態', search: false, width: 80,
+				formatter: function (value) { if (value === true) return '是'; return '否'; }
+			},
+			{
+				name: 'FinishBy', label: '完成人', search: false, width: 80,
+			},
+			{
+				name: 'FinishDate', label: '完成時間', search: false, width: 80,
+				formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+			{
+				name: 'Status', label: '貨件狀態', width: 80,
+			},
+			{
+				name: "StatusTime", label: "貨件狀態時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			},
+				{
+				name: "PhoneCheckTime", label: "手機查看時間", search: false,
+				formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			},
+			{
+				name: 'IsReply', label: '回覆狀態', search: false, width: 80,
+				formatter: function (value) { if (value === true) return '是'; return '否'; }
+			},
+			{
+				name: 'ReplyBy', label: '回覆人', search: false, width: 70,
+			},
+			{
+				name: 'ReplyDate', label: '回覆時間', search: false, width: 80,
+				formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+			{
+				name: 'ReplyComment', label: '回覆說明', search: false, hidden: true,
+			},
+			{
+				name: 'IsCancel', label: '取消狀態', search: false, width: 80,
+				formatter: function (value) { if (value === true) return '是'; return '否'; }
+			},
+			{
+				name: 'CancelBy', label: '取消人', search: false, width: 70,
+			},
+			{
+				name: 'CancelDate', label: '取消時間', search: false, width: 80, hidden: true,
+				formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+			{ name: 'UpdatedBy', label: '修改人員', width: 80, },
+			{
+				name: 'UpdatedDate', label: '修改時間', width: 80, hidden: true,
+				//formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "ISO8601Long" }
+			},
+			{ name: 'Add_1', label: 'add1', hidden: true, },
+			{ name: 'Add_2', label: 'add2', hidden: true, },
+			{ name: 'Add_3', label: 'add3', hidden: true, },
+			{ name: 'Add_4', label: 'add4', hidden: true, },
+			{ name: 'Add_5', label: 'add5', hidden: true, },
+			{ name: 'Add_6', label: 'add6', hidden: true, },
+		];
+		subgrid.jqGrid("autoWidthColumns").jqGrid({
+			//url: subapiURL + "GetGridJSON2?ShdetNo=★",
+			//datatype: "json",
+			datatype: "local",
+			colModel: subModel,
+			sortname: "sNo",
+			sortorder: "asc",
+
+			shrinkToFit: false,
+			autowidth: true,
+
+			toppager: false,
+			// pager: "#subpager",
+			pgbuttons: false,
+			pginput: false,
+			viewrecords: false,
+			rowNum: 1000,
+
+			altRows: true,
+			altclass: "ui-jz-altRow",
+			toolbar: [true, "top"],
+			hidegrid: false,
+
+			onSelectRow: function (id, selected) {
+				$("#subpager2").find(".ui-pg-button")[selected ? "show" : "hide"]();
+				var row = $("#subgrid").jqGrid('getRowData', id);
+				$('#showSelectContent2').text('');
+				clearLevel3();
+				if (selected) {
+
+					subgrid2.jqGrid("setGridParam", {
+						url: subapiURL2 + "GetGridJson3?ShdetNo=" + row.ShdetNo + "&CustNo=" + row.CustNo + "&sDtlNo=" + id, datatype: 'json'
+					});
+					subgrid2.trigger('reloadGrid');
+
+					$('#showSelectContent2').text(row.sNo);
+				}
+
+			},
+			gridComplete: function () {
+				//alert('grid complete');
+				$('#showSelectContent2').text('');
+				clearLevel3();
+			},
+
+		}).jqGrid('navGrid', '#subpager',
+			{
+				del: false, add: false,
+				edit: false, search: false, refresh: false
+			},
+			{/*edit*/
+				url: apiURL + "EditShdet2",
+				onclickSubmit: function (edit, id) {
+					var row = $("#subgrid").jqGrid('getRowData', id);
+					edit.editData = row;
+				}
+			},
+			{/*add*/
+				url: apiURL + "NewShdet2"
+			},
+			{/*del*/
+				url: apiURL + "DeleteShdet2",
+				onclickSubmit: function (del, id) {
+					var row = $("#subgrid").jqGrid('getRowData', id);
+					del.delData = row;
+				}
+			},
+			{/*search*/
+			},
+			{/*view*/
+			});
+		$("#gridbtn_caption").addClass("ui-state-disabled");
+		$("#t_subgrid").css("height", "40px").append($('#toolbar_jqGrid2'));
+		$("#subpager").find(".ui-pg-button").hide();
+
+	</script>
+	<script>
+		var subapiURL2 = "/ShdetF/";
+		var subModel2 = [
+			{
+				name: 'ShdetNo', label: '調派編號', hidden: true, editable: true,
+				formoptions: { rowpos: 8, colpos: 1 },
+				editoptions: {
+					defaultValue: function () {
+						var id = subgrid.jqGrid('getGridParam', 'selrow');
+						return subgrid.jqGrid('getCell', id, 'ShdetNo');
+					},
+				},
+				editrules: { required: true },
+			},
+			{
+				name: 'CustNo', label: '客戶代號', hidden: true, editable: true,
+				formoptions: { rowpos: 8, colpos: 2 },
+				editoptions: {
+					defaultValue: function () {
+						var id = subgrid.jqGrid('getGridParam', 'selrow');
+						return subgrid.jqGrid('getCell', id, 'CustNo');
+					},
+				},
+				editrules: { required: true },
+			},
+			{
+				name: 'sDtlNo', label: '明細序號', hidden: true, editable: true,
+				formoptions: { rowpos: 9, colpos: 1 },
+				editoptions: {
+					defaultValue: function () {
+						return subgrid.jqGrid('getGridParam', 'selrow');
+					},
+				},
+				editrules: { required: true },
+			},
+			{
+				name: 'sNo', label: '序號', key: true, editable: true, width: 60,
+				readonly: true, formoptions: { rowpos: 9, colpos: 2 },
+			},
+			{
+				name: 'Pcs', label: '件數', align: 'right', editable: true, width: 60,
+				editrules: {
+					integer: true,
+				},
+				formoptions: { rowpos: 1, colpos: 1 }
+			},
+			{
+				name: 'fLen', label: '長(CM)', align: 'right', editable: true, width: 60,
+				editrules: {
+					number: true,
+				},
+				editoptions: { onchange: "calculate()" },
+				formoptions: { rowpos: 1, colpos: 2 }
+			},
+			{
+				name: 'fWidth', label: '寬(CM)', align: 'right', editable: true, width: 60,
+				editrules: {
+					number: true,
+				},
+				editoptions: { onchange: "calculate()" },
+				formoptions: { rowpos: 2, colpos: 1 }
+			},
+			{
+				name: 'fHeight', label: '高(CM)', align: 'right', editable: true, width: 60,
+				editrules: {
+					number: true,
+				},
+				editoptions: { onchange: "calculate()" },
+				formoptions: { rowpos: 2, colpos: 2 }
+			},
+			{
+				name: 'iTotNum', label: '總材數(材)', align: 'right', editable: true, width: 100,
+				editrules: {
+					number: true,
+				},
+				editoptions: { readonly: true },
+				formatter: 'number', formatoptions: { decimalPlaces: 3 },
+			},
+			{
+				name: 'Weig', label: '重量(KGS)', align: 'right', editable: true, width: 80,
+				formatter: 'number', formatoptions: { decimalPlaces: 1 },
+				editrules: {
+					number: true,
+				},
+				formoptions: { rowpos: 3, colpos: 2 }
+			},
+			{
+				name: 'IsDesp', label: '調派狀態', editable: true, width: 80, hidden: true,
+				formoptions: { rowpos: 4, colpos: 1 }, formatter: "select",
+				edittype: "select", editoptions: {
+					value: { "": "", true: "是", false: "否" },
+				},
+			},
+			{
+				name: 'ShdetBy', label: '調派人', width: 80, hidden: true,
+			},
+			{
+				name: 'ShdetDate', label: '調派時間', width: 80, hidden: true,
+				//formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "Y-m-d H:i:s" }
+			},
+			{
+				name: 'IsCancel', label: '取消狀態', editable: true, width: 80, hidden: true,
+				formoptions: { rowpos: 4, colpos: 2 }, formatter: "select",
+				edittype: "select", editoptions: {
+					value: { "": "", true: "是", false: "否" },
+				},
+			},
+			{
+				name: 'CancelBy', label: '取消人', width: 70, hidden: true,
+			},
+			{
+				name: 'CancelDate', label: '取消時間', width: 80, hidden: true,
+				//formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "Y-m-d H:i:s" }
+			},
+			//shdetFix
+			//{
+			//	name: 'IsReply', label: '回覆狀態', editable: true, width: 80, hidden: true,
+			//	formoptions: { rowpos: 5, colpos: 1 }, formatter: "select",
+			//	edittype: "select", editoptions: {
+			//		value: { "": "", true: "是", false: "否" },
+			//	},
+			//},
+			//{
+			//	name: 'ReplyBy', label: '回覆人', width: 60, hidden: true,
+			//},
+			//{
+			//	name: 'ReplyDate', label: '回覆時間', width: 80, hidden: true,
+			//	//formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "Y-m-d H:i:s" }
+			//},
+			//{
+			//	name: 'IsFinish', label: '完成狀態', editable: true, width: 80, hidden: true,
+			//	formoptions: { rowpos: 5, colpos: 2 }, formatter: "select",
+			//	edittype: "select", editoptions: {
+			//		value: { "": "", true: "是", false: "否" },
+			//	}
+			//},
+			//{
+			//	name: 'FinishBy', label: '完成人', width: 80, hidden: true,
+			//},
+			//{
+			//	name: 'FinishDate', label: '完成時間', width: 80, hidden: true,
+			//	//formatter: 'date', formatoptions: { srcformat: "ISO8601Long", newformat: "Y-m-d H:i:s" }
+			//},
+			//{
+			//	name: 'ReplyComment', label: '回覆說明', editable: true, width: 80, hidden: true,
+			//	edittype: "textarea", formoptions: { rowpos: 6, colpos: 1 },
+			//},
+			{
+				name: 'Remark1', label: '內部說明', editable: true, edittype: "textarea", width: 160,
+				editoptions: {
+					maxLength: 100,
+				},
+				formoptions: { rowpos: 6, colpos: 2 },
+			},
+			{
+				name: 'Remark3', label: '注意事項', editable: true, edittype: "textarea", width: 160,
+				editoptions: {
+					maxLength: 100,
+				},
+				formoptions: { rowpos: 7, colpos: 1 },
+			},
+			//{
+			//	name: "PhoneCheckTime", label: "手機查看時間", search: false,
+			//	formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			//},
+			//{
+			//	name: 'Status', label: '貨件狀態', width: 80,
+			//},
+			//{
+			//	name: "StatusTime", label: "貨件狀態時間", search: false,
+			//	formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+			//},
+		];
+		subgrid2.jqGrid("autoWidthColumns").jqGrid({
+			//url: subapiURL2 + "GetGridJSON3?ShdetNo=★",
+			//datatype: "json",
+			datatype: "local",
+			colModel: subModel2,
+			sortname: "sNo",
+			sortorder: "asc",
+
+			shrinkToFit: false,
+			autowidth: true,
+
+			toppager: false,
+			//pager: "#subpager2",
+			pgbuttons: false,
+			pginput: false,
+			viewrecords: false,
+			rowNum: 1000,
+			altRows: true,
+			altclass: "ui-jz-altRow",
+			toolbar: [true, "top"],
+			hidegrid: false,
+			ondblClickRow: function (rowid) {
+				//$(this).jqGrid('editGridRow', rowid, {
+				//    url: apiURL + "EditShdet3", width: "600"
+				//});
+			},
+			onSelectRow: function (id, selected) {
+				//$("#subpager2").find(".ui-pg-button")[selected ? "show" : "hide"]();
+				var row = $("#subgrid2").jqGrid('getRowData', id);
+				$('#showSelectContent3').text('');
+				//clearLevel3();
+				if (selected) {
+					$('#showSelectContent3').text(row.sNo);
+				}
+
+			},
+			gridComplete: function () {
+				//alert('grid complete');
+				$('#showSelectContent3').text('');
+
+			},
+
+		}).jqGrid('navGrid', '#subpager2',
+			{
+				del: false, add: false,
+				edit: false, search: false, refresh: false,
+			},
+			{/*edit*/
+				url: apiURL + "EditShdet3",
+				width: 600
+			},
+			{/*add*/
+				url: apiURL + "NewShdet3",
+				width: 600
+			},
+			{/*del*/
+				url: apiURL + "DeleteShdet3",
+				onclickSubmit: function (del, id) {
+					var row = $("#subgrid2").jqGrid('getRowData', id);
+					del.delData = row;
+				}
+			},
+			{/*search*/
+			},
+			{/*view*/
+			});
+		$("#gridbtn_caption").addClass("ui-state-disabled");
+		$("#t_subgrid2").css("height", "40px").append($('#toolbar_jqGrid3'));
+		$("#subpager2").find(".ui-pg-button").hide();
+
+		function ResizeGrid() {
+			var g = $("#grid");
+			var sg = $("#subgrid");
+			var sg2 = $("#subgrid2");
+			var w = $(window);
+			g.jqGrid("setGridWidth", w.innerWidth() - 23);
+			g.jqGrid("setGridHeight", w.innerHeight() / 2 - 25 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+			sg.jqGrid("setGridWidth", w.innerWidth() - 23);
+			sg.jqGrid("setGridHeight", w.innerHeight() / 2 - 135 - $(".navbar").height() - $("#gbox_subgrid").height() + $("#gbox_subgrid .ui-jqgrid-bdiv").height());
+			sg2.jqGrid("setGridWidth", w.innerWidth() - 23);
+			sg2.jqGrid("setGridHeight", w.innerHeight() / 2 - 135 - $(".navbar").height() - $("#gbox_subgrid").height() + $("#gbox_subgrid .ui-jqgrid-bdiv").height());
+		}
+	</script>
+	<script>
+		function calculate() {
+			var height = $("#fHeight").val();
+			var width = $("#fWidth").val();
+			var len = $("#fLen").val();
+			var pcs = $("#Pcs").val();
+			$("#iTotNum").val(Math.ceil((height * width * len) / 28350 * pcs));
+		}
+
+		$('#CustNoQuickAdd').textbox({
+			onChange: function () {
+				$.ajax({
+					type: "GET",
+					url: '/Cust/' + "GetGridJSON?CustNo=" + $("#CustNoQuickAdd").val(),
+					success: function (result) {
+						if (result.ok === 1) {
+							var data = []
+							if (result.rows[0].CtcSale)
+								data.push({ text: result.rows[0].CtcSale, value: result.rows[0].CtcSale });
+							if (result.rows[0].CtcSale2)
+								data.push({ text: result.rows[0].CtcSale2, value: result.rows[0].CtcSale2 });
+							if (result.rows[0].CtcSale3)
+								data.push({ text: result.rows[0].CtcSale3, value: result.rows[0].CtcSale3 });
+							$("#CtcSaleQuickAdd").combobox("loadData", data);
+							$('#CtcSaleQuickAdd').combobox("select", data[0].value);
+							$("#HeadClerkQuickAdd").combobox("loadData", data);
+							$('#HeadClerkQuickAdd').combobox("select", data[0].value);
+						}
+					},
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+				});
+
+				//Enter觸發
+				$('#HeadClerkQuickAdd').textbox({
+					inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+						keypress: function (e) {
+							if (e.keyCode == 13) {
+								var data = $('#HeadClerkQuickAdd').combobox('getData');
+								data.push({ text: $('#HeadClerkQuickAdd').combobox('getText'), value: $('#HeadClerkQuickAdd').combobox('getText') });
+								$("#HeadClerkQuickAdd").combobox("loadData", data);
+
+							}
+						}
+					}),
+				});
+
+				//Enter觸發
+				$('#CtcSaleQuickAdd').textbox({
+					inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+						keypress: function (e) {
+							if (e.keyCode == 13) {
+								var data = $('#CtcSaleQuickAdd').combobox('getData');
+								data.push({ text: $('#CtcSaleQuickAdd').combobox('getText'), value: $('#CtcSaleQuickAdd').combobox('getText') });
+								$("#CtcSaleQuickAdd").combobox("loadData", data);
+
+							}
+						}
+					}),
+				});
+			}
+		});
+	</script>
+}

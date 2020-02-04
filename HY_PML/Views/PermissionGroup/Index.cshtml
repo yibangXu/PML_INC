@@ -1,0 +1,138 @@
+﻿@{
+    Layout = "~/Views/Shared/_PermissionGridLayout.cshtml";
+}
+
+<div class="pull-left">
+    <table id="grid"></table>
+    <div id="pager"></div>
+</div>
+
+<div id="toolbar_grid">
+    <a class="easyui-linkbutton" iconCls="icon-ok" plain="true" id="edit-btn" onclick="savePermission()">儲存權限</a>
+</div>
+
+<div class="pull-left">
+    <div id="permissionTree"></div>
+</div>
+
+<script>
+    var apiURL = '/PermissionGroup/';
+    var model = [
+        {
+            name: "UserGroupNo", label: "群組代號", key: true, search: true,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/UserGroup/GetGridJSON?rows=1000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "UserGroupNo", "UserGroupNo", true));
+                }
+            },
+        },
+        {
+            name: "UserGroupName", label: "群組名稱", search: true,
+            stype: "select",
+            searchoptions:
+            {
+                dataUrl: "/UserGroup/GetGridJSON?rows=1000",
+                buildSelect: function (data) {
+                    return $(Lib.jqGrid.buildSelect(data, "UserGroupName", "UserGroupName", true));
+                }
+            },
+        },
+        {
+            name: "Remark", label: "備註", search: true,
+        },
+    ];
+    $("#grid").jqGrid({
+        caption: "群組權限",
+        url: apiURL + 'GetGridJSON',
+
+        datatype: "json",
+        colModel: model,
+        sortname: "UserGroupNo",
+        sortorder: "asc",
+
+        shrinkToFit: false,
+        autowidth: true,
+
+        pager: "#pager",
+        toolbar: [true, "top"],
+        pgbuttons: true,
+        pginput: true,
+        viewrecords: true,
+        rowNum: 40,
+        rowList: [40, 80, 120, 160],
+        hidegrid: false,
+
+        altRows: true,
+        altclass: "ui-jz-altRow",
+
+        onSelectRow: function (id, selected) {
+            if (selected) {
+                return setCheckNodeId(id);
+            }
+        },
+
+    }).jqGrid("navGrid", "#pager",
+        {
+            edit: false, add: false, del: false,
+            search: false, view: false,
+        },
+        {/*edit*/
+        },
+        {/*add*/
+        },
+        {/*del*/
+        },
+        {/*search*/
+        },
+        {/*view*/
+		}).filterToolbar({ searchOnEnter: true });
+
+    $("#t_grid").append($('#toolbar_grid'));
+
+    function ResizeGrid() {
+        var g = $("#grid");
+        var w = $(window);
+        g.jqGrid("setGridWidth", w.innerWidth() / 2 - 10);
+        g.jqGrid("setGridHeight", w.innerHeight() - 115 - $(".navbar").height() - $("#gbox_grid").height() + $("#gbox_grid .ui-jqgrid-bdiv").height());
+    }
+</script>
+
+<script>
+    function setCheckNodeId(id) {
+        $('#permissionTree').jstree(true).uncheck_all();
+        $.ajax({
+            async: true,
+            url: '@Url.Action("getPermissionJson", "PermissionGroup")',
+            data: "userGroupNo=" + id,
+            success: function (data, status, xhr) {
+                $('#permissionTree').jstree(true).check_node(data);
+            },
+            error: function (data, status, xhr) {
+            }
+        });
+    }
+
+    function savePermission() {
+        var uid = $("#grid").jqGrid("getGridParam", "selrow");
+        var checkNodeId = $("#permissionTree").jstree("get_checked", null, true).join(',');
+        if (uid === null)
+            alert("尚未選取資料!");
+        else {
+            $.ajax({
+            async: true,
+            url: '@Url.Action("Edit", "PermissionGroup")',
+            data: { uid, checkNodeId },
+            success: function (data, status, xhr) {
+                if(data.ok > 0)
+                    alert(data.message);
+            },
+            error: function (data, status, xhr) {
+            }
+        });
+        }
+    }
+</script>
+

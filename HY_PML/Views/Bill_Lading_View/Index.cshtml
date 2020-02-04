@@ -1,0 +1,295 @@
+﻿@{
+	Layout = "~/Views/Shared/_DoubleGridLayout.cshtml";
+}
+
+<div class="pull-left">
+	<table id="grid"></table>
+	<div id="pager"></div>
+</div>
+<div class="pull-left">
+	<table id="subgrid"></table>
+	<div id="subpager"></div>
+</div>
+
+<script>
+	var grid = $("#grid");
+	var subgrid = $("#subgrid");
+	var apiURL = "/Bill_Lading_View/";
+	var subapiURL = "/Bill_Lading_View/";
+
+	var model = [
+		{
+			name: "LadingNo", label: "提單號碼", search: true, key: true,
+		},
+		{
+			name: "LadingDate", label: "提單日期", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "HubNo", label: "路線", search: false, hidden: true
+		},
+		{
+			name: "HubName", label: "路線", search: false,
+		},
+		{
+			name: "WarehouseRNo", label: "倉單號碼", search: false,
+		},
+		{
+			name: "WarehouseRDate", label: "倉單日期", search: false, formatter: "date",
+		},
+		{
+			name: "TransferNo", label: "轉單號碼", search: false,
+		},
+		{
+			name: "SendCustNo", label: "寄件客戶", search: false, hidden: true
+		},
+		{
+			name: "SendCHName", label: "寄件客戶", search: false,
+		},
+		{
+			name: "SendPhone", label: "寄件人電話", search: false,
+		},
+		{
+			name: "SendBy", label: "寄件人", search: false,
+		},
+		{
+			name: "SendCustAddr", label: "寄件地址", search: false,
+		},
+		{
+			name: "RecBy", label: "收件人", search: false,
+		},
+		{
+			name: "RecPhone", label: "收件人電話", search: false,
+		},
+		{
+			name: "RecCompany", label: "收件公司", search: false,
+		},
+		{
+			name: "RecCustCHName", label: "中文名稱", search: false,
+		},
+		{
+			name: "RecChAddr", label: "中文地址", search: false,
+		},
+		{
+			name: "RecInvNo", label: "統編/CR.No", search: false,
+		},
+		{
+			name: "SectorNo", label: "取件員", search: false, hidden: true
+		},
+		{
+			name: "SectorName", label: "取件員", search: false,
+		},
+		{
+			name: "SStatNo", label: "寄件站點", search: false, hidden: true
+		},
+		{
+			name: "SStatName", label: "寄件站點", search: false,
+		},
+		{
+			name: "AStatNo", label: "派件站點", search: false, hidden: true
+		},
+		{
+			name: "AStatName", label: "派件站點", search: false,
+		},
+		{
+			name: "DestNo", label: "目的地", search: false, hidden: true
+		},
+		{
+			name: "CName", label: "目的地", search: false,
+		},
+		{
+			name: "Type", label: "類型", search: false,
+		},
+		{
+			name: "ProductNo", label: "品名", search: false, hidden: true
+		},
+		{
+			name: "ProductName", label: "品名", search: false,
+		},
+		{
+			name: "PiecesNo", label: "件數", search: false,
+		},
+		{
+			name: "Weight", label: "實重", search: false,
+		},
+		{
+			name: "Volume", label: "材積重", search: false,
+		},
+		{
+			name: "Cost", label: "貨品價值", search: false,
+		},
+		{
+			name: "CostCurrency", label: "貨品價值", search: false, hidden: true
+		},
+		{
+			name: "CcNo", label: "付款方式", search: false,
+		},
+		{
+			name: "PayCustNo", label: "付款客戶", search: false, hidden: true
+		},
+		{
+			name: "PayCustCHName", label: "付款客戶", search: false,
+		},
+		{
+			name: "ToPayment", label: "到付款", search: false,
+		},
+		{
+			name: "ToPaymentCurrency", label: "到付款", search: false, hidden: true
+		},
+		{
+			name: "AgentPay", label: "代收款", search: false,
+		},
+		{
+			name: "AgentPayCurrency", label: "代收款", search: false, hidden: true
+		},
+		{
+			name: "Remark", label: "備註", search: false,
+		},
+		{
+			name: "Status", label: "貨件狀態", search: false,
+		},
+		{
+			name: "StatusTime", label: "狀態時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: 'Y-m-d H:i:s', newformat: 'Y-m-d h:i A' },
+		},
+		{
+			name: "IsConfirm", label: "確認", search: false,
+		},
+		{
+			name: "ConfirmBy", label: "確認", search: false, hidden: true
+		},
+		{
+			name: "IsCheck", label: "檢核", search: false,
+		},
+		{
+			name: "CheckBy", label: "檢核人員", search: false,
+		},
+		{
+			name: "CheckTime", label: "檢核時間", search: false, hidden: true
+		},
+		{
+			name: "CreateBy", label: "建單人員", search: false
+		},
+		{
+			name: "CreateTime", label: "建單時間", search: false,
+			formatter: 'date', formatoptions: { srcformat: "Y-m-dTH:i:s", newformat: "Y-m-d H:i:s" },
+		},
+	];
+	grid.jqGrid({
+		caption: "提單貨件狀態",
+		url: apiURL + "GetGridJSON?start_date=" + getToday() + "&end_date=" + getToday(),
+
+		datatype: "json",
+		colModel: model,
+		sortname: "SheetNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#pager",
+		pgbuttons: true,
+		pginput: true,
+		viewrecords: true,
+		rowNum: 40,
+		rowList: [40, 80, 120, 160],
+		hidegrid: false,
+		toolbar: [true, "top"],
+
+		altRows: true,
+		altclass: "ui-jz-altRow",
+		onSelectRow: function (id, selected) {
+			$("#subpager").find(".ui-pg-button")[selected ? "show" : "hide"]();
+			if (selected) {
+				subgrid.jqGrid("setGridParam", {
+					url: subapiURL + "GetGridJSON2?LadingNo=" + id,
+				});
+				subgrid[0].clearToolbar();
+			}
+			else
+				subgrid.jqGrid("clearGridData");
+		},
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	//取得今天日期
+	function getToday() {
+		var today = new Date();
+		return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+	}
+
+	function getBeforeSevenDays() {
+		var today = new Date();
+		var sevendays = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+		return sevendays.getFullYear() + '-' + (sevendays.getMonth() + 1) + '-' + sevendays.getDate();
+	}
+</script>
+<script>
+	var subModel = [
+		{
+			name: "Index", label: "Index", key: true, hidden: true,
+		},
+		{
+			name: "TransportationNo", label: "運務單號", hidden: true,
+		},
+		{
+			name: "LadingNo", label: "提單號碼", search: false,
+		},
+		{
+			name: "Time", label: "時間", search: false,
+		},
+		{
+			name: "Status", label: "狀態", search: false,
+		},
+		{
+			name: "Stat", label: "抵達站", search: false,
+		},
+		{
+			name: "FromGo", label: "來源/去向", search: false,
+		},
+		{
+			name: "Pcs", label: "件數", search: false,
+		},
+		{
+			name: "TransportNo", label: "轉運/子單號", search: false,
+		},
+		{
+			name: "By", label: "操作員", search: false,
+		}
+
+	];
+	subgrid.jqGrid({
+		caption: "貨件狀況",
+		url: subapiURL + "GetGridJSON2?LadingNo=★",
+		datatype: "json",
+		colModel: subModel,
+		sortname: "sNo",
+		sortorder: "asc",
+
+		shrinkToFit: false,
+		autowidth: true,
+
+		pager: "#subpager",
+		pgbuttons: false,
+		pginput: false,
+		viewrecords: true,
+		rowNum: 10000,
+		hidegrid: false,
+		toolbar: [true, "top"],
+		altRows: true,
+		altclass: "ui-jz-altRow",
+
+	}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
+
+	function doSearchTarget() {
+		grid.jqGrid("setGridParam", {
+			url: apiURL + "GetGridJson?start_date=" + $('#searchDateStart').datebox('getValue') + "&end_date=" + $('#searchDateEnd').datebox('getValue'),
+			datatype: 'json'
+		});
+		grid.trigger('reloadGrid');
+	}
+
+	$(function () {
+		$("#toolbar_subgrid").html('');
+		$("#toolbar_grid").html('')
+	});
+</script>
