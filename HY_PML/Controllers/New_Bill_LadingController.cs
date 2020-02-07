@@ -1118,7 +1118,7 @@ namespace HY_PML.Controllers
 						result.Ok = DataModifyResultType.Success;
 						result.Message = "OK";
 						if (tab == "Tab3")
-							SavePML_TWN(ladingNo);
+							//SavePML_TWN(ladingNo);
 					}
 					catch (Exception e)
 					{
