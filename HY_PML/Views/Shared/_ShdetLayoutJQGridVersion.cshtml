@@ -477,7 +477,19 @@
 	function deletedetailrowQuickAdd(target) {
 		$.messager.confirm('-確認', '刪除此筆?', function (r) {
 			if (r) {
-				$('#DataGridBatchDetailQuickAdd').datagrid('deleteRow', getRowIndex(target));
+				var prodData = $('#DataGridBatchProdQuickAdd').datagrid('getData');
+				if (prodData.total > 0) {
+					for (i = 0; i < prodData.total; i++) {
+						var sNo = $('#DataGridBatchDetailQuickAdd').datagrid('getData').rows[getRowIndex(target)].sNo;
+						if ($('#DataGridBatchProdQuickAdd').datagrid('getData').rows[i].sDtlNo == sNo) {
+							$('#DataGridBatchProdQuickAdd').datagrid('deleteRow', i);
+						}
+						if (i == prodData.total - 1)
+							$('#DataGridBatchDetailQuickAdd').datagrid('deleteRow', getRowIndex(target));
+					}
+				} else {
+					$('#DataGridBatchDetailQuickAdd').datagrid('deleteRow', getRowIndex(target));
+				}
 			}
 		});
 	}
