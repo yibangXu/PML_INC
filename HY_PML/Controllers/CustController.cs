@@ -48,7 +48,7 @@ namespace HY_PML.Controllers
 			ViewBag.DelFunc2 = "DeleteCustDetail";
 			ViewBag.FormPartialName2 = "_ElementInForm2";
 			ViewBag.FormCustomJsNew2 = $"$('#sNo').text('');$('#CustNo').val(row.CustNo);$('#IsServer_dtl').switchbutton('check');$('#StatNo_dtl').textbox('setValue', '{statNo}');";
-			ViewBag.FormCustomJsEdit2 = $"$('#sNo').text(row.sNo);RedyDayOfWeekCheck();$('#StatNo_dtl').textbox('setValue', '{statNo}');";
+			ViewBag.FormCustomJsEdit2 = $"$('#sNo').text(row.sNo);RedyDayOfWeekCheck();";
 
 			//權限控管
 			if (!WebSiteHelper.IsPermissioned(this.ControllerContext.RouteData.Values["action"].ToString(), this.ControllerContext.RouteData.Values["controller"].ToString()))
