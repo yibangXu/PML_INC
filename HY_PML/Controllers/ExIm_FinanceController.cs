@@ -201,9 +201,10 @@ namespace HY_PML.Controllers
 INSERT INTO TB_temp_Accno ( [DAMOUNT], [CAMOUNT], [PTNO], [REMARK], [VTYPE],[OKED] ) 
 VALUES( @DAMOUNT{0}, @CAMOUNT{1}, @dPTNO{2}, @REMARK{3}, @VTYPE{4} , @OKED{27} ); 
 IF @@Error <> 0 BEGIN SET @chk = 1 END 
-INSERT INTO TB_temp_Acc1  ( [DC], [SUBNO], [SUBST], [IDNO], [MONEYS], [PTNO], [TransferBy], [TransferTime], [CcNo], [DestNo], [PType], [PiecesNo], [Weight], [Freight], [CustomsPay], [Tariff], [OtherPayTax], [OtherPayNoTax], [ToPayment], [ToPaymentCurrency], [AgentPay], [AgentPayCurrency] ,[LadingDate],[AStatNo],[SendCHName],[CName],[StatNo],[SectorNo],[SectorName],[HubName],[SendCustAddr],[SendECustAddr],[AStatName],[StatName],[HubNo] ) 
-VALUES(@DC{5}, @SUBNO{6}, @SUBST{7}, @IDNO{8}, @MONEYS{9}, @dPTNO{10}, @TransferBy{11}, @TransferTime{12}, @CcNo{13}, @DestNo{14}, @PType{15}, @PiecesNo{16}, @Weight{17}, @Freight{18}, @CustomsPay{19}, @Tariff{20}, @OtherPayTax{21}, @OtherPayNoTax{22}, @ToPayment{23}, @ToPaymentCurrency{24}, @AgentPay{25}, @AgentPayCurrency{26} ,@LadingDate{28},@AStatNo{29},@SendCHName{30},@CName{31},@StatNo{32},@SectorNo{33},@SectorName{34},@HubName{35},@SendCustAddr{36},@SendECustAddr{37},@AStatName{38},@StatName{39},@HubNo{40},@SendCustNo{41}); 
-IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i);
+INSERT INTO TB_temp_Acc1  ( [DC], [SUBNO], [SUBST], [IDNO], [MONEYS], [PTNO], [TransferBy], [TransferTime], [CcNo], [DestNo], [PType], [PiecesNo], [Weight], [Freight], [CustomsPay], [Tariff], [OtherPayTax], [OtherPayNoTax], [ToPayment], [ToPaymentCurrency], [AgentPay], [AgentPayCurrency] ,[LadingDate],[AStatNo],[SendCHName],[CName],[StatNo],[SectorNo],[SectorName],[HubName],[SendCustAddr],[SendECustAddr],[AStatName],[StatName],[HubNo],[SendCustNo] , [SStatName], [RecCompany], [SendBy], [SendEBy], [RecBy], [Volume]) 
+VALUES(@DC{5}, @SUBNO{6}, @SUBST{7}, @IDNO{8}, @MONEYS{9}, @dPTNO{10}, @TransferBy{11}, @TransferTime{12}, @CcNo{13}, @DestNo{14}, @PType{15}, @PiecesNo{16}, @Weight{17}, @Freight{18}, @CustomsPay{19}, @Tariff{20}, @OtherPayTax{21}, @OtherPayNoTax{22}, @ToPayment{23}, @ToPaymentCurrency{24}, @AgentPay{25}, @AgentPayCurrency{26}, @LadingDate{28}, @AStatNo{29}, @SendCHName{30}, @CName{31}, @StatNo{32}, @SectorNo{33}, @SectorName{34}, @HubName{35}, @SendCustAddr{36}, @SendECustAddr{37}, @AStatName{38}, @StatName{39}, @HubNo{40}, @SendCustNo{41}, @SStatName{42}, @RecCompany{43}, @SendBy{44}, @SendEBy{45}, @RecBy{46}, @Volume{47}); 
+IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i);
+
 								sqldata.Add(new SqlParameter("@DAMOUNT" + i, imBillData.Total ?? 0));
 								sqldata.Add(new SqlParameter("@CAMOUNT" + i, '0'));
 								sqldata.Add(new SqlParameter("@PTNO" + i, ladingData.LadingNo_Type));
@@ -246,6 +247,12 @@ IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i,
 								sqldata.Add(new SqlParameter("@StatName" + i, imBillData.StatName ?? (object)DBNull.Value));
 								sqldata.Add(new SqlParameter("@HubNo" + i, ladingData.HubNo ?? (object)DBNull.Value));
 								sqldata.Add(new SqlParameter("@SendCustNo" + i, ladingData.SendCustNo ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SStatName " + i, ladingData.SStatName ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@RecCompany " + i, ladingData.RecCompany ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SendBy" + i, ladingData.SendBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SendEBy" + i, ladingData.SendEBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@RecBy" + i, ladingData.RecBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@Volume" + i, ladingData.Volume ?? (object)DBNull.Value));
 							}
 							else if (b.Contains("EX-"))
 							{
@@ -257,9 +264,9 @@ IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i,
 INSERT INTO TB_temp_Accno ( [DAMOUNT], [CAMOUNT], [PTNO], [REMARK], [VTYPE],[OKED])
 VALUES(@DAMOUNT{0}, @CAMOUNT{1}, @PTNO{2}, @REMARK{3}, @VTYPE{4},@OKED{27}); 
 IF @@Error <> 0 BEGIN SET @chk = 1 END
-INSERT INTO TB_temp_Acc1  ( [DC], [SUBNO], [SUBST], [IDNO], [MONEYS], [PTNO], [TransferBy], [TransferTime] , [CcNo], [DestNo], [PType], [PiecesNo], [Weight], [Freight], [CustomsPay], [Tariff], [OtherPayTax], [OtherPayNoTax], [ToPayment], [ToPaymentCurrency], [AgentPay], [AgentPayCurrency],[LadingDate],[AStatNo],[SendCHName],[CName],[ProdIdPay],[InsurancePay],[StatNo] ,[SectorNo],[SectorName],[HubName],[SendCustAddr],[SendECustAddr],[AStatName],[StatName],[HubNo]) 
-VALUES(@DC{5}, @SUBNO{6}, @SUBST{7}, @IDNO{8}, @MONEYS{9}, @dPTNO{10}, @TransferBy{11}, @TransferTime{12}, @CcNo{13}, @DestNo{14}, @PType{15}, @PiecesNo{16}, @Weight{17}, @Freight{18}, @CustomsPay{19}, @Tariff{20}, @OtherPayTax{21}, @OtherPayNoTax{22}, @ToPayment{23}, @ToPaymentCurrency{24}, @AgentPay{25}, @AgentPayCurrency{26},@LadingDate{28},@AStatNo{29},@SendCHName{30},@CName{31},@ProdIdPay{32},@InsurancePay{33},@StatNo{34},@SectorNo{35},@SectorName{36},@HubName{37},@SendCustAddr{38},@SendECustAddr{39},@AStatName{40},@StatName{41},@HubNo{42},@SendCustNo{43}); 
-IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i,i);
+INSERT INTO TB_temp_Acc1  ( [DC], [SUBNO], [SUBST], [IDNO], [MONEYS], [PTNO], [TransferBy], [TransferTime] , [CcNo], [DestNo], [PType], [PiecesNo], [Weight], [Freight], [CustomsPay], [Tariff], [OtherPayTax], [OtherPayNoTax], [ToPayment], [ToPaymentCurrency], [AgentPay], [AgentPayCurrency],[LadingDate],[AStatNo],[SendCHName],[CName],[ProdIdPay],[InsurancePay],[StatNo] ,[SectorNo],[SectorName],[HubName],[SendCustAddr],[SendECustAddr],[AStatName],[StatName],[HubNo],[SendCustNo], [SStatName], [RecCompany], [SendBy], [SendEBy], [RecBy], [Volume]) 
+VALUES(@DC{5}, @SUBNO{6}, @SUBST{7}, @IDNO{8}, @MONEYS{9}, @dPTNO{10}, @TransferBy{11}, @TransferTime{12}, @CcNo{13}, @DestNo{14}, @PType{15}, @PiecesNo{16}, @Weight{17}, @Freight{18}, @CustomsPay{19}, @Tariff{20}, @OtherPayTax{21}, @OtherPayNoTax{22}, @ToPayment{23}, @ToPaymentCurrency{24}, @AgentPay{25}, @AgentPayCurrency{26},@LadingDate{28},@AStatNo{29},@SendCHName{30},@CName{31},@ProdIdPay{32},@InsurancePay{33},@StatNo{34},@SectorNo{35},@SectorName{36},@HubName{37},@SendCustAddr{38},@SendECustAddr{39},@AStatName{40},@StatName{41},@HubNo{42},@SendCustNo{43},@SStatName{44},@RecCompany{45},@SendBy{46},@SendEBy{47},@RecBy{48},@Volume{49}); 
+IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i, i);
 
 								sqldata.Add(new SqlParameter("@DAMOUNT" + i, exBillData.Total ?? 0));
 								sqldata.Add(new SqlParameter("@CAMOUNT" + i, '0'));
@@ -305,6 +312,12 @@ IF @@Error <> 0 BEGIN SET @chk = 1 END ", i, i, i, i, i, i, i, i, i, i, i, i, i,
 								sqldata.Add(new SqlParameter("@StatName" + i, exBillData.StatName ?? (object)DBNull.Value));
 								sqldata.Add(new SqlParameter("@HubNo" + i, ladingData.HubNo ?? (object)DBNull.Value));
 								sqldata.Add(new SqlParameter("@SendCustNo" + i, ladingData.SendCustNo ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SStatName " + i, ladingData.SStatName ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@RecCompany " + i, ladingData.RecCompany ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SendBy" + i, ladingData.SendBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@SendEBy" + i, ladingData.SendEBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@RecBy" + i, ladingData.RecBy ?? (object)DBNull.Value));
+								sqldata.Add(new SqlParameter("@Volume" + i, ladingData.Volume ?? (object)DBNull.Value));
 							}
 						}
 						sqlstr.Append(@"
