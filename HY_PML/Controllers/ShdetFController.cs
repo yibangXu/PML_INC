@@ -206,14 +206,14 @@ namespace HY_PML.Controllers
 				var ladingNo = "";
 				var blData = data.LadingNo_Type == null ? null : db.Bill_Lading.FirstOrDefault(x => x.LadingNo_Type == data.LadingNo_Type && x.IsDelete == false);
 				var shdetDtlData = data.LadingNo_Type == null ? null : db.ShdetDetail.FirstOrDefault(x => x.LadingNo_Type == data.LadingNo_Type);
-				if ((shdetDtlData != null || blData != null) && IsNewLading == true)
+				if ((shdetDtlData != null || blData != null) && blData.SDate != null && IsNewLading == true)
 				{
 					trans.Rollback();
 					result = new JObject { { "errorMsg", "已存在此筆單號【" + data.LadingNo_Type + "】，請確認！" } };
 				}
 				else
 				{
-					if (IsNewLading)
+					if (IsNewLading && blData == null)
 					{
 						var saveData = new Bill_Lading();
 						string cId = WebSiteHelper.CurrentUserID;
@@ -239,7 +239,7 @@ namespace HY_PML.Controllers
 						//2019-12-11 如台灣 TW18601567前面TW碼 為區域提單碼， 1860156 為流水號， X為條碼驗證碼 X = (186 + 01 + 56) / 29 = 8.379310344827586 取小數點第二碼7為驗證碼
 						var areaID = db.ORG_Stat.Where(x => x.StatNo == statNo).Select(x => x.AreaID).FirstOrDefault();
 						var areaNo = db.ORG_Area.Where(x => x.ID == areaID).Select(x => x.AreaCode).FirstOrDefault();
-						var lastLadingNo = db.Bill_Lading.Where(x => x.LadingNo.Substring(0, 2) == areaNo).OrderByDescending(x => x.CreateTime).Select(x => x.LadingNo).FirstOrDefault();
+						var lastLadingNo = db.Bill_Lading.Where(x => x.LadingNo.Substring(0, 2) == areaNo).OrderByDescending(x=> x.LadingNo).Select(x => x.LadingNo).FirstOrDefault();
 						var sN = lastLadingNo != null ? String.Format("{0:0000000}", int.Parse(lastLadingNo.Substring(2, 7)) + 1) : "0000001";
 						var vCode = String.Format("{0:0.00}", (Math.Floor((decimal.Parse(sN.Substring(0, 3)) + decimal.Parse(sN.Substring(3, 2)) + decimal.Parse(sN.Substring(5, 2))) / 29 * 100)) / 100).ToString().Split('.')[1].Substring(1, 1);
 						ladingNo = areaNo + sN + vCode;
@@ -288,6 +288,24 @@ namespace HY_PML.Controllers
 						saveData.SendEState = custDtlData.EState;
 						saveData.SendEPostDist = custDtlData.EPostDist;
 						db.Bill_Lading.Add(saveData);
+					}
+					else if (IsNewLading && blData != null)
+					{
+						ladingNo = blData.LadingNo;
+						blData.LadingDate = Convert.ToDateTime(DateTime.Now.ToDateString());
+						blData.SDate = data.SDate;
+						blData.HubNo = data.HubNo;
+						blData.HubName = data.HubName;
+						blData.DestNo = db.ORG_Dest.Where(x => x.IsDelete == true && x.CName == data.Dest).Select(x => x.DestNo).FirstOrDefault();
+						blData.CName = data.Dest;
+						blData.CocustomTyp = data.CocustomTyp;
+						blData.Type = data.WeigLevel.ToString();
+						blData.CcNo = data.CcNo;
+						blData.CreateTime = DateTime.Now;
+						blData.CreateBy = User.Identity.Name;
+						blData.UpdateTime = DateTime.Now;
+						blData.UpdateBy = User.Identity.Name;
+						db.Entry(blData).State = EntityState.Modified;
 					}
 
 					DateTime nowTimeStamp = DateTime.Now;

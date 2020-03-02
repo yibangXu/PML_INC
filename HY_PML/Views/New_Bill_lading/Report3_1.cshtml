@@ -52,7 +52,7 @@
 <body>
 	@foreach (var m in Model)
 	{
-		<div class="pageBlock" >
+		<div class="pageBlock">
 			<page size="@ViewBag.PageSize">
 				<div>
 					<img style="position:absolute;padding-top:0mm;padding-left:145mm;width:235px;height:60px" src="@Url.Action("Barcode", "New_Bill_Lading", new { barCode = m.LadingNo_Type })" />

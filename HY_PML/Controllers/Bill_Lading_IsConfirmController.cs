@@ -80,7 +80,7 @@ namespace HY_PML.Controllers
 			}
 
 			var billLading =
-				from b in db.Bill_Lading
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate != null)
 				join h in db.ORG_Hub
 				on b.HubNo equals h.HubNo into ps1
 				from h in ps1.DefaultIfEmpty()

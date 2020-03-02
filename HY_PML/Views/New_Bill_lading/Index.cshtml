@@ -126,22 +126,22 @@
 			var apiURL = "/New_Bill_Lading/";
 			var model = [
 				{
-					name: "LadingNo", label: "提單號碼", search: false, key: true, hidden: true,
+					name: "LadingNo", label: "提單號碼", search: true, key: true, hidden: true,
 				},
 				{
-					name: "LadingNo_Type", label: "提單號碼", search: false,
+					name: "LadingNo_Type", label: "提單號碼", search: true,
 				},
 				{
 					name: "SendCustNo", label: "寄件客戶", search: false, hidden: true,
 				},
 				{
-					name: "SendCHName", label: "寄件客戶", search: false,
+					name: "SendCHName", label: "寄件客戶", search: true,
 				},
 				{
 					name: "HubNo", label: "路線", hidden: true,
 				},
 				{
-					name: "HubName", label: "路線", search: false,
+					name: "HubName", label: "路線", search: true,
 				},
 				{
 					name: "CName", label: "目的地", hidden: true,
@@ -175,7 +175,7 @@
 				},
 			];
 			grid.jqGrid({
-				url: apiURL + "GetSearchGridJSON" + "?start_date=" + getToday() + "&end_date=" + getToday(),
+				url: apiURL + ($('#LadingType').val() == '2' ? "GetSearchGridJSON2" : 'GetSearchGridJSON') + "?start_date=" + getToday() + "&end_date=" + getToday(),
 				datatype: "json",
 				colModel: model,
 				sortname: "LadingNo",
@@ -212,12 +212,13 @@
 					$('.fm2').form('clear');
 					$('.fm3').form('clear');
 					lockForm();
+					BatchPcs_Show("select");
 					$("#grid").jqGrid('setRowData', id, false, {
 						opacity: "0.9",
 						"border-bottom": "1px black"
 					});
 					var selrow = $("#grid").jqGrid('getRowData', id);
-					$('#showSel').text("｜提單號碼：" + selrow.LadingNo_Type);
+					$('#showSel').val(selrow.LadingNo_Type);
 					if (selrow.LadingNo != "") {
 						$.getJSON('/New_Bill_Lading/GetGridJSON/?LadingNo=' + selrow.LadingNo, function (data) {
 							if (data.records > 0) {
@@ -278,11 +279,12 @@
 					if (printID != '') {
 						$("#grid").jqGrid('setSelection', printID);
 					}
-				}
+					$("#grid").setSelection(rows[0], true);
+				},
+
 			}).viewOnlyPager().filterToolbar({ searchOnEnter: true });
 			//$("#pager").find(".ui-pg-button").hide();
 			$("#t_grid").css("height", "30px").append($('#toolbar_grid'));
-
 			$(function () {
 				$("#toolbar_grid")
 					//.append('<input id="searchDateStart" class="easyui-datebox " style="width:90px" value="getToday()" >')
@@ -292,7 +294,9 @@
 					//.append(' ：<input   id="searchParam"  class= "easyui-textbox" style="width:90px" >')
 					//.append('　<label id="LadingTotal" style="width:200px;color:red; font-size :18px"></label>')
 					.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="Search()"></a>')
-					.append('<label style="margin:0px"><span id="showSel"></span></label>');
+					.append('<select id="LadingType" style="height:21px" onchange="doSearchTarget();"><option value="1">正式</option><option value="2">預開</option></select>')
+					.append('提單：<input style="margin:0px;width:90px" id="showSel"></input>')
+					.append('<a class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="LadingSearch()"></a>')
 
 				var w = $(window);
 				var wWidth = (w.innerWidth() * 3 / 4) - 25;
@@ -308,13 +312,14 @@
 				$("#dataTab1").css({ "width": wWidth - 15, "height": wHeight - 30 })
 				$("#dataTab2").css({ "width": wWidth - 15, "height": wHeight - 30 })
 				$("#dataTab3").css({ "width": wWidth - 15, "height": wHeight - 30 })
-				$(".dataTable").css("width", wWidth - 15);
+				$(".dataTable").css("width", wWidth);
 			});
 
 			var ResizeGrid = ResizeGrid || function () {
 				var w = $(window);
 				var wWidth = w.innerWidth() * 1 / 4 - 20;
-				var wHeight = w.innerHeight() - $(".navbar").height() - $("#totalbar").height() - 100;
+				var wHeight = w.innerHeight() - $(".navbar").height() - $("#totalbar").height() - 140;
+				console.log(wHeight);
 				grid.jqGrid("setGridWidth", wWidth);
 				grid.jqGrid("setGridHeight", wHeight);
 				$("#gbox_grid").css("float", "left");
@@ -322,7 +327,7 @@
 				$("#subgrid").jqGrid("setGridHeight", wHeight * 3 / 5);
 				$("#subgrid2").jqGrid("setGridWidth", (w.innerWidth() * 3 / 4 * 3 / 5) - 25);
 				$("#subgrid2").jqGrid("setGridHeight", wHeight * 3 / 5);
-				$("#subgrid8").jqGrid("setGridWidth", (w.innerWidth() * 3 / 4 * 1 / 5));
+				$("#subgrid8").jqGrid("setGridWidth", (w.innerWidth() * 3 / 4 * 1 / 5 - 15));
 				$("#subgrid8").jqGrid("setGridHeight", wHeight * 3 / 5 + 30);
 				$("#subgrid3").jqGrid("setGridWidth", (w.innerWidth() * 3 / 4) - 25);
 				$("#subgrid3").jqGrid("setGridHeight", wHeight * 2 / 5 + 10);
@@ -350,7 +355,7 @@
 
 				$.ajax({
 					type: "post",
-					url: '/New_Bill_Lading/' + "GetSearchSumJson?" +
+					url: '/New_Bill_Lading/' + ($('#LadingType').val() == '2' ? "GetSearchSumJson2?" : 'GetSearchSumJson?') +
 						"start_date=" + getToday() +
 						"&end_date=" + getToday(),
 					success: function (result) {
@@ -413,11 +418,19 @@
 		<form id="fmdlgSearch" method="post" novalidate>
 			<table>
 				<tr>
-					<td><label>提單號碼：</label></td>
+					@*<td><label>提單號碼：</label></td>
+						<td>
+							<div class="fitem">
+								<input id="s_LadingNo_Type" class="easyui-textbox" style="width:auto">
+							</div>
+						</td>*@
 					<td>
-						<div class="fitem">
-							<input id="s_LadingNo_Type" class="easyui-textbox" style="width:auto">
-						</div>
+						<label>建單人員：</label>
+					</td>
+					<td>
+						@*<select class="easyui-combobox" id="s_User" name="s_User" style="width:auto;display:none" data-options="panelHeight:'auto'">
+							</select>*@
+						<input id="s_User" class="easyui-combobox">
 					</td>
 					<td><label> 起始時間：</label></td>
 					<td>
@@ -620,14 +633,6 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
-						<label>建單人員：</label>
-					</td>
-					<td>
-						@*<select class="easyui-combobox" id="s_User" name="s_User" style="width:auto;display:none" data-options="panelHeight:'auto'">
-							</select>*@
-						<input id="s_User" class="easyui-combobox">
-					</td>
 				</tr>
 			</table>
 		</form>
@@ -640,7 +645,7 @@
 
 	<!--選擇搜尋框-->
 	<div id="win" class="easyui-window" title="My Window" style="width:850px;height:520px;display:none"
-		 data-options="resizable:false,draggable:false,iconCls:'icon-search',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
+		 data-options="resizable:false,draggable:true,iconCls:'icon-search',modal:true,closed:true,collapsible:false,minimizable:false,maximizable:false">
 	</div>
 
 	<!--收件人編輯框-->
@@ -1268,7 +1273,7 @@
 								<td>
 									<div class="fitem">
 										<input name="CarryName" id="CarryNameQuickAdd" class="easyui-textbox" style="width:90px" required>
-										<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+										<a class="easyui-linkbutton" data-options="iconCls:'icon-search'" id="a_CarryNameQuickAdd"
 										   onclick="if($('#CustNoQuickAdd').val() == ''){ $.messager.alert('提示', '無客戶代號'); return false;} ShowWinForPickUpjqGrid('fmQuickAdd','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CcNo,PickUpAreaNo','CarryName,Code5,Code7,CustAddr,Add_1,Add_2,Add_3,Add_4,Add_5,Add_6,CustENAddr1,CtcSale,Tel,Country,CcNo,PickUpAreaNo','@Url.Action("getSelectionjqGrid", "ShdetF")',$('#CustNoQuickAdd').val(),'GetGridJSON_HistoryShdetDetail');"></a>
 									</div>
 								</td>
@@ -1378,7 +1383,7 @@
 							<tr>
 								<td><label>貨物類型</label></td>
 								<td>
-									<select class="easyui-combobox" name="WeigLevel" style="width:auto;display:none">
+									<select class="easyui-combobox" id="WeigLevelQuickAdd" name="WeigLevel" style="width:auto;display:none">
 										<option value="0">0.文件</option>
 										<option value="1">1.包裹5KG以下</option>
 										<option value="2">2.箱貨5KG以上</option>
@@ -1397,7 +1402,7 @@
 								</td>
 								<td><label>報關類型</label></td>
 								<td>
-									<select class="easyui-combobox" name="CocustomTyp" style="width:auto;display:none">
+									<select class="easyui-combobox" id="CocustomTypQuickAdd" name="CocustomTyp" style="width:auto;display:none">
 										<option value="0">0.不報關</option>
 										<option value="1">1.正式報關</option>
 										<option value="2">2.簡易報關</option>
@@ -1544,21 +1549,21 @@
 				<tr>
 					<td><label>調派狀態</label></td>
 					<td>
-						<input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						<input class="form-check-input" type="checkbox" value="true" name="IsDesp" id="IsDesp" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") 			}>
 					</td>
 					<td><label>取消狀態</label></td>
 					<td>
-						<input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						<input class="form-check-input" type="checkbox" value="true" name="IsCancel" id="IsCancel" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") 			}>
 					</td>
 				</tr>
 				<tr>
 					<td><label>回覆狀態</label></td>
 					<td>
-						<input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						<input class="form-check-input" type="checkbox" value="true" name="IsReply" id="IsReply" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") 			}>
 					</td>
 					<td><label>完成狀態</label></td>
 					<td>
-						<input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") }>
+						<input class="form-check-input" type="checkbox" value="true" name="IsFinish" id="IsFinish" @if (ViewBag.showConfirm != "yes") { @Html.Raw("onclick='return false;'") 			}>
 					</td>
 				</tr>
 				<tr>
@@ -1599,9 +1604,12 @@
 						<div>
 							<select name="E_LadingColor" id="E_LadingColor" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
 								<option value="0">　</option>
-								<option value="1">簽收聯</option>@*靛*@
-								<option value="2">請款聯</option>@*紅*@
-								<option value="3">收件聯</option>@*藍*@
+								<option value="1">簽收聯</option>
+								@*靛*@
+								<option value="2">請款聯</option>
+								@*紅*@
+								<option value="3">收件聯</option>
+								@*藍*@
 							</select>
 						</div>
 					</td>
@@ -1641,10 +1649,42 @@
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgP_Lading').dialog('close')" style="width:90px">取消</a>
 	</div>
 
+	<!--批次列印-->
+	<div id="dlgE_BatchLading" class="easyui-dialog" style="display:none;width:300px;height:140px;padding:10px 20px"
+		 closed="true" buttons="#dlgE_BatchLading-buttons" data-options="resizable:false,draggable:true">
+		<form id="fmE_BatchLading" method="post" novalidate>
+			<table>
+				<tr>
+					<td style="padding:2px">
+						<label>聯：　</label>
+					</td>
+					<td style="padding:2px">
+						<div>
+							<select name="E_BatchLadingColor" id="E_BatchLadingColor" class="easyui-combobox" style="width:auto;display:none" data-options="panelHeight:'auto'">
+								<option value="0">　</option>
+								<option value="1">簽收聯</option>
+								@*靛*@
+								<option value="2">請款聯</option>
+								@*紅*@
+								<option value="3">收件聯</option>
+								@*藍*@
+							</select>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div id="dlgE_BatchLading-buttons" style="display:none">
+		<a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="E_BatchLading_Print()" style="width:90px">列印</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgE_BatchLading').dialog('close')" style="width:90px">取消</a>
+	</div>
 	<script src="~/Content/easyui/jquery.easyui.min.js"></script>
 
 	<script>
 		$(function () {
+			$('.batchPrint').css('display', 'none')
+
 			$('#LadingNo_TypeQuickAdd').textbox({
 				onChange: function (value) {
 					if (value.substr(0, 1) == 'P' || value.substr(0, 1) == 'p') {
@@ -1659,6 +1699,7 @@
 				}
 			});
 		});
+
 		//將物件與Dataset序列化(Serialize)為JSON
 		$.fn.serializeObject = function () {
 			var o = {};
@@ -1758,6 +1799,25 @@
 			}),
 		});
 
+		//$('#LadingNo_TypeQuickAdd').textbox({
+		//	inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+		//		keypress: function (e) {
+		//			if (e.keyCode == 13) {
+		//				if ($('#LadingNo_TypeQuickAdd').val() != '')
+		//					SetLadingData();
+		//			}
+		//		}
+		//	}),
+		//	rules: $.extend($.fn.validatebox.defaults.rules, {
+		//		maxLength: {
+		//			validator: function (value, param) {
+		//				return param[0] >= value.length;
+		//			},
+		//			message: '最大長度為{0}位.'
+		//		}
+		//	}),
+		//});
+
 		function lockForm() {
 			IsLoadData = true;
 			for (var i = 1; i <= 7; i++) {
@@ -1776,14 +1836,14 @@
 			var selID = $("#grid").jqGrid('getGridParam', 'selrow');
 			var selRow = $("#grid").jqGrid('getRowData', selID);
 			//解除
-			$('.d' + param + '>span>input').attr('readonly', false);
-			$('.d' + param + '>span>textarea').attr('readonly', false);
-			$('.d' + param + '.easyui-switchbutton.switchbutton-f').switchbutton('readonly', false);
-			$('.d' + param + '>a').css('visibility', 'visible');
-			$('.d' + param + '>span>span>a').css('visibility', 'visible');
-			$('.d' + param + '>span>span>a>a').css('visibility', 'visible');
-			$('.action' + param).attr('disabled', false);
-			if (param === "Tab1") {
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '>span>input').attr('readonly', false);
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '>span>textarea').attr('readonly', false);
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '.easyui-switchbutton.switchbutton-f').switchbutton('readonly', false);
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '>a').css('visibility', 'visible');
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '>span>span>a').css('visibility', 'visible');
+			$('.d' + (param=="Tab1-1"?"Tab1":param) + '>span>span>a>a').css('visibility', 'visible');
+			$('.action' + (param == "Tab1-1" ? "Tab1" : param)).attr('disabled', false);
+			if (param === "Tab1" || param==="Tab1-1") {
 				//將原本readonly欄位 上鎖
 				$('#WarehouseRNo').textbox('readonly');
 				$('#HubName').textbox('readonly');
@@ -1807,11 +1867,18 @@
 						"border-bottom": "1px #d7d7d7d7"
 					});
 					grid.jqGrid("resetSelection");
-					$('#showSel').text("");
+					$('#showSel').val("");
 					$("#grid").jqGrid("resetSelection");
-					$('#LadingDate').datebox('setValue', getToday());
-					$('#WarehouseRDate').datebox('setValue', getToday());
-					$('#SDate').datebox('setValue', getToday());
+					if (param == 'Tab1') {
+						$('#LadingDate').datebox('setValue', getToday());
+						$('#WarehouseRDate').datebox('setValue', getToday());
+						$('#SDate').datebox('setValue', getToday());
+					} else {
+						$('#LadingDate').datebox({ disabled: true });
+						$('#WarehouseRDate').datebox({ disabled: true });
+						$('#SDate').datebox({ disabled: true });
+						$('#BatchPcs').numberbox('setValue', 1);
+					}
 					$('#SStatNo').val("@ViewBag.StatNo");
 					$('#SStatName').textbox('setValue', "@ViewBag.StatName");
 					$('#CreateBy').textbox('setValue', "@ViewBag.CreateBy");
@@ -1843,7 +1910,7 @@
 								"border-bottom": "1px #d7d7d7d7"
 							});
 							grid.jqGrid("resetSelection");
-							$('#showSel').text("");
+							$('#showSel').val("");
 							$('#fmTab3').form('clear');
 							$("#dataTab").tabs("select", 0);
 							$('#LadingNo').textbox('setValue', '');
@@ -1919,10 +1986,10 @@
 		}
 
 		function Add(param) {
-			if (param == 'Tab1') {
+			if (param == 'Tab1'||param=='Tab1-1') {
 				$('.fm').form('clear');
 				$('.fm2').form('clear');
-				unlockForm('Tab1', 'Add');
+				unlockForm(param, 'Add');
 				$('#subgrid').jqGrid("setGridParam", {
 					url: "/New_Bill_Lading/GetSDJson?LadingNo=★",
 					datatype: 'json',
@@ -2046,17 +2113,20 @@
 							$('#grid').trigger('reloadGrid');
 							doSearchTarget("Sum");
 							setTimeout(function () {
-								if (selID === null) {
-									$('#showSel').text("｜提單號碼：" + ladingNo);
+								if (selID === null && $(".fm").serializeObject().BatchPcs=="") {
+									$('#showSel').val( ladingNo);
 									$("#grid").jqGrid('setSelection', ladingNo);
 									$("#dataTab").tabs("select", 0);
 									$("#typeTab	").tabs("select", 1);
 									unlockForm('Tab2', 'Add');
 								} else {
-									$('#showSel').text("｜提單號碼：" + ladingNo);
+									$('#showSel').text(ladingNo);
 									$("#grid").jqGrid('setSelection', ladingNo);
 									$("#dataTab").tabs("select", 0);
 								}
+								$('#LadingDate').datebox({ disabled: false });
+								$('#WarehouseRDate').datebox({ disabled: false });
+								$('#SDate').datebox({ disabled: false });
 							}
 								, 1500);
 							lockForm();
@@ -2541,10 +2611,37 @@
 			});
 		}
 
+		function SetLadingData() {
+			$.getJSON('/New_Bill_Lading/GetGridJSON2/?LadingNo_Type=' + $('#LadingNo_TypeQuickAdd').val(), function (data) {
+				if (data.records > 0) {
+					var no = data.records - 1;
+					$('#CustNoQuickAdd').textbox('setValue', data.rows[no].SendCustNo);
+					$('#CustCHNameQuickAdd').textbox('setValue', data.rows[no].SendCHName);
+					$('#HubNoQuickAdd').textbox('setValue', data.rows[no].HubNo);
+					$('#HubNameQuickAdd').textbox('setValue', data.rows[no].HubName);
+					$('#DestQuickAdd').textbox('setValue', data.rows[no].CName);
+					$('#WeigLevelQuickAdd').combobox('setValue', data.rows[no].Type);
+					$('#CocustomTypQuickAdd').combobox('setValue',  data.rows[no].CocustomTyp);
+					$('#CcNoQuickAdd').textbox('setValue', data.rows[no].CcNo);
+					$('#a_CarryNameQuickAdd').click()
+				}
+				else {
+					$('#CustNoQuickAdd').textbox('setValue','');
+					$('#CustCHNameQuickAdd').textbox('setValue','');
+					$('#HubNoQuickAdd').textbox('setValue', '');
+					$('#HubNameQuickAdd').textbox('setValue', '');
+					$('#DestQuickAdd').textbox('setValue', '');
+					$('#WeigLevelQuickAdd').textbox('setValue', '');
+					$('#CocustomTypQuickAdd').textbox('setValue', '');
+					$('#CcNoQuickAdd').textbox('setValue', '');
+					$.messager.alert('錯誤', '查無此【預開提單號碼】。');
+				}
+			})
+		}
+
 		function ajaxLoading(param) {
 			$("<div class=\"datagrid-mask\"></div>").css({ display: "block", width: "100%", height: $(window).height() }).appendTo("body");
 			$("<div class=\"datagrid-mask-msg\"  style = 'width: 120px;height:45px'></div>").html(param).appendTo("body").css({ display: "block", left: ($(document.body).outerWidth(true) - 190) / 2, top: ($(window).height() - 30) / 2 });
-
 		}
 
 		function ajaxLoadEnd() {
@@ -2558,13 +2655,11 @@
 		}
 
 		function getTodayTime() {
-
 			var today = new Date();
 			return today.getHours() + ':' + today.getMinutes() + ':' + today.getMinutes();
 		}
 
 		function getTodayDateTime() {
-
 			var today = new Date();
 			return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + ' ' + today.getHours() + ':' + today.getMinutes();
 		}
@@ -2593,7 +2688,118 @@
 			})
 		}
 
+			function LadingSearch() {
+			$('.fm1').form('clear');
+				$('.fm2').form('clear');
+				$('.fm3').form('clear');
+				lockForm();
+				$.ajax({
+					type: "post",
+					url: '/New_Bill_Lading/' +($('#LadingType').val() == '2' ? "GetSearchSumJson2?" : 'GetSearchSumJson?')+
+						"LadingNo_Type=" + $('#showSel').val(),
+					success: function (result) {
+						$('#fmTotalbar').form('load', result.rows);
+					}
+				});
+				grid.jqGrid("setGridParam", {
+					url: apiURL + ($('#LadingType').val() == '2' ? "GetSearchGridJSON2?" : 'GetSearchGridJSON?') +
+						"LadingNo_Type=" + $('#showSel').val(),
+					datatype: 'json'
+				}).trigger('reloadGrid');
+				$('#subgrid').jqGrid("setGridParam", {
+					url: "/New_Bill_Lading/GetSDJson?LadingNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#subgrid2').jqGrid("setGridParam", {
+					url: "/New_Bill_Lading/GetSPJSON?ShdetNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#subgrid3').jqGrid("setGridParam", {
+					url: "/DeclCust_Main/GetGridJson?LadingNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#subgrid4').jqGrid("setGridParam", {
+					url: "/New_Bill_Lading/GetFileTableJSON?LadingNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#subgrid5').jqGrid("setGridParam", {
+					url: "/Bill_Lading_View/GetGridJSON2?LadingNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#subgrid6').jqGrid("setGridParam", {
+					url: "/New_Bill_Lading/GetRecordJSON?LadingNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				//$('#subgrid7').jqGrid("setGridParam", {
+				//	url: "/New_Bill_Lading/GetTB_temp_Acc1GridJSON?PTNO=★",
+				//	datatype: 'json',
+				//}).trigger('reloadGrid');
+				$('#subgrid8').jqGrid("setGridParam", {
+					url: "/New_Bill_Lading/GetSectorMission?sectorNo=★",
+					datatype: 'json',
+				}).trigger('reloadGrid');
+				$('#dlgSearch').dialog('close');
+		}
+
+		//預開提單件數顯示 & Tab鎖定
+		function BatchPcs_Show(param) {
+			if (param == "select") {
+				if ($("#LadingType").val() == "1") {
+					$("#BatchPcs_tr").css('visibility', 'hidden')
+					$('#typeTab').tabs('enableTab', 1);
+					$('#typeTab').tabs('enableTab', 2);
+					$('#typeTab').tabs('enableTab', 3);
+					$('#typeTab').tabs('enableTab', 4);
+					$('#typeTab').tabs('enableTab', 5);
+					$('#typeTab').tabs('enableTab', 6);
+					$("#typeTab").tabs("select", 0);
+					$('#bt_AddLading').prop('disabled', false)
+					$('#showSel').val("");
+					$('#LadingDate').datebox({ disabled: false });
+					$('#WarehouseRDate').datebox({ disabled: false });
+					$('#SDate').datebox({ disabled: false });
+					$('#LadingNo_Type').textbox({ disabled: false });
+					$('.isLading').css('display', 'inline')
+					$('.isBatch').css('display', 'none')
+				}
+				else {
+					$("#BatchPcs_tr").css('visibility', 'visible');
+					$('#typeTab').tabs('disableTab', 1);
+					$('#typeTab').tabs('disableTab', 3);
+					$('#typeTab').tabs('disableTab', 4);
+					$('#typeTab').tabs('disableTab', 5);
+					$('#typeTab').tabs('disableTab', 6);
+					$("#typeTab").tabs("select", 0);
+					$('#bt_AddLading').prop('disabled', true)
+					$('#showSel').val("");
+					$('#LadingDate').datebox({ disabled: true });
+					$('#WarehouseRDate').datebox({ disabled: true });
+					$('#SDate').datebox({ disabled: true });
+					$('#LadingNo_Type').textbox({ disabled: true });
+					$('.isLading').css('display', 'none')
+					$('.isBatch').css('display', 'inline')
+				}
+			}
+			else if (param == true) {
+				$("#BatchPcs_tr").css('visibility', 'visible');
+				$('#showSel').val("");
+				$('#LadingDate').datebox({ disabled: true });
+				$('#WarehouseRDate').datebox({ disabled: true });
+				$('#SDate').datebox({ disabled: true });
+				$('#LadingNo_Type').textbox({ disabled: true });
+			}
+			else {
+				$("#BatchPcs_tr").css('visibility', 'hidden');
+				$('#showSel').val("");
+				$('#LadingDate').datebox({ disabled: false });
+				$('#WarehouseRDate').datebox({ disabled: false });
+				$('#SDate').datebox({ disabled: false });
+				$('#LadingNo_Type').textbox({ disabled: false });
+			}
+		}
+
 		function doSearchTarget(param = "All") {
+			BatchPcs_Show("select");
 			if (param == "All") {
 				$('.fm1').form('clear');
 				$('.fm2').form('clear');
@@ -2601,9 +2807,9 @@
 				lockForm();
 				$.ajax({
 					type: "post",
-					url: '/New_Bill_Lading/' + "GetSearchSumJson?" +
-						"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
-						"&start_date=" + $('#searchDateStart').datebox('getValue') +
+					url: '/New_Bill_Lading/' +($('#LadingType').val() == '2' ? "GetSearchSumJson2?" : 'GetSearchSumJson?')+
+						//"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
+						"start_date=" + $('#searchDateStart').datebox('getValue') +
 						"&end_date=" + $('#searchDateEnd').datebox('getValue') +
 						"&HubNo=" + $('#s_HubNo').val() +
 						"&S_SectorNo=" + $('#s_SectorNo').val() +
@@ -2626,9 +2832,9 @@
 					}
 				});
 				grid.jqGrid("setGridParam", {
-					url: apiURL + "GetSearchGridJson?" +
-						"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
-						"&start_date=" + $('#searchDateStart').datebox('getValue') +
+					url: apiURL + ($('#LadingType').val() == '2' ? "GetSearchGridJSON2?" : 'GetSearchGridJSON?') +
+						//"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
+						"start_date=" + $('#searchDateStart').datebox('getValue') +
 						"&end_date=" + $('#searchDateEnd').datebox('getValue') +
 						"&HubNo=" + $('#s_HubNo').val() +
 						"&S_SectorNo=" + $('#s_SectorNo').val() +
@@ -2685,9 +2891,9 @@
 			else if (param == "Sum") {
 				$.ajax({
 					type: "post",
-					url: '/New_Bill_Lading/' + "GetSearchSumJson?" +
-						"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
-						"&start_date=" + $('#searchDateStart').datebox('getValue') +
+					url: '/New_Bill_Lading/'+($('#LadingType').val() == '2' ? "GetSearchSumJson2?" : 'GetSearchSumJson?')+
+						//"LadingNo_Type=" + $('#s_LadingNo_Type').textbox('getValue') +
+						"start_date=" + $('#searchDateStart').datebox('getValue') +
 						"&end_date=" + $('#searchDateEnd').datebox('getValue') +
 						"&HubNo=" + $('#s_HubNo').val() +
 						"&S_SectorNo=" + $('#s_SectorNo').val() +

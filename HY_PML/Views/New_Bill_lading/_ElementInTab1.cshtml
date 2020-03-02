@@ -1,23 +1,29 @@
 ﻿<div id="typeTab1" title="提單資料" style="padding:2px;display:none;overflow:hidden">
-	<div id="toolbar" style="height:30px;margin:1px">
-		<input type="button" value="新增提單" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="$.messager.confirm('確認', '是否新增提單？', function (r) {
-		if (r) { Add('Tab1') }})" />
-		<input type="button" value="複製" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="if ($('#grid').jqGrid('getGridParam', 'selrow')===null)
+	<div id="toolbar" style="float:left;height: 30px; margin: 1px; display: inline">
+		<input type="button" id="bt_AddLading" value="新增提單" class="btn-sm btn-default" style="background-color: #e1e1e1;float:left;" onclick="$.messager.confirm('確認', '是否新增提單？', function (r) {
+	if (r) { Add('Tab1');BatchPcs_Show(false) }})" />
+		<input type="button" id="bt_BatchLading" value="預開提單" class="btn-sm btn-default" style="background-color: #e1e1e1;float:left;" onclick="$.messager.confirm('確認', '是否預開提單？', function (r) {
+	if (r) { Add('Tab1-1');BatchPcs_Show(true) }})" />
+		<input type="button" value="複製" class="btn-sm btn-default isLading" style="background-color: #e1e1e1;float:left;" onclick="if ($('#grid').jqGrid('getGridParam', 'selrow')===null)
 				$.messager.alert('警告', '尚未選擇【提單資料】!', 'warning');else unlockForm('Tab1','Copy')" />
-		<input type="button" value="修改" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="if ($('#grid').jqGrid('getGridParam', 'selrow')===null)
+		<input type="button" value="修改" class="btn-sm btn-default" style="background-color: #e1e1e1;float:left;" onclick="if ($('#grid').jqGrid('getGridParam', 'selrow')===null)
 				$.messager.alert('警告', '尚未選擇【提單資料】!', 'warning');else unlockForm('Tab1')" />
-		<input type="button" value="保存" class="actionTab1 btn-sm btn-default" style="background-color: #e1e1e1" onclick="Save('Tab1')" />
-		<input type="button" value="刪除" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="Delete('Tab1')" />
-		<input type="button" value="電子提單" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="E_Lading();" />
-		<input type="button" value="紙本提單" class="btn-sm btn-default" style="background-color: #e1e1e1" onclick="P_Lading();" />
-		<input type="button" value="++快速新增" class="btn-sm btn-default" id="openQuickAdd" style="background-color: #e1e1e1" onclick="openQuickAdd(); isNewCust()" />
+		<input type="button" value="保存" class="actionTab1 btn-sm btn-default" style="background-color: #e1e1e1;float:left;" onclick="Save('Tab1')" />
+		<input type="button" value="刪除" class="btn-sm btn-default isLading" style="background-color: #e1e1e1;float:left;" onclick="Delete('Tab1')" />
+		<input type="button" value="電子提單" class="btn-sm btn-default isLading" style="background-color: #e1e1e1;float:left;" onclick="E_Lading();" />
+		<input type="button" value="紙本提單" class="btn-sm btn-default isLading " style="background-color: #e1e1e1;float:left;" onclick="P_Lading();" />
+		<input type="button" value="批次列印" class="btn-sm btn-default isBatch" style="background-color: #e1e1e1;float:left;" onclick="E_BatchLading();" />
+		<input type="button" value="++快速新增" class="btn-sm btn-default" id="openQuickAdd" style="background-color: #e1e1e1;float:left;" onclick="openQuickAdd(); isNewCust()" />
 
-		<label id="tab1MsgLabel" style="width:200px;color:red; font-size :16px"></label>
+		<label id="tab1MsgLabel" style="width: 200px; color: red; font-size: 16px"></label>
 	</div>
 	<form id="fmTab1" class="fm" method="post" novalidate onSubmit="return false;">
 		<div id="dataTab" class="easyui-tabs">
-			<div id="dataTab1" title="出口資訊" style="padding:2px;display:none;overflow-x:hidden;overflow-y:auto">
-				<table class="dataTable" style="padding:2px">
+			<div id="dataTab1" title="出口資訊" style="		padding: 2px;
+		display: none;
+		overflow-x: hidden;
+		overflow-y: auto">
+				<table class="dataTable" style="padding: 2px">
 					<tr style="display:none">
 						<td style="display:none">
 							<input id="isAdd" class="easyui-textbox">
@@ -46,7 +52,7 @@
 						<td>
 							<div class="dTab1">
 								<input name="HubNo" id="HubNo" type="hidden">
-								<input name="HubName" id="HubName" class="easyui-textbox" style="width:auto" required readonly>
+								<input name="HubName" id="HubName" class="easyui-textbox" style="width: auto" required readonly>
 								<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
 								   onclick="ShowWinForPickUpjqGrid('fmTab1','HubNo,HubName,','HubNo,HubName','@Url.Action("getSelectionjqGrid", "Hub")');"></a>
 							</div>
@@ -238,6 +244,16 @@
 										{ val: false, text: '否' },
 									];
 								</script>
+							</div>
+						</td>
+					</tr>
+					<tr id="BatchPcs_tr" style="visibility:hidden">
+						<td>
+							<label>預開份數 </label>
+						</td>
+						<td>
+							<div class="dTab1">
+								<input name="BatchPcs" id="BatchPcs" class="easyui-numberbox" style="width:auto" min="1" max="50">
 							</div>
 						</td>
 					</tr>
@@ -617,6 +633,17 @@
 		$('#E_LadingType').combobox('setValue', '3');
 	}
 
+	function E_BatchLading() {
+		var id = $('#grid').jqGrid('getGridParam', 'selrow');
+		if (id === "" || id === null) {
+			alert("尚未選擇【提單資料】!");
+			return;
+		}
+		$('#dlgE_BatchLading').dialog('open').dialog('setTitle', '批次列印');
+		$('#fmE_BatchLading').form('clear');
+		$('#E_BatchLadingColor').combobox('setValue', '3');
+	}
+
 	function P_Lading_Print() {
 		var id = $("#grid").jqGrid("getGridParam", "selrow");
 		var type = $('#P_LadingType').val();
@@ -662,6 +689,13 @@
 			printID = id;
 			setTimeout(function () { $('#grid').trigger('reloadGrid'); }, 3000);
 		}
+	}
+
+	function E_BatchLading_Print() {
+		var id = $('#grid').jqGrid('getGridParam', 'selrow');
+		var color = $('#E_BatchLadingColor').val();
+		window.open('@Url.Action("Pdf", "New_Bill_Lading")/' + id + "|" +"3_1—" + color);
+		$('#dlgE_BatchLading').dialog('close')
 	}
 </script>
 
@@ -900,6 +934,24 @@
 		var hourTarget = '';
 		var minuteTarget = '';
 		var secondTarget = '';
+		$('#LadingNo_TypeQuickAdd').textbox({
+			inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+				keypress: function (e) {
+					if (e.keyCode == 13) {
+						if ($('#LadingNo_TypeQuickAdd').val() != '')
+							SetLadingData();
+					}
+				}
+			}),
+			rules: $.extend($.fn.validatebox.defaults.rules, {
+				maxLength: {
+					validator: function (value, param) {
+						return param[0] >= value.length;
+					},
+					message: '最大長度為{0}位.'
+				}
+			}),
+		});
 
 		if ((datetimeTarget.getMonth() + 1) < 10) { monthTarget = '0' + (datetimeTarget.getMonth() + 1); } else { monthTarget = datetimeTarget.getMonth() + 1; }
 		if (datetimeTarget.getDate() < 10) { dayTarget = '0' + datetimeTarget.getDate(); } else { dayTarget = datetimeTarget.getDate(); }
@@ -1137,7 +1189,6 @@
 	function deletedetailrowQuickAdd(target) {
 		$.messager.confirm('-確認', '刪除此筆?', function (r) {
 			if (r) {
-				debugger
 				var prodData = $('#DataGridBatchProdQuickAdd').datagrid('getData');
 				if (prodData.total > 0) {
 					for (i = 0; i < prodData.total; i++) {

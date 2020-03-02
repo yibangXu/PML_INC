@@ -1532,6 +1532,7 @@
     <Content Include="Views\New_Bill_lading\Report6.cshtml" />
     <Content Include="Views\Bill_Land_Mas\Report3.cshtml" />
     <Content Include="Views\New_Bill_lading\Report7.cshtml" />
+    <Content Include="Views\New_Bill_lading\Report3_1.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

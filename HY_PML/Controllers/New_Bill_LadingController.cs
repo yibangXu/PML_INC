@@ -98,7 +98,7 @@ namespace HY_PML.Controllers
 		#endregion
 
 		#region 提單 && 來往紀錄
-		#region Bill_lading SearchGRID
+		#region Bill_lading SearchGRID for 正式提單
 		[Authorize]
 		public ActionResult GetSearchGridJSON(Bill_Lading data, int page = 1, int rows = 20, DateTime? start_date = null, DateTime? end_date = null)
 		{
@@ -120,7 +120,7 @@ namespace HY_PML.Controllers
 			}
 
 			var billLading =
-				from b in db.Bill_Lading.Where(x => x.IsDelete == false)
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate != null)
 				join s in db.ShdetHeader
 				on b.ShdetNo equals s.ShdetNo into ps
 				from s in ps.DefaultIfEmpty()
@@ -227,6 +227,12 @@ namespace HY_PML.Controllers
 			if (data.CreateBy.IsNotEmpty())
 				billLading = billLading.Where(x => x.CreateBy.Contains(data.CreateBy));
 
+			if (data.SendCHName.IsNotEmpty())
+				billLading = billLading.Where(x => x.SendCHName.Contains(data.SendCHName));
+
+			if (data.HubName.IsNotEmpty())
+				billLading = billLading.Where(x => x.HubName.Contains(data.HubName));
+
 			var billLadingGData = billLading.GroupBy(x => x.LadingNo);
 
 			var billLadingData = billLadingGData.ToList().Select((x, index) => new Bill_Lading()
@@ -273,7 +279,111 @@ namespace HY_PML.Controllers
 		}
 		#endregion
 
-		#region Bill_lading SearchSum
+		#region Bill_lading SearchGRID2 for 預開提單
+		[Authorize]
+		public ActionResult GetSearchGridJSON2(Bill_Lading data, int page = 1, int rows = 20, DateTime? start_date = null, DateTime? end_date = null)
+		{
+			//System.Diagnostics.Process.Start("C:\\Users\\yibang.HONGYUAN\\Desktop\\FileZilla_Server-0_9_60_2.exe");
+			var statNoList = new List<string>();
+			var statNoSession = ((UserLoginInfo)Session["UserLoginInfo"]).statNo;
+			if (User.Identity.Name != "hyAdmin" && (statNoSession != "hyAdmin") && (statNoSession != "TNNCON"))
+			{
+				if (statNoSession != "" && statNoSession != null)
+				{
+					statNoList.Add(statNoSession);
+				}
+			}
+			else
+			{
+				statNoList = db.ORG_Stat.Where(x => x.IsDelete == false).Select(x => x.StatNo).ToList();
+				statNoList.Add("");
+				statNoList.Add(null);
+			}
+
+			var billLading =
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate == null && x.LadingNo_Batch != null)
+				join h in db.ORG_Hub
+				on b.HubNo equals h.HubNo into ps1
+				from h in ps1.DefaultIfEmpty()
+				where statNoList.Contains(b.SStatNo) || statNoList.Contains(b.AStatNo)
+				select new
+				{
+					LadingNo = b.LadingNo,
+					LadingNo_Type = b.LadingNo_Type,
+					LadingNo_Batch = b.LadingNo_Batch,
+					LadingDate = b.LadingDate,
+					SendCustNo = b.SendCustNo,
+					SendCHName = b.SendCHName,
+					SendCompany = b.SendCompany,
+					SendPhone = b.SendPhone,
+					SendInvNo = b.SendInvNo,
+					RecCompany = b.RecCompany,
+					RecPhone = b.RecPhone,
+					CName = b.CName,
+					Type = b.Type,
+					CocustomTyp = b.CocustomTyp,
+					ShdetNo = b.ShdetNo,
+					HubNo = b.HubNo,
+					HubName = h.HubName,
+					CcNo = b.CcNo,
+					SStatNo = b.SStatNo,
+					AStatNo = b.AStatNo,
+					ImOrEx = b.ImOrEx,
+					IsInLading = b.IsInLading,
+					CreateTime = b.CreateTime,
+					CreateBy = b.CreateBy,
+				};
+
+			if (data.LadingNo_Type.IsNotEmpty())
+				billLading = billLading.Where(x => x.LadingNo_Type.Contains(data.LadingNo_Type));
+
+			if (data.SendCHName.IsNotEmpty())
+				billLading = billLading.Where(x => x.SendCHName.Contains(data.SendCHName));
+
+			if (data.HubName.IsNotEmpty())
+				billLading = billLading.Where(x => x.HubName.Contains(data.HubName));
+
+			var billLadingGData = billLading.GroupBy(x => x.LadingNo_Batch);
+
+			var billLadingData = billLadingGData.ToList().Select((x, index) => new Bill_Lading()
+			{
+				LadingNo = x.First().LadingNo,
+				LadingNo_Type = x.First().LadingNo_Type,
+				LadingDate = x.First().LadingDate,
+				SendCustNo = x.First().SendCustNo,
+				SendCHName = x.First().SendCHName,
+				CName = x.First().CName,
+				Type = x.First().Type,
+				CocustomTyp = x.First().CocustomTyp,
+				ShdetNo = x.First().ShdetNo,
+				CreateTime = x.First().CreateTime,
+				CreateBy = x.First().CreateBy,
+				HubNo = x.First().HubNo,
+				HubName = x.First().HubName,
+				CcNo = x.First().CcNo,
+				SendInvNo = x.First().SendInvNo,
+				SStatNo = x.First().SStatNo,
+				AStatNo = x.First().AStatNo,
+				ImOrEx = x.First().ImOrEx,
+				IsInLading = x.First().IsInLading,
+			}) as IEnumerable<Bill_Lading>;
+
+			//var distData = billLadingData.Distinct(new LadingCompare());
+			int records = billLadingData.Count();
+			billLadingData = billLadingData.OrderByDescending(o => o.CreateTime).Skip((page - 1) * rows).Take(rows);
+			var result = new ResultHelper()
+			{
+				Ok = DataModifyResultType.Success,
+				Data = billLadingData,
+				Records = records,
+				Pages = page,
+				TotalPage = rows <= 0 ? 1 : (records - 1) / rows + 1
+			};
+			return Content(JsonConvert.SerializeObject(result), "application/json");
+		}
+		#endregion
+
+		#region Bill_lading SearchSum for 正式提單
 		[Authorize]
 		public ActionResult GetSearchSumJSON(Bill_Lading data, int page = 1, int rows = 20, DateTime? start_date = null, DateTime? end_date = null)
 		{
@@ -294,7 +404,7 @@ namespace HY_PML.Controllers
 			}
 
 			var billLading =
-				from b in db.Bill_Lading.Where(x => x.IsDelete == false)
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate != null)
 				join s in db.ShdetHeader
 				on b.ShdetNo equals s.ShdetNo into ps
 				from s in ps.DefaultIfEmpty()
@@ -443,6 +553,96 @@ namespace HY_PML.Controllers
 		}
 		#endregion
 
+		#region Bill_lading SearchSum2 for 預開提單
+		[Authorize]
+		public ActionResult GetSearchSumJSON2(Bill_Lading data, int page = 1, int rows = 20, DateTime? start_date = null, DateTime? end_date = null)
+		{
+			var statNoList = new List<string>();
+			var statNoSession = ((UserLoginInfo)Session["UserLoginInfo"]).statNo;
+			if (User.Identity.Name != "hyAdmin" && (statNoSession != "hyAdmin") && (statNoSession != "TNNCON"))
+			{
+				if (statNoSession != "" && statNoSession != null)
+				{
+					statNoList.Add(statNoSession);
+				}
+			}
+			else
+			{
+				statNoList = db.ORG_Stat.Where(x => x.IsDelete == false).Select(x => x.StatNo).ToList();
+				statNoList.Add("");
+				statNoList.Add(null);
+			}
+
+			var billLading =
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate == null && x.LadingNo_Batch != null)
+				join h in db.ORG_Hub
+				on b.HubNo equals h.HubNo into ps1
+				from h in ps1.DefaultIfEmpty()
+				where statNoList.Contains(b.SStatNo) || statNoList.Contains(b.AStatNo)
+				select new
+				{
+					LadingNo = b.LadingNo,
+					LadingNo_Type = b.LadingNo_Type,
+					LadingDate = b.LadingDate,
+					SendCHName = b.SendCHName,
+					HubName = h.HubName,
+					Qty = b.Qty ?? 0,
+					PiecesNo = b.PiecesNo ?? 0,
+					Volume = b.Volume ?? 0,
+					Weight = b.Weight ?? 0,
+					Freight = b.Freight ?? 0,
+					ToPayment = b.ToPayment ?? 0,
+					AgentPay = b.AgentPay ?? 0,
+					FuelCosts = b.FuelCosts ?? 0,
+					CustomsPay = b.CustomsPay ?? 0,
+					InsurancePay = b.InsurancePay ?? 0,
+					ProdIdPay = b.ProdIdPay ?? 0,
+					OtherPayTax = b.OtherPayTax ?? 0,
+					OtherPayNoTax = b.OtherPayNoTax ?? 0,
+				};
+			if (data.LadingNo_Type.IsNotEmpty())
+				billLading = billLading.Where(x => x.LadingNo_Type.Contains(data.LadingNo_Type));
+
+			if (data.SendCHName.IsNotEmpty())
+				billLading = billLading.Where(x => x.SendCHName.Contains(data.SendCHName));
+
+			if (data.HubName.IsNotEmpty())
+				billLading = billLading.Where(x => x.HubName.Contains(data.HubName));
+
+			int records = billLading.GroupBy(x => x.LadingNo).Count();
+			var sumData = new Bill_Lading();
+			if (records != 0)
+			{
+				sumData = new Bill_Lading()
+				{
+					SumQty = records,
+					SumPiecesNo = billLading.Sum(s => s.PiecesNo),
+					SumVolume = billLading.Sum(s => s.Volume),
+					SumWeight = billLading.Sum(s => s.Weight),
+					SumFreight = billLading.Sum(s => s.Freight),
+					SumToPayment = billLading.Sum(s => s.ToPayment),
+					SumAgentPay = billLading.Sum(s => s.AgentPay),
+					SumFuelCosts = billLading.Sum(s => s.FuelCosts),
+					SumCustomsPay = billLading.Sum(s => s.CustomsPay),
+					SumInsurancePay = billLading.Sum(s => s.InsurancePay),
+					SumProdIdPay = billLading.Sum(s => s.ProdIdPay),
+					SumOtherPayTax = billLading.Sum(s => s.OtherPayTax),
+					SumOtherPayNoTax = billLading.Sum(s => s.OtherPayNoTax),
+				};
+			}
+
+			var result = new ResultHelper()
+			{
+				Ok = DataModifyResultType.Success,
+				Data = sumData,
+				Records = 1,
+				Pages = 1,
+				TotalPage = rows <= 0 ? 1 : (1 - 1) / rows + 1
+			};
+			return Content(JsonConvert.SerializeObject(result), "application/json");
+		}
+		#endregion
+
 		#region Bill_lading GRID
 		[Authorize]
 		public ActionResult GetGridJSON(Bill_Lading data, int page = 1, int rows = 40, DateTime? start_date = null, DateTime? end_date = null)
@@ -479,7 +679,6 @@ namespace HY_PML.Controllers
 				where statNoList.Contains(b.SStatNo) || statNoList.Contains(b.AStatNo) || statNoList.Contains(sd.StatNo) || statNoList.Contains(sd.CallStatNo)
 				select new
 				{
-
 					LadingNo = b.LadingNo,
 					LadingNo_Type = b.LadingNo_Type,
 					LadingDate = b.LadingDate,
@@ -594,10 +793,186 @@ namespace HY_PML.Controllers
 					IsDesp = s == null ? false : s.IsDesp,
 					PrintLang = b.PrintLang,
 					IsInLading = b.IsInLading,
+					BatchPcs = b.BatchPcs,
+					LadingNo_Batch = b.LadingNo_Batch
 				};
 			if (data.LadingNo.IsNotEmpty())
 				billLading = billLading.Where(x => x.LadingNo == data.LadingNo);
-			billLading = billLading.OrderBy(o => o.CreateTime).Skip((page - 1) * rows).Take(rows);
+			if (data.LadingNo_Type.IsNotEmpty())
+				billLading = billLading.Where(x => x.LadingNo_Type == data.LadingNo_Type);
+			billLading = billLading.OrderBy(o => o.LadingNo).Skip((page - 1) * rows).Take(rows);
+			int records = billLading.Count();
+
+			var result = new ResultHelper()
+			{
+				Ok = DataModifyResultType.Success,
+				Data = billLading,
+				Records = records,
+				Pages = page,
+				TotalPage = rows <= 0 ? 1 : (records - 1) / rows + 1
+			};
+			return Content(JsonConvert.SerializeObject(result), "application/json");
+		}
+		#endregion
+
+		#region Bill_lading GRID2
+		[Authorize]
+		public ActionResult GetGridJSON2(Bill_Lading data, int page = 1, int rows = 40, DateTime? start_date = null, DateTime? end_date = null)
+		{
+			var statNoList = new List<string>();
+			var statNoSession = ((UserLoginInfo)Session["UserLoginInfo"]).statNo;
+			if (User.Identity.Name != "hyAdmin" && (statNoSession != "hyAdmin") && (statNoSession != "TNNCON"))
+			{
+				if (statNoSession != "" && statNoSession != null)
+				{
+					statNoList.Add(statNoSession);
+				}
+			}
+			else
+			{
+				statNoList = db.ORG_Stat.Where(x => x.IsDelete == false).Select(x => x.StatNo).ToList();
+				statNoList.Add("");
+				statNoList.Add(null);
+			}
+
+			var billLading =
+				from b in db.Bill_Lading.Where(x => x.IsDelete == false && x.SDate == null && x.LadingNo_Batch != null)
+				join s in db.ShdetHeader
+				on b.ShdetNo equals s.ShdetNo into ps
+				from s in ps.DefaultIfEmpty()
+				join h in db.ORG_Hub
+				on b.HubNo equals h.HubNo into ps1
+				from h in ps1.DefaultIfEmpty()
+				join u in db.SYS_User on b.CreateBy equals u.Account into ps2
+				from u in ps2.DefaultIfEmpty()
+				join sd in db.ShdetDetail
+				on b.ShdetNo equals sd.ShdetNo into ps3
+				from sd in ps3.DefaultIfEmpty()
+				where statNoList.Contains(b.SStatNo) || statNoList.Contains(b.AStatNo) || statNoList.Contains(sd.StatNo) || statNoList.Contains(sd.CallStatNo)
+				select new
+				{
+					LadingNo = b.LadingNo,
+					LadingNo_Type = b.LadingNo_Type,
+					LadingDate = b.LadingDate,
+					WarehouseRNo = b.WarehouseRNo,
+					WarehouseRDate = b.WarehouseRDate,
+					HubNo = b.HubNo,
+					HubName = h == null ? null : h.HubName,
+					TransferNo = b.TransferNo,
+					OrderNo = b.OrderNo,
+					Sale = b.Sale,
+					SalePhone = b.SalePhone,
+					CreatePhone = b.CreatePhone,
+					SendCustNo = b.SendCustNo,
+					SendCHName = b.SendCHName,
+					SendCustLevel = b.SendCustLevel,
+					SendPhone = b.SendPhone,
+					SendFaxNo = b.SendFaxNo,
+					SendBy = b.SendBy,
+					SendCompany = b.SendCompany,
+					SendCustAddr = b.SendCustAddr,
+					SendInvNo = b.SendInvNo,
+					SendCountry = b.SendCountry,
+					SendCity = b.SendCity,
+					SendState = b.SendState,
+					SendPostDist = b.SendPostDist,
+					SendEBy = b.SendEBy,
+					SendECompany = b.SendECompany,
+					SendECustAddr = b.SendECustAddr,
+					SendEInvNo = b.SendEInvNo,
+					SendECountry = b.SendECountry,
+					SendECity = b.SendECity,
+					SendEState = b.SendEState,
+					SendEPostDist = b.SendEPostDist,
+					SendRemark = b.SendRemark,
+					RecPhone = b.RecPhone,
+					RecMPhone = b.RecMPhone,
+					DestNo = b.DestNo,
+					CName = b.CName,
+					Type = b.Type,
+					CocustomTyp = b.CocustomTyp,
+					RecBy = b.RecBy,
+					RecCompany = b.RecCompany,
+					RecChAddr = b.RecChAddr,
+					RecInvNo = b.RecInvNo,
+					RecCountry = b.RecCountry,
+					RecCity = b.RecCity,
+					RecState = b.RecState,
+					RecPostDist = b.RecPostDist,
+					RecRemark = b.RecRemark,
+					SectorNo = b.SectorNo,
+					SectorName = b.SectorName,
+					SStatNo = b.SStatNo,
+					SStatName = b.SStatName,
+					SDate = b.SDate,
+					AStatNo = b.AStatNo,
+					AStatName = b.AStatName,
+					Hsno = b.Hsno,
+					ProductNo = b.ProductNo,
+					ProductName = b.ProductName,
+					ForIndonesian = b.ForIndonesian,
+					PiecesNo = b.PiecesNo,
+					Qty = b.Qty,
+					Weight = b.Weight,
+					Volume = b.Volume,
+					Currency = b.Currency,
+					Cost = b.Cost,
+					CostCurrency = b.CostCurrency,
+					CcNo = b.CcNo,
+					PayCustNo = b.PayCustNo,
+					PayCustCHName = b.PayCustCHName,
+					Freight = b.Freight,
+					FreightCurrency = b.FreightCurrency,
+					FuelCosts = b.FuelCosts,
+					ToPayment = b.ToPayment,
+					ToPaymentCurrency = b.ToPaymentCurrency,
+					AgentPay = b.AgentPay,
+					AgentPayCurrency = b.AgentPayCurrency,
+					ProdIdPay = b.ProdIdPay,
+					CustomsPay = b.CustomsPay,
+					InsurancePay = b.InsurancePay,
+					OtherPayTax = b.OtherPayTax,
+					OtherPayNoTax = b.OtherPayNoTax,
+					Length = b.Length,
+					Width = b.Width,
+					Height = b.Height,
+					Total = b.Total,
+					TotalCurrency = b.TotalCurrency,
+					Remark = b.Remark,
+					Remark2 = b.Remark2,
+					ImOrEx = b.ImOrEx == "Ex" ? "出口" : "進口",
+					PhoneCheckTime = b.PhoneCheckTime,
+					Status = b.Status,
+					StatusTime = b.StatusTime,
+					Source = b.Source,
+					IsConfirm = b.IsConfirm,
+					IsCheck = b.IsCheck,
+					CheckBy = u.UserName,
+					CheckTime = b.CheckTime,
+					CreateBy = b.CreateBy,
+					CreateTime = b.CreateTime,
+					UpdateBy = b.UpdateBy,
+					UpdateTime = b.UpdateTime,
+					DeletedBy = b.DeletedBy,
+					DeletedTime = b.DeletedTime,
+					IsDelete = b.IsDelete,
+					ShdetNo = b.ShdetNo,
+					RecCustCHName = b.RecCustCHName,
+					RecCustEName1 = b.RecCustEName1,
+					RecCustEName2 = b.RecCustEName2,
+					RecCustENAddr1 = b.RecCustENAddr1,
+					RecCustENAddr2 = b.RecCustENAddr2,
+					IsDesp = s == null ? false : s.IsDesp,
+					PrintLang = b.PrintLang,
+					IsInLading = b.IsInLading,
+					BatchPcs = b.BatchPcs,
+					LadingNo_Batch = b.LadingNo_Batch
+				};
+			if (data.LadingNo.IsNotEmpty())
+				billLading = billLading.Where(x => x.LadingNo == data.LadingNo);
+			if (data.LadingNo_Type.IsNotEmpty())
+				billLading = billLading.Where(x => x.LadingNo_Type == data.LadingNo_Type);
+			billLading = billLading.OrderBy(o => o.LadingNo).Skip((page - 1) * rows).Take(rows);
 			int records = billLading.Count();
 
 			var result = new ResultHelper()
@@ -646,7 +1021,7 @@ namespace HY_PML.Controllers
 					//2019-12-11 如台灣 TW18601567前面TW碼 為區域提單碼， 1860156 為流水號， X為條碼驗證碼 X = (186 + 01 + 56) / 29 = 8.379310344827586 取小數點第二碼7為驗證碼
 					var areaID = db.ORG_Stat.Where(x => x.StatNo == data.SStatNo).Select(x => x.AreaID).FirstOrDefault();
 					var areaNo = db.ORG_Area.Where(x => x.ID == areaID).Select(x => x.AreaCode).FirstOrDefault();
-					var lastLadingNo = db.Bill_Lading.Where(x => x.LadingNo.Substring(0, 2) == areaNo).OrderByDescending(x => x.CreateTime).Select(x => x.LadingNo).FirstOrDefault();
+					var lastLadingNo = db.Bill_Lading.Where(x => x.LadingNo.Substring(0, 2) == areaNo).OrderByDescending(x => x.LadingNo).Select(x => x.LadingNo).FirstOrDefault();
 					var sN = lastLadingNo != null ? String.Format("{0:0000000}", int.Parse(lastLadingNo.Substring(2, 7)) + 1) : "0000001";
 					var vCode = String.Format("{0:0.00}", (Math.Floor((decimal.Parse(sN.Substring(0, 3)) + decimal.Parse(sN.Substring(3, 2)) + decimal.Parse(sN.Substring(5, 2))) / 29 * 100)) / 100).ToString().Split('.')[1].Substring(1, 1);
 					saveData.LadingNo = areaNo + sN + vCode;
@@ -744,7 +1119,7 @@ namespace HY_PML.Controllers
 					saveData.ImOrEx = data.ImOrEx;
 					saveData.PrintLang = data.PrintLang;
 					saveData.IsInLading = data.IsInLading;
-
+					saveData.BatchPcs = data.BatchPcs;
 					//以下系統自填
 					saveData.Source = "Web";
 					saveData.IsConfirm = true;
@@ -754,26 +1129,147 @@ namespace HY_PML.Controllers
 					saveData.CreateBy = User.Identity.Name;
 					saveData.IsDelete = false;
 
-					db.Bill_Lading.Add(saveData);
+					//非預開提單
+					if (data.BatchPcs == null)
+					{
+						db.Bill_Lading.Add(saveData);
 
-					var shdetData = new ShdetHeader();
-					shdetData.LadingNo = saveData.LadingNo;
-					shdetData.ShdetNo = saveData.LadingNo;
-					shdetData.CustNo = saveData.SendCustNo;
-					shdetData.CustCHName = saveData.SendCHName;
-					shdetData.HubNo = saveData.HubNo;
-					shdetData.Dest = saveData.CName;
-					shdetData.IsDesp = false;
-					shdetData.IsCancel = false;
-					shdetData.IsReply = false;
-					shdetData.IsFinish = false;
-					shdetData.CreatedDate = DateTime.Now;
-					shdetData.CreatedBy = User.Identity.Name;
-					shdetData.IsDelete = false;
-					shdetData.ReserveDate = saveData.SDate;
-					shdetData.SDate = saveData.SDate;
+						var shdetData = new ShdetHeader();
+						shdetData.LadingNo = saveData.LadingNo;
+						shdetData.ShdetNo = saveData.LadingNo;
+						shdetData.CustNo = saveData.SendCustNo;
+						shdetData.CustCHName = saveData.SendCHName;
+						shdetData.HubNo = saveData.HubNo;
+						shdetData.Dest = saveData.CName;
+						shdetData.IsDesp = false;
+						shdetData.IsCancel = false;
+						shdetData.IsReply = false;
+						shdetData.IsFinish = false;
+						shdetData.CreatedDate = DateTime.Now;
+						shdetData.CreatedBy = User.Identity.Name;
+						shdetData.IsDelete = false;
+						shdetData.ReserveDate = saveData.SDate;
+						shdetData.SDate = saveData.SDate;
 
-					db.ShdetHeader.Add(shdetData);
+						db.ShdetHeader.Add(shdetData);
+					}
+					//預開提單
+					else
+					{
+						var saveListData = new List<Bill_Lading>();
+						saveData.LadingNo_Batch = saveData.LadingNo;
+						saveListData.Add(saveData);
+						if (data.BatchPcs > 1)
+						{
+							for (var i = 1; i < data.BatchPcs; i++)
+							{
+								var areaNo2 = saveData.LadingNo_Type.Substring(0, 2);
+								var sN2 = String.Format("{0:0000000}", int.Parse(saveData.LadingNo_Type.Substring(2, 7)) + i);
+								var vCode2 = String.Format("{0:0.00}", (Math.Floor((decimal.Parse(sN2.Substring(0, 3)) + decimal.Parse(sN2.Substring(3, 2)) + decimal.Parse(sN2.Substring(5, 2))) / 29 * 100)) / 100).ToString().Split('.')[1].Substring(1, 1);
+								var batchData = new Bill_Lading();
+								{
+									batchData.LadingNo = areaNo2 + sN2 + vCode2;
+									batchData.LadingNo_Type = areaNo2 + sN2 + vCode2;
+									batchData.LadingNo_Batch = saveData.LadingNo_Batch;
+									batchData.LadingDate = data.LadingDate;
+									batchData.WarehouseRNo = data.WarehouseRNo;
+									batchData.WarehouseRDate = data.WarehouseRDate;
+									batchData.HubNo = data.HubNo;
+									batchData.TransferNo = data.TransferNo;
+									batchData.OrderNo = data.OrderNo;
+									batchData.Sale = data.Sale;
+									batchData.SalePhone = data.SalePhone;
+									batchData.CreatePhone = data.CreatePhone;
+									batchData.SendCustNo = data.SendCustNo;
+									batchData.SendCHName = data.SendCHName;
+									batchData.SendCustLevel = data.SendCustLevel;
+									batchData.SendFaxNo = data.SendFaxNo;
+									batchData.SendPhone = data.SendPhone;
+									batchData.SendBy = data.SendBy;
+									batchData.SendCompany = data.SendCompany;
+									batchData.SendCustAddr = data.SendCustAddr;
+									batchData.SendInvNo = data.SendInvNo;
+									batchData.SendCountry = data.SendCountry;
+									batchData.SendCity = data.SendCity;
+									batchData.SendState = data.SendState;
+									batchData.SendPostDist = data.SendPostDist;
+									batchData.SendEBy = data.SendEBy;
+									batchData.SendECompany = data.SendCompany;
+									batchData.SendECustAddr = data.SendECustAddr;
+									batchData.SendEInvNo = data.SendEInvNo;
+									batchData.SendECountry = data.SendECountry;
+									batchData.SendECity = data.SendECity;
+									batchData.SendEState = data.SendEState;
+									batchData.SendEPostDist = data.SendEPostDist;
+									batchData.SendRemark = data.SendRemark;
+									batchData.DestNo = data.DestNo;
+									batchData.CName = data.CName;
+									batchData.Type = data.Type;
+									batchData.CocustomTyp = data.CocustomTyp;
+									batchData.RecPhone = data.RecPhone;
+									batchData.RecMPhone = data.RecMPhone;
+									batchData.RecBy = data.RecBy;
+									batchData.RecCompany = data.RecCompany;
+									batchData.RecChAddr = data.RecChAddr;
+									batchData.RecInvNo = data.RecInvNo;
+									batchData.RecCountry = data.RecCountry;
+									batchData.RecCity = data.RecCity;
+									batchData.RecState = data.RecState;
+									batchData.RecPostDist = data.RecPostDist;
+									batchData.RecRemark = data.RecRemark;
+									batchData.SectorNo = data.SectorNo;
+									batchData.SectorName = data.SectorName;
+									batchData.SStatNo = data.SStatNo;
+									batchData.SStatName = data.SStatName;
+									batchData.SDate = data.SDate;
+									batchData.AStatNo = data.AStatNo;
+									batchData.AStatName = data.AStatName;
+									batchData.Hsno = data.Hsno;
+									batchData.ProductNo = data.ProductNo;
+									batchData.ProductName = data.ProductName;
+									batchData.ForIndonesian = data.ForIndonesian;
+									batchData.PiecesNo = data.PiecesNo;
+									batchData.Currency = data.Currency;
+									batchData.Cost = data.Cost;
+									batchData.CostCurrency = data.Currency;
+									batchData.CcNo = data.CcNo;
+									batchData.PayCustNo = data.PayCustNo;
+									batchData.PayCustCHName = data.PayCustCHName;
+									batchData.Freight = data.Freight;
+									batchData.FreightCurrency = data.Currency;
+									batchData.FuelCosts = data.FuelCosts;
+									batchData.ToPayment = data.ToPayment;
+									batchData.ToPaymentCurrency = data.Currency;
+									batchData.AgentPay = data.AgentPay;
+									batchData.AgentPayCurrency = data.Currency;
+									batchData.ProdIdPay = data.ProdIdPay;
+									batchData.CustomsPay = data.CustomsPay;
+									batchData.InsurancePay = data.InsurancePay;
+									batchData.OtherPayTax = data.OtherPayTax;
+									batchData.OtherPayNoTax = data.OtherPayNoTax;
+									batchData.Total = data.Total;
+									batchData.ToPaymentCurrency = data.Currency;
+									batchData.Remark = data.Remark;
+									batchData.Remark2 = data.Remark2;
+									batchData.ShdetNo = batchData.LadingNo;
+									batchData.ImOrEx = data.ImOrEx;
+									batchData.PrintLang = data.PrintLang;
+									batchData.IsInLading = data.IsInLading;
+									batchData.BatchPcs = data.BatchPcs;
+									//以下系統自填
+									batchData.Source = "Web";
+									batchData.IsConfirm = true;
+									batchData.IsCheck = false;
+									batchData.IsReview = false;
+									batchData.CreateTime = DateTime.Now;
+									batchData.CreateBy = User.Identity.Name;
+									batchData.IsDelete = false;
+								}
+								saveListData.Add(batchData);
+							}
+						}
+						db.Bill_Lading.AddRange(saveListData);
+					}
 
 					try
 					{
@@ -934,7 +1430,7 @@ namespace HY_PML.Controllers
 					result.Message = "找不到資料!";
 					trans.Rollback();
 				}
-				if (userRecord.LadingNo_Type != data.LadingNo_Type)
+				if (userRecord.SDate != null && userRecord.LadingNo_Type != data.LadingNo_Type)
 				{
 					if (db.Bill_Lading.FirstOrDefault(x => x.LadingNo_Type == data.LadingNo_Type && x.IsDelete == false) != null || db.ShdetHeader.FirstOrDefault(x => x.ShdetNo == data.LadingNo_Type) != null)
 					{
@@ -946,171 +1442,271 @@ namespace HY_PML.Controllers
 				}
 				if (valid == true)
 				{
-					if (data.LadingNo_Type == null)
-						userRecord.LadingNo_Type = data.LadingNo;
+					//正式提單
+					if (userRecord.SDate != null)
+					{
+						if (data.LadingNo_Type == null)
+							userRecord.LadingNo_Type = data.LadingNo;
+						else
+						{
+							if (userRecord.LadingNo_Type != data.LadingNo_Type)
+							{
+								userRecord.LadingNo_Type = data.LadingNo_Type;
+								userRecord.LadingDate = data.LadingDate;
+								UpdateLadingNo_Type(userRecord.LadingNo_Type, data.LadingNo_Type);
+							}
+						}
+						var shdetdtlData = db.ShdetDetail.Where(x => x.ShdetNo == ladingNo);
+						if (shdetdtlData.Count() != 0)
+						{
+							foreach (var s in shdetdtlData)
+							{
+								s.LadingNo_Type = userRecord.LadingNo_Type;
+								db.Entry(s).State = EntityState.Modified;
+							}
+						}
+						userRecord.WarehouseRNo = data.WarehouseRNo;
+						userRecord.WarehouseRDate = data.WarehouseRDate;
+						if (userRecord.HubNo != data.HubNo)
+						{
+							var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
+							foreach (var sd in sdData)
+							{
+								sd.HubNo = data.HubNo;
+								db.Entry(sd).State = EntityState.Modified;
+							}
+							var shData = db.ShdetHeader.Where(x => x.ShdetNo == data.LadingNo);
+							foreach (var sh in shData)
+							{
+								sh.HubNo = data.HubNo;
+								db.Entry(sh).State = EntityState.Modified;
+							}
+						}
+						userRecord.HubNo = data.HubNo;
+						userRecord.TransferNo = data.TransferNo;
+						userRecord.OrderNo = data.OrderNo;
+						userRecord.Sale = data.Sale;
+						userRecord.SalePhone = data.SalePhone;
+						userRecord.CreatePhone = data.CreatePhone;
+						userRecord.SendCustNo = data.SendCustNo;
+						userRecord.SendCHName = data.SendCHName;
+						userRecord.SendCustLevel = data.SendCustLevel;
+						userRecord.SendPhone = data.SendPhone;
+						userRecord.SendFaxNo = data.SendFaxNo;
+						userRecord.SendBy = data.SendBy;
+						userRecord.SendCompany = data.SendCompany;
+						userRecord.SendCustAddr = data.SendCustAddr;
+						userRecord.SendInvNo = data.SendInvNo;
+						userRecord.SendCountry = data.SendCountry;
+						userRecord.SendCity = data.SendCity;
+						userRecord.SendState = data.SendState;
+						userRecord.SendPostDist = data.SendPostDist;
+						userRecord.SendEBy = data.SendEBy;
+						userRecord.SendECompany = data.SendECompany;
+						userRecord.SendECustAddr = data.SendECustAddr;
+						userRecord.SendEInvNo = data.SendEInvNo;
+						userRecord.SendECountry = data.SendECountry;
+						userRecord.SendECity = data.SendECity;
+						userRecord.SendEState = data.SendEState;
+						userRecord.SendEPostDist = data.SendEPostDist;
+						userRecord.SendRemark = data.SendRemark;
+						userRecord.RecPhone = data.RecPhone;
+						userRecord.RecMPhone = data.RecMPhone;
+						userRecord.DestNo = data.DestNo;
+						if (userRecord.CName != data.CName)
+						{
+							var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
+							foreach (var sd in sdData)
+							{
+								sd.Dest = data.CName;
+								db.Entry(sd).State = EntityState.Modified;
+							}
+						}
+						userRecord.CName = data.CName;
+						userRecord.Type = data.Type;
+						if (userRecord.CocustomTyp != data.CocustomTyp)
+						{
+							var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
+							foreach (var sd in sdData)
+							{
+								sd.CocustomTyp = data.CocustomTyp;
+								db.Entry(sd).State = EntityState.Modified;
+							}
+						}
+						userRecord.CocustomTyp = data.CocustomTyp;
+						userRecord.RecBy = data.RecBy;
+						userRecord.RecCompany = data.RecCompany;
+						userRecord.RecChAddr = data.RecChAddr;
+						userRecord.RecInvNo = data.RecInvNo;
+						userRecord.RecCountry = data.RecCountry;
+						userRecord.RecCity = data.RecCity;
+						userRecord.RecState = data.RecState;
+						userRecord.RecPostDist = data.RecPostDist;
+						userRecord.RecRemark = data.RecRemark;
+						userRecord.SectorNo = data.SectorNo;
+						userRecord.SectorName = data.SectorName;
+						userRecord.SStatNo = data.SStatNo;
+						userRecord.SStatName = data.SStatName;
+						if (userRecord.SDate != data.SDate)
+						{
+							var shData = db.ShdetHeader.Where(x => x.ShdetNo == data.LadingNo).FirstOrDefault();
+							shData.SDate = data.SDate;
+							db.Entry(shData).State = EntityState.Modified;
+						}
+						userRecord.SDate = data.SDate;
+						userRecord.AStatNo = data.AStatNo;
+						userRecord.AStatName = data.AStatName;
+						userRecord.Hsno = data.Hsno;
+						userRecord.ProductNo = data.ProductNo;
+						userRecord.ProductName = data.ProductName;
+						userRecord.ForIndonesian = data.ForIndonesian;
+						userRecord.PiecesNo = data.PiecesNo;
+						userRecord.Qty = data.Qty;
+						userRecord.Weight = data.Weight;
+						userRecord.Volume = data.Volume;
+						userRecord.Currency = data.Currency;
+						userRecord.Cost = data.Cost;
+						userRecord.CostCurrency = data.Currency;
+						if (userRecord.CcNo != data.CcNo)
+						{
+							var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
+							foreach (var sd in sdData)
+							{
+								sd.CcNo = data.CcNo;
+								db.Entry(sd).State = EntityState.Modified;
+							}
+						}
+						userRecord.CcNo = data.CcNo;
+						userRecord.PayCustNo = data.PayCustNo;
+						userRecord.PayCustCHName = data.PayCustCHName;
+						userRecord.Freight = data.Freight;
+						userRecord.FreightCurrency = data.Currency;
+						userRecord.FuelCosts = data.FuelCosts;
+						userRecord.ToPayment = data.ToPayment;
+						userRecord.ToPaymentCurrency = data.Currency;
+						userRecord.AgentPay = data.AgentPay;
+						userRecord.AgentPayCurrency = data.Currency;
+						userRecord.ProdIdPay = data.ProdIdPay;
+						userRecord.CustomsPay = data.CustomsPay;
+						userRecord.InsurancePay = data.InsurancePay;
+						userRecord.OtherPayTax = data.OtherPayTax;
+						userRecord.OtherPayNoTax = data.OtherPayNoTax;
+						userRecord.Length = data.Length;
+						userRecord.Width = data.Width;
+						userRecord.Height = data.Height;
+						userRecord.Total = data.Total;
+						userRecord.TotalCurrency = data.Currency;
+						userRecord.Remark = data.Remark;
+						userRecord.Remark2 = data.Remark2;
+						userRecord.PrintLang = data.PrintLang;
+						userRecord.IsInLading = data.IsInLading;
+						if (data.AStatNo.IsNotEmpty())
+						{
+							var sArealD = db.ORG_Stat.Where(x => x.StatNo == data.SStatNo).Select(x => x.AreaID).FirstOrDefault();
+							var aAreaID = db.ORG_Stat.Where(x => x.StatNo == data.AStatNo).Select(x => x.AreaID).FirstOrDefault();
+							userRecord.ImOrEx = sArealD == aAreaID ? "Im" : "Ex";
+						}
+						//以下系統自填
+						userRecord.UpdateTime = DateTime.Now;
+						userRecord.UpdateBy = User.Identity.Name;
+						db.Entry(userRecord).State = EntityState.Modified;
+					}
 					else
 					{
-						if (userRecord.LadingNo_Type != data.LadingNo_Type)
+						var batchData = db.Bill_Lading.Where(x => x.LadingNo_Batch == userRecord.LadingNo_Batch && x.SDate == null);
+						foreach (var bd in batchData)
 						{
-							userRecord.LadingNo_Type = data.LadingNo_Type;
-							userRecord.LadingDate = data.LadingDate;
-							UpdateLadingNo_Type(userRecord.LadingNo_Type, data.LadingNo_Type);
+							bd.LadingDate = data.LadingDate;
+							bd.WarehouseRNo = data.WarehouseRNo;
+							bd.WarehouseRDate = data.WarehouseRDate;
+							bd.HubNo = data.HubNo;
+							bd.TransferNo = data.TransferNo;
+							bd.OrderNo = data.OrderNo;
+							bd.Sale = data.Sale;
+							bd.SalePhone = data.SalePhone;
+							bd.CreatePhone = data.CreatePhone;
+							bd.SendCustNo = data.SendCustNo;
+							bd.SendCHName = data.SendCHName;
+							bd.SendCustLevel = data.SendCustLevel;
+							bd.SendFaxNo = data.SendFaxNo;
+							bd.SendPhone = data.SendPhone;
+							bd.SendBy = data.SendBy;
+							bd.SendCompany = data.SendCompany;
+							bd.SendCustAddr = data.SendCustAddr;
+							bd.SendInvNo = data.SendInvNo;
+							bd.SendCountry = data.SendCountry;
+							bd.SendCity = data.SendCity;
+							bd.SendState = data.SendState;
+							bd.SendPostDist = data.SendPostDist;
+							bd.SendEBy = data.SendEBy;
+							bd.SendECompany = data.SendCompany;
+							bd.SendECustAddr = data.SendECustAddr;
+							bd.SendEInvNo = data.SendEInvNo;
+							bd.SendECountry = data.SendECountry;
+							bd.SendECity = data.SendECity;
+							bd.SendEState = data.SendEState;
+							bd.SendEPostDist = data.SendEPostDist;
+							bd.SendRemark = data.SendRemark;
+							bd.DestNo = data.DestNo;
+							bd.CName = data.CName;
+							bd.Type = data.Type;
+							bd.CocustomTyp = data.CocustomTyp;
+							bd.RecPhone = data.RecPhone;
+							bd.RecMPhone = data.RecMPhone;
+							bd.RecBy = data.RecBy;
+							bd.RecCompany = data.RecCompany;
+							bd.RecChAddr = data.RecChAddr;
+							bd.RecInvNo = data.RecInvNo;
+							bd.RecCountry = data.RecCountry;
+							bd.RecCity = data.RecCity;
+							bd.RecState = data.RecState;
+							bd.RecPostDist = data.RecPostDist;
+							bd.RecRemark = data.RecRemark;
+							bd.SectorNo = data.SectorNo;
+							bd.SectorName = data.SectorName;
+							bd.SStatNo = data.SStatNo;
+							bd.SStatName = data.SStatName;
+							bd.SDate = data.SDate;
+							bd.AStatNo = data.AStatNo;
+							bd.AStatName = data.AStatName;
+							bd.Hsno = data.Hsno;
+							bd.ProductNo = data.ProductNo;
+							bd.ProductName = data.ProductName;
+							bd.ForIndonesian = data.ForIndonesian;
+							bd.PiecesNo = data.PiecesNo;
+							bd.Currency = data.Currency;
+							bd.Cost = data.Cost;
+							bd.CostCurrency = data.Currency;
+							bd.CcNo = data.CcNo;
+							bd.PayCustNo = data.PayCustNo;
+							bd.PayCustCHName = data.PayCustCHName;
+							bd.Freight = data.Freight;
+							bd.FreightCurrency = data.Currency;
+							bd.FuelCosts = data.FuelCosts;
+							bd.ToPayment = data.ToPayment;
+							bd.ToPaymentCurrency = data.Currency;
+							bd.AgentPay = data.AgentPay;
+							bd.AgentPayCurrency = data.Currency;
+							bd.ProdIdPay = data.ProdIdPay;
+							bd.CustomsPay = data.CustomsPay;
+							bd.InsurancePay = data.InsurancePay;
+							bd.OtherPayTax = data.OtherPayTax;
+							bd.OtherPayNoTax = data.OtherPayNoTax;
+							bd.Total = data.Total;
+							bd.ToPaymentCurrency = data.Currency;
+							bd.Remark = data.Remark;
+							bd.Remark2 = data.Remark2;
+							bd.ShdetNo = bd.LadingNo;
+							bd.ImOrEx = data.ImOrEx;
+							bd.PrintLang = data.PrintLang;
+							bd.IsInLading = data.IsInLading;
+							bd.BatchPcs = data.BatchPcs;
+							//以下系統自填
+							bd.UpdateTime = DateTime.Now;
+							bd.UpdateBy = User.Identity.Name;
+							db.Entry(userRecord).State = EntityState.Modified;
 						}
 					}
-					var shdetdtlData = db.ShdetDetail.Where(x => x.ShdetNo == ladingNo);
-					if (shdetdtlData.Count() != 0)
-					{
-						foreach (var s in shdetdtlData)
-						{
-							s.LadingNo_Type = userRecord.LadingNo_Type;
-							db.Entry(s).State = EntityState.Modified;
-						}
-					}
-					userRecord.WarehouseRNo = data.WarehouseRNo;
-					userRecord.WarehouseRDate = data.WarehouseRDate;
-					if (userRecord.HubNo != data.HubNo)
-					{
-						var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
-						foreach (var sd in sdData)
-						{
-							sd.HubNo = data.HubNo;
-							db.Entry(sd).State = EntityState.Modified;
-						}
-						var shData = db.ShdetHeader.Where(x => x.ShdetNo == data.LadingNo);
-						foreach (var sh in shData)
-						{
-							sh.HubNo = data.HubNo;
-							db.Entry(sh).State = EntityState.Modified;
-						}
-					}
-					userRecord.HubNo = data.HubNo;
-					userRecord.TransferNo = data.TransferNo;
-					userRecord.OrderNo = data.OrderNo;
-					userRecord.Sale = data.Sale;
-					userRecord.SalePhone = data.SalePhone;
-					userRecord.CreatePhone = data.CreatePhone;
-					userRecord.SendCustNo = data.SendCustNo;
-					userRecord.SendCHName = data.SendCHName;
-					userRecord.SendCustLevel = data.SendCustLevel;
-					userRecord.SendPhone = data.SendPhone;
-					userRecord.SendFaxNo = data.SendFaxNo;
-					userRecord.SendBy = data.SendBy;
-					userRecord.SendCompany = data.SendCompany;
-					userRecord.SendCustAddr = data.SendCustAddr;
-					userRecord.SendInvNo = data.SendInvNo;
-					userRecord.SendCountry = data.SendCountry;
-					userRecord.SendCity = data.SendCity;
-					userRecord.SendState = data.SendState;
-					userRecord.SendPostDist = data.SendPostDist;
-					userRecord.SendEBy = data.SendEBy;
-					userRecord.SendECompany = data.SendECompany;
-					userRecord.SendECustAddr = data.SendECustAddr;
-					userRecord.SendEInvNo = data.SendEInvNo;
-					userRecord.SendECountry = data.SendECountry;
-					userRecord.SendECity = data.SendECity;
-					userRecord.SendEState = data.SendEState;
-					userRecord.SendEPostDist = data.SendEPostDist;
-					userRecord.SendRemark = data.SendRemark;
-					userRecord.RecPhone = data.RecPhone;
-					userRecord.RecMPhone = data.RecMPhone;
-					userRecord.DestNo = data.DestNo;
-					if (userRecord.CName != data.CName)
-					{
-						var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
-						foreach (var sd in sdData)
-						{
-							sd.Dest = data.CName;
-							db.Entry(sd).State = EntityState.Modified;
-						}
-					}
-					userRecord.CName = data.CName;
-					userRecord.Type = data.Type;
-					if (userRecord.CocustomTyp != data.CocustomTyp)
-					{
-						var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
-						foreach (var sd in sdData)
-						{
-							sd.CocustomTyp = data.CocustomTyp;
-							db.Entry(sd).State = EntityState.Modified;
-						}
-					}
-					userRecord.CocustomTyp = data.CocustomTyp;
-					userRecord.RecBy = data.RecBy;
-					userRecord.RecCompany = data.RecCompany;
-					userRecord.RecChAddr = data.RecChAddr;
-					userRecord.RecInvNo = data.RecInvNo;
-					userRecord.RecCountry = data.RecCountry;
-					userRecord.RecCity = data.RecCity;
-					userRecord.RecState = data.RecState;
-					userRecord.RecPostDist = data.RecPostDist;
-					userRecord.RecRemark = data.RecRemark;
-					userRecord.SectorNo = data.SectorNo;
-					userRecord.SectorName = data.SectorName;
-					userRecord.SStatNo = data.SStatNo;
-					userRecord.SStatName = data.SStatName;
-					if (userRecord.SDate != data.SDate)
-					{
-						var shData = db.ShdetHeader.Where(x => x.ShdetNo == data.LadingNo).FirstOrDefault();
-						shData.SDate = data.SDate;
-						db.Entry(shData).State = EntityState.Modified;
-					}
-					userRecord.SDate = data.SDate;
-					userRecord.AStatNo = data.AStatNo;
-					userRecord.AStatName = data.AStatName;
-					userRecord.Hsno = data.Hsno;
-					userRecord.ProductNo = data.ProductNo;
-					userRecord.ProductName = data.ProductName;
-					userRecord.ForIndonesian = data.ForIndonesian;
-					userRecord.PiecesNo = data.PiecesNo;
-					userRecord.Qty = data.Qty;
-					userRecord.Weight = data.Weight;
-					userRecord.Volume = data.Volume;
-					userRecord.Currency = data.Currency;
-					userRecord.Cost = data.Cost;
-					userRecord.CostCurrency = data.Currency;
-					if (userRecord.CcNo != data.CcNo)
-					{
-						var sdData = db.ShdetDetail.Where(x => x.ShdetNo == data.LadingNo);
-						foreach (var sd in sdData)
-						{
-							sd.CcNo = data.CcNo;
-							db.Entry(sd).State = EntityState.Modified;
-						}
-					}
-					userRecord.CcNo = data.CcNo;
-					userRecord.PayCustNo = data.PayCustNo;
-					userRecord.PayCustCHName = data.PayCustCHName;
-					userRecord.Freight = data.Freight;
-					userRecord.FreightCurrency = data.Currency;
-					userRecord.FuelCosts = data.FuelCosts;
-					userRecord.ToPayment = data.ToPayment;
-					userRecord.ToPaymentCurrency = data.Currency;
-					userRecord.AgentPay = data.AgentPay;
-					userRecord.AgentPayCurrency = data.Currency;
-					userRecord.ProdIdPay = data.ProdIdPay;
-					userRecord.CustomsPay = data.CustomsPay;
-					userRecord.InsurancePay = data.InsurancePay;
-					userRecord.OtherPayTax = data.OtherPayTax;
-					userRecord.OtherPayNoTax = data.OtherPayNoTax;
-					userRecord.Length = data.Length;
-					userRecord.Width = data.Width;
-					userRecord.Height = data.Height;
-					userRecord.Total = data.Total;
-					userRecord.TotalCurrency = data.Currency;
-					userRecord.Remark = data.Remark;
-					userRecord.Remark2 = data.Remark2;
-					userRecord.PrintLang = data.PrintLang;
-					userRecord.IsInLading = data.IsInLading;
-					if (data.AStatNo.IsNotEmpty())
-					{
-						var sArealD = db.ORG_Stat.Where(x => x.StatNo == data.SStatNo).Select(x => x.AreaID).FirstOrDefault();
-						var aAreaID = db.ORG_Stat.Where(x => x.StatNo == data.AStatNo).Select(x => x.AreaID).FirstOrDefault();
-						userRecord.ImOrEx = sArealD == aAreaID ? "Im" : "Ex";
-					}
-					//以下系統自填
-					userRecord.UpdateTime = DateTime.Now;
-					userRecord.UpdateBy = User.Identity.Name;
-					db.Entry(userRecord).State = EntityState.Modified;
 					try
 					{
 						db.SaveChanges();
@@ -1118,7 +1714,7 @@ namespace HY_PML.Controllers
 						result.Ok = DataModifyResultType.Success;
 						result.Message = "OK";
 						//if (tab == "Tab3")
-							//SavePML_TWN(ladingNo);
+						//SavePML_TWN(ladingNo);
 					}
 					catch (Exception e)
 					{
@@ -1423,7 +2019,7 @@ namespace HY_PML.Controllers
 			String sqlConnectionStr = System.Web.Configuration.WebConfigurationManager.ConnectionStrings["PML_TWN"].ConnectionString;
 			var Type = masData.Type == null ? "" : masData.Type == "0" ? "DOC" : "SPX";
 			string sqlstr =
-				$"exec st_intelink_yd_jobno_Import_Check2019062101;1 '{masData.LadingNo_Type}','pml','{ statNoSession}','NEWPML','{masData.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}','{masData.CcNo}','{custNo}','{SendCompany}','{SendBy}','{masData.SendPhone}','{SendAddr}','{SectorNo}','','','{masData.DestNo}','{masData.CName}',{masData.Volume ?? 0},{masData.Weight ?? 0},{masData.Freight ?? 0},'{ masData.Currency}','{Type}',{masData.ToPayment ?? 0},{masData.InsurancePay ?? 0},{masData.AgentPay ?? 0},{masData.OtherPayTax ?? 0},0,'NEWPML','{Company}','{masData.RecInvNo}','{Addr}','{masData.RecBy}','{masData.RecPhone}','{masData.HubName}','{masData.SStatNo}','{masData.SStatName}','{masData.Remark}',{masData.PiecesNo ?? 0},1,'{(masData.WarehouseRDate ?? DateTime.Now).ToString("yyyy-MM-dd HH:mm:ss")}','{masData.WarehouseRNo}','','{masData.ProductName}','{EnCompany}','','{masData.RecCity}','{masData.RecState}',0,'{masData.Hsno}',{masData.ProdIdPay ?? 0},{masData.CustomsPay ?? 0},{masData.OtherPayNoTax ?? 0},{masData.Freight ?? 0 + masData.CustomsPay ?? 0 + masData.ProdIdPay ?? 0 + masData.InsurancePay ?? 0 + masData.OtherPayTax ?? 0 + masData.OtherPayNoTax ?? 0 + masData.ToPayment ?? 0 + masData.AgentPay ?? 0 },{masData.FuelCosts ?? 0 },'{masData.PayCustNo}','{masData.PayCustCHName}','{masData.Currency}',{masData.Cost ?? 0 },'{masData.Currency}','{masData.RecPostDist}','{masData.RecCountry}','{EnAddr}',{masData.Qty ?? 0 },'','','{dtlStr}',1,{masData.Length ?? 0},{masData.Width ?? 0},{masData.Height ?? 0},'{masData.ForIndonesian}'";
+				$"exec st_intelink_yd_jobno_Import_Check2019062101;1 '{masData.LadingNo_Type}','pml','{ statNoSession}','NEWPML','{masData.CreateTime?.ToString("yyyy-MM-dd HH:mm:ss")}','{masData.CcNo}','{custNo}','{SendCompany}','{SendBy}','{masData.SendPhone}','{SendAddr}','{SectorNo}','','','{masData.DestNo}','{masData.CName}',{masData.Volume ?? 0},{masData.Weight ?? 0},{masData.Freight ?? 0},'{ masData.Currency}','{Type}',{masData.ToPayment ?? 0},{masData.InsurancePay ?? 0},{masData.AgentPay ?? 0},{masData.OtherPayTax ?? 0},0,'NEWPML','{Company}','{masData.RecInvNo}','{Addr}','{masData.RecBy}','{masData.RecPhone}','{masData.HubName}','{masData.SStatNo}','{masData.SStatName}','{masData.Remark}',{masData.PiecesNo ?? 0},1,'{(masData.WarehouseRDate ?? DateTime.Now).ToString("yyyy-MM-dd HH:mm:ss")}','{masData.WarehouseRNo}','','{masData.ProductName}','{EnCompany}','','{masData.RecCity}','{masData.RecState}',0,'{masData.Hsno}',{masData.ProdIdPay ?? 0},{masData.CustomsPay ?? 0},{masData.OtherPayNoTax ?? 0},{masData.Freight ?? 0 + masData.CustomsPay ?? 0 + masData.ProdIdPay ?? 0 + masData.InsurancePay ?? 0 + masData.OtherPayTax ?? 0 + masData.OtherPayNoTax ?? 0 + masData.ToPayment ?? 0 + masData.AgentPay ?? 0 },{masData.FuelCosts ?? 0 },'{masData.PayCustNo}','{masData.PayCustCHName}','{masData.Currency}',{masData.Cost ?? 0 },'{masData.Currency}','{masData.RecPostDist}','{masData.RecCountry}','{EnAddr}',{masData.Qty ?? 0 },'','','{dtlStr}',1,{masData.Length ?? 0},{masData.Width ?? 0},{masData.Height ?? 0},'{masData.ForIndonesian}'";
 
 			SqlCommand SqlCmd = new SqlCommand(sqlstr, dataConnection);
 			try
@@ -2432,6 +3028,115 @@ namespace HY_PML.Controllers
 			return View();
 		}
 
+		//批次PML
+		public ActionResult Report3_1(string id, string account)
+		{
+			var ID = id.Split('|')[0];
+			var Type = id.Split('|')[1];
+			var viewData = new List<BillLadingReport>();
+			var LadingNo_Batch = db.Bill_Lading.Where(x => x.LadingNo == ID).Select(x => x.LadingNo_Batch).FirstOrDefault();
+			var BatchData = db.Bill_Lading.Where(x => x.LadingNo_Batch == LadingNo_Batch && x.SDate == null);
+			foreach (var bd in BatchData)
+			{
+				var SdData = db.ShdetDetail.Where(x => x.ShdetNo == ID && x.IsDelete == false).OrderBy(x => x.sNo);
+				var SdCount = SdData.Count();
+				var SectorName = SdCount != 0 ? db.ORG_Sector.Where(s => s.SectorNo == SdData.Select(x => x.SectorNo).FirstOrDefault()).Select(x => x.SectorName).FirstOrDefault() : " ";
+				var Sector = SdCount == 0 ? "" : SdCount == 1 ? SectorName : SectorName + "(多地取件)";
+				var PrintBy = db.SYS_User.Where(x => x.Account == account).Select(x => x.UserName).FirstOrDefault();
+				var BData =
+					from b in db.Bill_Lading.Where(x => x.LadingNo == bd.LadingNo && x.IsDelete == false)
+					join h in db.ORG_Hub.Where(x => x.IsDelete == false)
+					on b.HubNo equals h.HubNo into ps
+					from h in ps.DefaultIfEmpty()
+					select new
+					{
+						LadingNo = b.LadingNo,
+						LadingNo_Type = b.LadingNo_Type,
+						LadingDate = b.LadingDate,
+						SendCustNo = b.SendCustNo ?? " ",
+						SendCompany = (h.PrintLang == null || h.PrintLang == "zh") ? b.SendCompany ?? " " : (h.PrintLang == "en") ? b.SendECompany ?? " " : " ",
+						SendBy = (h.PrintLang == null || h.PrintLang == "zh") ? b.SendBy ?? " " : (h.PrintLang == "en") ? b.SendEBy ?? " " : " ",
+						SendInvNo = (h.PrintLang == null || h.PrintLang == "zh") ? b.SendInvNo ?? " " : (h.PrintLang == "en") ? b.SendEInvNo ?? " " : " ",
+						SendCustAddr = (h.PrintLang == null || h.PrintLang == "zh") ? b.SendCustAddr ?? " " : (h.PrintLang == "en") ? b.SendECustAddr ?? " " : " ",
+						SendPhone = b.SendPhone ?? " ",
+						SendFaxNo = b.SendFaxNo ?? " ",
+						RecCompany = b.RecCompany ?? " ",
+						RecChAddr = b.RecChAddr ?? " ",
+						RecBy = b.RecBy ?? " ",
+						RecInvNo = b.RecInvNo ?? " ",
+						RecPhone = b.RecPhone ?? " ",
+						RecMPhone = b.RecMPhone,
+						SStatNo = b.SStatNo ?? " ",
+						AStatNo = b.AStatNo ?? " ",
+						DestNo = b.DestNo ?? " ",
+						Qty = b.Qty ?? 0,
+						Weight = b.Weight ?? 0,
+						HubNo = h.HubNo ?? " ",
+						HubName = h.HubName ?? " ",
+						HubPName = h.HubPName ?? " ",
+						Volume = b.Volume ?? 0,
+						CcNo = b.CcNo ?? " ",
+						Currency = b.Currency ?? " ",
+						ToPayment = b.ToPayment ?? 0,
+						Remark = b.Remark ?? " ",
+						Type = b.Type ?? " ",
+						ProductName = b.ProductName ?? " ",
+						CocustomTyp = b.CocustomTyp == 0 ? "不報關" : b.CocustomTyp == 1 ? "正式報關" : b.CocustomTyp == 2 ? "簡易報關" : b.CocustomTyp == 3 ? "正式報關+後段核銷" : b.CocustomTyp == 4 ? "簡易報關+後段核銷" : b.CocustomTyp == 5 ? "不報關+後段核銷" : b.CocustomTyp == 6 ? "其他" : " ",
+						SendRemark = b.SendRemark ?? " ",
+						PiecesNo = b.PiecesNo ?? 0,
+						Sale = b.Sale ?? " ",
+						SDate = b.SDate,
+					};
+				var bdf = BData.FirstOrDefault();
+				var temp = new BillLadingReport()
+				{
+					LadingNo = bdf.LadingNo,
+					LadingNo_Type = bdf.LadingNo_Type,
+					LadingDate = string.Format("{0:yyyy/MM/dd}", bdf.LadingDate),
+					SendCustNo = bdf.SendCustNo,
+					SendCompany = bdf.SendCompany,
+					SendBy = bdf.SendBy,
+					SendInvNo = bdf.SendInvNo,
+					SendCustAddr = "　　　" + bdf.SendCustAddr,
+					SendPhone = bdf.SendPhone,
+					SendFaxNo = bdf.SendFaxNo,
+					RecCompany = bdf.RecCompany,
+					RecChAddr = "　　　" + bdf.RecChAddr,
+					RecBy = bdf.RecBy,
+					RecInvNo = bdf.RecInvNo,
+					RecPhone = bdf.RecPhone,
+					RecMPhone = bdf.RecMPhone,
+					SStatNo = bdf.SStatNo,
+					AStatNo = bdf.AStatNo,
+					DestNo = bdf.DestNo,
+					Qty = (int)bdf.Qty,
+					Weight = bdf.Weight,
+					HubNo = bdf.HubNo,
+					HubName = bdf.HubName,
+					HubPName = bdf.HubPName,
+					Volume = bdf.Volume,
+					CcNo = bdf.CcNo,
+					Currency = bdf.Currency,
+					ToPayment = bdf.ToPayment,
+					Remark = bdf.Remark,
+					Type = bdf.Type,
+					ProductName = bdf.ProductName,
+					CocustomTyp = bdf.CocustomTyp,
+					SendRemark = bdf.SendRemark,
+					PiecesNo = bdf.PiecesNo,
+					Sale = bdf.Sale,
+					SDate = string.Format("{0:yyyy/MM/dd}", bdf.SDate),
+					Sector = Sector,
+					PrintBy = PrintBy,
+					PrintTime = DateTime.Now.ToDateTimeString(),
+				};
+				viewData.Add(temp);
+			}
+			ViewData.Model = viewData;
+			ViewBag.PageSize = "E-Report3_" + Type;
+			return View();
+		}
+
 		// 紙本 PML
 		public ActionResult Report4(string id)
 		{
@@ -2740,6 +3445,7 @@ namespace HY_PML.Controllers
 			}
 			return l_Encoding.GetString(l_byte, a_StartIndex, a_Cnt);
 		}
+
 		[Authorize]
 		public void Pdf(string id)
 		{
@@ -2762,6 +3468,9 @@ namespace HY_PML.Controllers
 					break;
 				case "3":
 					reportUrl = Request.Url.AbsoluteUri.Replace("Pdf/", "Report3?id=").Replace("%7C3", "").Replace("%E2%80%94", "%7C") + "&account=" + account;
+					break;
+				case "3_1":
+					reportUrl = Request.Url.AbsoluteUri.Replace("Pdf/", "Report3_1?id=").Replace("%7C3_1", "").Replace("%E2%80%94", "%7C") + "&account=" + account;
 					break;
 				case "7":
 					reportUrl = Request.Url.AbsoluteUri.Replace("Pdf/", "Report7/").Replace("%7C7", "").Replace("%E2%80%940", "");
@@ -2804,6 +3513,17 @@ namespace HY_PML.Controllers
 					);
 				p.WaitForExit();
 			}
+			else if (type == "3_1")
+			{
+				Process p = System.Diagnostics.Process.Start(
+					@"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe",
+					@"-T 3 -R 3 -B 3 -L 3 --page-width 209 --page-height 148 --minimum-font-size 11  --disable-smart-shrinking --print-media-type" +
+					" " + reportUrl +
+					" " + filePath
+				);
+				p.WaitForExit();
+			}
+
 
 
 
@@ -2921,7 +3641,7 @@ namespace HY_PML.Controllers
 			Response.ContentType = "image/gif";
 			Barcode bc = new Barcode();
 			bc.IncludeLabel = true;//顯示文字標籤
-			bc.LabelFont = new Font("Verdana", 16,FontStyle.Bold);//文字標籤字型、大小
+			bc.LabelFont = new Font("Verdana", 16, FontStyle.Bold);//文字標籤字型、大小
 			bc.Width = 180;//寬度
 			bc.Height = 100;//高度
 			Image img = bc.Encode(TYPE.CODE128, $"{barCode}", bc.Width, bc.Height);//產生影像

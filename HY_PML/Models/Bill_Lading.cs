@@ -16,6 +16,9 @@ namespace HY_PML.Models
 		[StringLength(30)]
 		public string LadingNo_Type { set; get; }
 
+		[StringLength(30)]
+		public string LadingNo_Batch { set; get; }
+
 		public DateTime? LadingDate { set; get; }
 
 		[StringLength(20)]
@@ -281,12 +284,10 @@ namespace HY_PML.Models
 
 		public DateTime? ReviewTime { set; get; }
 
-		[Required]
 		[StringLength(8)]
 		public string CreateBy { set; get; }
 
-		[Required]
-		public DateTime CreateTime { set; get; }
+		public DateTime? CreateTime { set; get; }
 
 		[StringLength(8)]
 		public string UpdateBy { set; get; }
@@ -394,5 +395,7 @@ namespace HY_PML.Models
 
 		[NotMapped]
 		public decimal? SumOtherPayNoTax { set; get; }
+
+		public int? BatchPcs { set; get; }
 	}
 }
